@@ -29,6 +29,8 @@ import {
   TR_Details,
   Products,
   Inventory,
+  Addon,
+  Option,
   
 } from '../../schemas';
 import { useAuth } from './AuthContext';
@@ -81,6 +83,8 @@ const StoreProvider = ({ children, projectPartition }) => {
     const [user_info, setUser] = useState([])
     const realmRef = useRef(null);
     const [inventory, setInventory] = useState([]);
+    const [option, setOption] = useState([]);
+    const [addon, setAddon] = useState([]);
 
     const date = moment().unix()
     const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
@@ -251,6 +255,18 @@ const StoreProvider = ({ children, projectPartition }) => {
       setInventory([...syncInventory]);
       syncInventory.addListener(() => {
         setInventory([...syncInventory]);
+      });
+
+      const syncAddon = projectPOS.objects("Addon");
+      setAddon([...syncAddon]);
+      syncAddon.addListener(() => {
+        setAddon([...syncAddon]);
+      });
+
+      const syncOption = projectPOS.objects("Option");
+      setOption([...syncOption]);
+      syncOption.addListener(() => {
+        setOption([...syncOption]);
       });
 
       const syncSettings = projectPOS.objects("Settings");
@@ -535,6 +551,42 @@ const StoreProvider = ({ children, projectPartition }) => {
     });
   };
 
+  const createAddon = ( id, add ) => {
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+      add.forEach(element => {
+        projectPOS.create(
+          "Addon",
+          new Addon({
+            id: uuid.v4(),
+            partition: `project=${user.id}`,
+            name: element.name,
+            cost: element.cost,
+            price: element.price,
+            product_id:id
+          })
+        );
+      });
+     
+    });
+  };
+  const createOption = ( id, opt ) => {
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+      opt.forEach(element => {
+        projectPOS.create(
+          "Option",
+          new Option({
+            id: uuid.v4(),
+            partition: `project=${user.id}`,
+            option: element.option,
+            product_id:id
+          })
+        );
+      });
+     
+    });
+  };
  
   const createWarehouseDeliveryReport = ( drw ) => {
     const projectPOS = realmRef.current;
@@ -657,6 +709,42 @@ const StoreProvider = ({ children, projectPartition }) => {
         variant.price = element;
       });
     }
+   
+  };
+
+  const onUpdateAddons = (addon, element, field) => {
+    // One advantage of centralizing the realm functionality in this provider is
+    // that we can check to make sure a valid status was passed in here.
+    if(field === 'name'){
+      const projectPOS = realmRef.current;
+      projectPOS.write(() => {
+        addon.name = element;
+      });
+    }
+    if(field === 'cost'){
+      const projectPOS = realmRef.current;
+      projectPOS.write(() => {
+        addon.cost = element;
+      });
+    }
+    if(field === 'price'){
+      const projectPOS = realmRef.current;
+      projectPOS.write(() => {
+        addon.price = element;
+      });
+    }
+   
+  };
+
+  const onUpdateOptions = (option, element) => {
+    // One advantage of centralizing the realm functionality in this provider is
+    // that we can check to make sure a valid status was passed in here.
+
+      const projectPOS = realmRef.current;
+      projectPOS.write(() => {
+        option.option = element;
+      });
+   
    
   };
 
@@ -1398,6 +1486,13 @@ const StoreProvider = ({ children, projectPartition }) => {
   });
   };
 
+  const deleteVariant = (variant) => {
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+        projectPOS.delete(variant);
+        setInventory([...projectPOS.objects("Inventory")]);
+  });
+  };
     return(
         <StoreContext.Provider
         value={{
@@ -1494,7 +1589,14 @@ const StoreProvider = ({ children, projectPartition }) => {
             deleteCategory,
             onUpdateVariants,
             createInventory,
-            inventory
+            inventory,
+            deleteVariant,
+            createAddon,
+            addon,
+            createOption,
+            option,
+            onUpdateAddons,
+            onUpdateOptions
           }}
         >
             {children}

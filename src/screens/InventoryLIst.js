@@ -15,7 +15,7 @@ const KEYS_TO_FILTERS = ['name', 'category'];
 
 const InventoryScreen = ({navigation}) => {
     const route = useRoute();
-  const info =  route.params.info
+    const store_data =  route.params.store
   
     const [term, setTerm] = useState('');
     const {  
@@ -77,7 +77,7 @@ const renderItem = ({ item }) => (
               }
 
             />
-            <Categories tabs = {category} store={info} onTabChange={onTabChange}/>
+            <Categories tabs = {category} store={store_data} onTabChange={onTabChange}/>
             <DataTable
             ototal={calculateTotalCapital()}
           total={calculateTotalStocks()}

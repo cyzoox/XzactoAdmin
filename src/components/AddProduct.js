@@ -23,7 +23,7 @@ import AddVariants from "./AddVariants";
 // task is created in the realm.
 export function AddProduct({ createProducts, store, categories, children }) {
   const { user,  } = useAuth();
-  const {createDeliveryReport, createStoreDeliverySummary, createInventory, inventory} = useStore();
+  const {createDeliveryReport, createStoreDeliverySummary, createInventory, inventory, createAddon, createOption} = useStore();
   const [overlayVisible, setOverlayVisible] = useState(false);
   
   const [name, setName] = useState("");
@@ -94,9 +94,7 @@ setAddons(items)
     img : 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png',
     withAddons: withAddons,
     withVariants: withVariants,
-    withOptions: withOptions,
-    addons: addons,
-    options: options
+    withOptions: withOptions
 
   }
   let delivery = {
@@ -137,7 +135,16 @@ setAddons(items)
     store_id: store._id,
     store_name: store.name,
   }
+  if(withAddons){
+    createAddon(products.id, addons)
+  }
+  if(withOptions){
+    createOption(products.id, options)
+  }
+ if(withVariants){
   createInventory(products.id, variants)
+ }
+
   createDeliveryReport(delivery)
   createStoreDeliverySummary(drs)
   createProducts(products);

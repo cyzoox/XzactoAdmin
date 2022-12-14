@@ -1752,6 +1752,77 @@ class Inventory {
   };
 }
 
+class Addon {
+  /**
+   *
+   * @param {string} name The name of the task
+   * @param {string status The status of the task. Default value is "Open"
+   * @param {ObjectId} id The ObjectId to create this task with
+   */
+  constructor({
+    partition,
+    id,
+    name,
+    cost,
+    price,
+    product_id
+   
+  }) {
+    this._partition = partition;
+    this._id = id;
+    this.name = name;
+    this.cost = cost;
+    this.price = price;
+    this.product_id = product_id
+   
+  }
+ 
+  static schema = {
+    name: "Addon",
+    properties: {
+      _id: "string",
+      _partition : "string",
+      name: "string",
+      cost: "float",
+      price: "float",
+      product_id: "string"
+    },
+    primaryKey: "_id",
+  };
+}
+class Option {
+  /**
+   *
+   * @param {string} name The name of the task
+   * @param {string status The status of the task. Default value is "Open"
+   * @param {ObjectId} id The ObjectId to create this task with
+   */
+  constructor({
+    partition,
+    id,
+    option,
+    product_id
+   
+  }) {
+    this._partition = partition;
+    this._id = id;
+    this.option = option;
+    this.product_id = product_id
+   
+  }
+ 
+  static schema = {
+    name: "Option",
+    properties: {
+      _id: "string",
+      _partition : "string",
+      option: "string",
+      product_id: "string"
+    },
+    primaryKey: "_id",
+  };
+}
+
 
 export { 
          Stores, 
@@ -1781,5 +1852,7 @@ export {
          Payment_Logs,
          Transactions,
          TR_Details,
-         Inventory
+         Inventory,
+         Addon,
+         Option
         };

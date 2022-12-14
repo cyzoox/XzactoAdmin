@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Overlay, Input, Button } from "react-native-elements";
-import {TouchableOpacity, ScrollView, StyleSheet, Dimensions, Alert, Image, TextInput as TextInput2, addons} from 'react-native';
+import {TouchableOpacity, ScrollView, StyleSheet, Dimensions,  Image, TextInput as TextInput2, addons} from 'react-native';
 import styles from "../../stylesheet";
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
 import Feather from 'react-native-vector-icons/Feather'
@@ -18,6 +18,8 @@ import Scanner from "./BarcodeScanner";
 import SelectDropdown from 'react-native-select-dropdown'
 
 import app from "../../getRealmApp";
+import Alert from "./Alert";
+import PinCodeInput from "./PinCodeInput";
 // The AddTask is a button for adding tasks. When the button is pressed, an
 // overlay shows up to request user input for the new task name. When the
 // "Create" button on the overlay is pressed, the overlay closes and the new
@@ -31,11 +33,16 @@ export function ProductDetails({route}) {
     const {
       updateProduct,
       onUpdateVariants,
-      inventory
+      inventory,
+      deleteVariant,
+      addon,
+      option,
+      onUpdateAddons,
+      onUpdateOptions
       } = useStore();
       const customData = app.currentUser.customData;
     
-
+console.log(customData.pin)
     const [name, setName] = useState(product.name);
     const [brand, setBrand] = useState(product.brand);
     const [oprice, setOPrice] = useState(product.oprice);
@@ -55,6 +62,9 @@ export function ProductDetails({route}) {
     const [code, setCode] = useState('');
     const [info, setInfo] = useState([]);
     const [error, setError] = useState(null);
+    const [onDeleteVariantVisible, setOnDeleteVariantVisible] = useState(false);
+    const [selectedVariant, setSelectedVariant] = useState([]);
+
     const filterCategory = () => {
       let holder = [];
       
@@ -198,12 +208,7 @@ console.log(product)
     }
 
     const onCheckPassword = () => {
-      if(code === customData.pin){
         onPressSave()
-      }else{
-        setCode('')
-            setError('Incorrect password, please try again!')
-      }
     }
 
     const openGallery = () => {
@@ -248,12 +253,17 @@ console.log(product)
   
     
   }
+
+  // const onDeleteVariant = (item) => {
+  //   setOnDeleteVariantVisible(true)
+  //   setSelectedVariant(item)
+  // }
   
 
   return (
     <>
      <View style={{flex: 1}}>
-
+        {/* <Alert visible={onDeleteVariantVisible}  onProceed={()=> {}} onCancel={()=> {setOnDeleteVariantVisible(false), setSelectedVariant([])}} title="Delete Variant?" content={`Are you sure you want to delete ${item.}?}` confirmTitle="Delete"/> */}
         <AppHeader
             centerText="Product Details"
             leftComponent={
@@ -387,10 +397,10 @@ console.log(product)
           <View style={{paddingVertical: 10, flexDirection:'row', justifyContent:'space-between'}}>
               <Text style={{fontSize: 20, fontWeight:'bold'}}>Variants</Text>
 
-              <View style={{flexDirection:'row', justifyContent:"center", alignItems:'center'}}>
+              {/* <View style={{flexDirection:'row', justifyContent:"center", alignItems:'center'}}>
                        <EvilIcons name={'close-o'} size={30} color={colors.red} onPress={()=> navigation.goBack()}/>
                        <Text style={{fontSize:15, color: colors.red}}>  Remove All</Text>
-              </View>
+              </View> */}
             </View>
             <View>
                 {
@@ -441,9 +451,9 @@ console.log(product)
                       }}
                     />
                 </View>
-                <TouchableOpacity>
-                <EvilIcons name={'trash'} size={26} color={colors.red} style={{marginTop:5}}/>
-                </TouchableOpacity>
+                {/* <TouchableOpacity onPress={()=> onDeleteVariant(element)}>
+                  <EvilIcons name={'trash'} size={26} color={colors.red} style={{marginTop:5}}/>
+                </TouchableOpacity> */}
                 </View>   )})
                 }
             </View>
@@ -452,14 +462,14 @@ console.log(product)
             <View style={{paddingVertical: 10, flexDirection:'row', justifyContent:'space-between'}}>
               <Text style={{fontSize: 20, fontWeight:'bold'}}>Addons</Text>
 
-              <View style={{flexDirection:'row', justifyContent:"center", alignItems:'center'}}>
+              {/* <View style={{flexDirection:'row', justifyContent:"center", alignItems:'center'}}>
                        <EvilIcons name={'close-o'} size={30} color={colors.red} onPress={()=> navigation.goBack()}/>
                        <Text style={{fontSize:15, color: colors.red}}>  Remove All</Text>
-              </View>
+              </View> */}
             </View>
             <View>
                 {
-                  addons.map(element => {
+                  addon.map(element => {
                     return(
               <View style={{flexDirection:'row', marginVertical:5}}>
               <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
@@ -473,7 +483,7 @@ console.log(product)
                     numberOfLines={1}
                     onEndEditing={(e) => {
                       element.name = e.nativeEvent.text;
-                      updateAddons([addons, ...addons]);
+                      onUpdateAddons(element, e.nativeEvent.text,'name')
                     }}
                   />
               </View>
@@ -483,13 +493,13 @@ console.log(product)
                     underlineColorAndroid = 'transparent'
                     placeholderTextColor='red'
                     disableFullscreenUI={true}
-                    defaultValue={element.price}
+                    defaultValue={`${element.price}`}
                     keyboardType="number-pad"
                     multiline={true}
                     numberOfLines={1}
                     onEndEditing={(e) => {
                       element.price = parseFloat(e.nativeEvent.text);
-                      updateAddons([addons, ...addons]);
+                      onUpdateAddons(element, parseFloat(e.nativeEvent.text),'price')
                     }}
                   />
               </View>
@@ -499,19 +509,19 @@ console.log(product)
                       underlineColorAndroid = 'transparent'
                       placeholderTextColor='red'
                       disableFullscreenUI={true}
-                      defaultValue={element.cost}
+                      defaultValue={`${element.cost}`}
                       keyboardType="number-pad"
                       multiline={true}
                       numberOfLines={1}
                       onEndEditing={(e) => {
                         element.cost = parseFloat(e.nativeEvent.text);
-                        updateAddons([addons, ...addons]);
+                        onUpdateAddons(element, parseFloat(e.nativeEvent.text),'cost')
                       }}
                     />
                 </View>
-                <TouchableOpacity>
+                {/* <TouchableOpacity>
                 <EvilIcons name={'trash'} size={26} color={colors.red} style={{marginTop:5}}/>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 </View>   )})
                 }
             </View>
@@ -520,14 +530,14 @@ console.log(product)
             <View style={{paddingVertical: 10, flexDirection:'row', justifyContent:'space-between'}}>
               <Text style={{fontSize: 20, fontWeight:'bold'}}>Options</Text>
 
-              <View style={{flexDirection:'row', justifyContent:"center", alignItems:'center'}}>
+              {/* <View style={{flexDirection:'row', justifyContent:"center", alignItems:'center'}}>
                        <EvilIcons name={'close-o'} size={30} color={colors.red} onPress={()=> navigation.goBack()}/>
                        <Text style={{fontSize:15, color: colors.red}}>  Remove All</Text>
-              </View>
+              </View> */}
             </View>
             <View>
                 {
-                  options.map(element => {
+                  option.map(element => {
                     return(
               <View style={{flexDirection:'row', marginVertical:5}}>
               <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
@@ -541,13 +551,13 @@ console.log(product)
                     numberOfLines={1}
                     onEndEditing={(e) => {
                       element.name = e.nativeEvent.text;
-                      setVariant([...options]);
+                      onUpdateOptions(element, e.nativeEvent.text)
                     }}
                   />
               </View>
-              <TouchableOpacity>
+              {/* <TouchableOpacity>
               <EvilIcons name={'trash'} size={26} color={colors.red} style={{marginTop:5}}/>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
                 </View>   )})
                 }
             </View>
@@ -562,17 +572,8 @@ console.log(product)
         <Overlay isVisible={visible2} onBackdropPress={setVisible}>
             <Text style={{textAlign:'center', fontSize: 18, fontWeight:'bold', marginVertical: 10}}>Enter PIN</Text>
             <View style={{padding: 20}}>
-            {/* <SmoothPinCodeInput password mask="﹡"
-              cellStyle={{
-                borderWidth: 1,
-                borderColor: 'gray',
-                borderRadius: 15
-              }}
-              cellSize={45}
-            codeLength={4}
-            value={code}
-            onTextChange={code => setCode(code)}/> */}
-            <Button  title="Save" buttonStyle={{marginVertical: 10, backgroundColor: colors.accent, borderRadius: 10, marginTop: 30}} onPress={()=> onCheckPassword()}/>
+              <PinCodeInput pinCode={customData.pin} onCheckPassword={onCheckPassword}/>
+            
             {
                 error &&
                 <Text style={{textAlign:'center', color: colors.red}}>{error}</Text>

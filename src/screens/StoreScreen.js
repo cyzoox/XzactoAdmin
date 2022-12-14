@@ -214,7 +214,7 @@ const StoreScreens = ({ navigation, route }) => {
       </View>
       <View>
         <View style={styles.chartContainer}>
-          <View style={{flexDirection:'row', justifyContent:'space-between', paddingVertical: 10, marginHorizontal: 10}}>
+          {/* <View style={{flexDirection:'row', justifyContent:'space-between', paddingVertical: 10, marginHorizontal: 10}}>
             <Text style={{fontWeight: '700', fontSize: 18}}>Sales</Text>
             <View style={{flexDirection:'row', justifyContent:'space-between'}}>
               <TouchableOpacity onPress={()=> setCustomPicker2(true)} style={styles.chartFilter}>
@@ -228,8 +228,8 @@ const StoreScreens = ({ navigation, route }) => {
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
-          <ScrollView horizontal>
+          </View> */}
+          {/* <ScrollView horizontal>
           <BarChart
             style={{borderRadius: 10}}
             data={data}
@@ -239,7 +239,7 @@ const StoreScreens = ({ navigation, route }) => {
             chartConfig={chartConfig}
             verticalLabelRotation={0}
           />
-          </ScrollView>
+          </ScrollView> */}
        
         </View>
       </View>
@@ -259,10 +259,10 @@ const StoreScreens = ({ navigation, route }) => {
           />
           <CardTiles
               rightTileText="Attendants"
-              leftTileText="Bills"
+              leftTileText="Inventory"
               iconRightName='md-people-circle-outline'
               iconLeftName='ios-receipt-outline'
-              leftRouteName="BillsAndReceipt"
+              leftRouteName="Inventory"
               rightRouteName="Staffs"
               centerTileText="Customers"
               centerRouteName="Customers"

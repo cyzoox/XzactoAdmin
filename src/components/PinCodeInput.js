@@ -2,18 +2,12 @@ import React from 'react';
 import SimplePin from 'react-native-simple-pin'
 import { Alert } from 'react-native'
 
-const PinCodeInput = ({}) => (
+const PinCodeInput = ({pinCode, onCheckPassword}) => (
     <SimplePin
-        pin={[1,2,3,4,5,6]}
-        title="Set my very secret PIN"
+        pin={Object.assign([], pinCode)}
+        title="Enter PIN"
         repeatTitle="Repeat your PIN"
-        onSuccess={(pin) => Alert.alert(
-            'Success',
-            'Hell yeah! Your PIN is ' + pin,
-            [
-                { text: 'OK' },
-            ]
-        )}
+        onSuccess={onCheckPassword }
         onFailure={() => Alert.alert(
             'Failure',
             'Please, try again',

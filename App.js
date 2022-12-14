@@ -17,7 +17,7 @@ import IncomeScreen from './src/screens/IncomeScreen';
 import ReportsScreen from './src/screens/ReportsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import SigninScreen from './src/screens/SigninScreen';
-// import SignupScreen from './src/screens/SignupScreen';
+ import SignupScreen from './src/screens/SignupScreen';
 import StaffsScreen from './src/screens/StaffsScreen';
 import StoresList from './src/screens/StoresListScreen';
 // import WarehouseScreen from './src/screens/WarehouseScreen';
@@ -409,7 +409,11 @@ const App = () => {
             component={SigninScreen}
             options={{ headerShown: false}}
           />
-       
+         <Stack.Screen
+            name="Signup"
+            component={SignupScreen}
+            options={{ headerShown: false}}
+          />
           <Stack.Screen name="Dashboard" options={{headerShown: false}}>
           {(props) => {
               const { navigation, route } = props;
