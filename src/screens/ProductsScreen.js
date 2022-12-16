@@ -21,6 +21,7 @@ import uuid from 'react-native-uuid';
 import moment from 'moment'
 
 import app from "../../getRealmApp";
+import PinCodeInput from "../components/PinCodeInput";
 const KEYS_TO_FILTERS = ['name', 'category'];
 
 const ProductsScreen = ({ navigation }) => {
@@ -106,14 +107,7 @@ const ProductsScreen = ({ navigation }) => {
   }
 
   const onCheckPassword = () => {
-    if(code === customData.pin){
       navigation.navigate('BatchEdit',{info: STORE})
-      setCode('')
-      setVisible(false)
-    }else{
-      setError('Incorrect PIN, Please try again!')
-    }
-  
   }
 
 
@@ -458,7 +452,7 @@ const ProductsScreen = ({ navigation }) => {
       <Categories tabs = {category} store={STORE} onTabChange={onTabChange}/>
       <Products product_info={setProductInfo} modal_visible={setCustomModal} categories={category} products={filteredProducts} store={STORE} navigation={navigation}/>
       <Overlay isVisible={visible2} onBackdropPress={setVisible}>
-            <Text style={{textAlign:'center', fontSize: 18, fontWeight:'bold', marginVertical: 10}}>Enter PIN</Text>
+           
             <View style={{padding: 20}}>
             {/* <SmoothPinCodeInput password mask="﹡"
               cellStyle={{
@@ -470,11 +464,7 @@ const ProductsScreen = ({ navigation }) => {
             codeLength={4}
             value={code}
             onTextChange={code => setCode(code)}/> */}
-            <Button  title="Done" buttonStyle={{marginVertical: 10, backgroundColor: colors.accent, borderRadius: 10, marginTop: 30}} onPress={()=> onCheckPassword()}/>
-            {
-                error &&
-                <Text style={{textAlign:'center', color: colors.red}}>{error}</Text>
-            }
+              <PinCodeInput pinCode={customData.pin} onCheckPassword={onCheckPassword}/>
             </View>
         </Overlay>
     </View>

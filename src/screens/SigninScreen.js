@@ -93,10 +93,8 @@ const SigninScreen = ({ navigation }) => {
  <TouchableOpacity onPress={onPressSignIn} style={styles.button}>
  <Text style={styles.buttonText}>LOGIN</Text>
  </TouchableOpacity>
+<NavLink text="No account yet?" routeName="Signup" />
 
- <TouchableOpacity onPress={()=> navigation.navigate('Signup')} style={styles.button}>
- <Text style={styles.buttonText}>LOGIN</Text>
- </TouchableOpacity>
    </View>
    
  </View>

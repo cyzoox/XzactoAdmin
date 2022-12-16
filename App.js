@@ -405,7 +405,7 @@ const App = () => {
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
-            name="Welcome View"
+            name="Login"
             component={SigninScreen}
             options={{ headerShown: false}}
           />

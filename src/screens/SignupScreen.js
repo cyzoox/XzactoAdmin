@@ -91,12 +91,10 @@ const SignupScreen = ({ navigation }) => {
  placeholder="Enter password"
  />
  <TouchableOpacity onPress={onPressSignIn} style={styles.button}>
- <Text style={styles.buttonText}>LOGIN</Text>
- </TouchableOpacity>
-
- <TouchableOpacity onPress={()=> navigation.navigate('Signup')} style={styles.button}>
  <Text style={styles.buttonText}>SIGN UP</Text>
  </TouchableOpacity>
+
+<NavLink text="Already have account?" routename="Login"/>
    </View>
    
  </View>

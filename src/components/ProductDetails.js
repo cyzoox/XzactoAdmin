@@ -570,7 +570,6 @@ console.log(product)
        
 
         <Overlay isVisible={visible2} onBackdropPress={setVisible}>
-            <Text style={{textAlign:'center', fontSize: 18, fontWeight:'bold', marginVertical: 10}}>Enter PIN</Text>
             <View style={{padding: 20}}>
               <PinCodeInput pinCode={customData.pin} onCheckPassword={onCheckPassword}/>
             

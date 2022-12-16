@@ -41,7 +41,7 @@ const StaffsScreen = ({navigation, route}) => {
   console.log(staffs)
   const renderItem = ({ item }) => (
     item.store_id === STORE._id &&
-    <ListItem onPress={()=> onEditStaff(item)} bottomDivider containerStyle={{borderRadius: 10, marginHorizontal: 15, marginVertical: 2}}>
+    <ListItem underlayColor='#f1f1f1' onPress={()=> onEditStaff(item)} bottomDivider containerStyle={{borderRadius: 20, marginHorizontal: 15, marginVertical: 2}}>
     <Avatar containerStyle={{
           borderColor: 'grey',
           borderStyle: 'solid',
@@ -118,7 +118,7 @@ const StaffsScreen = ({navigation, route}) => {
             />
           </View>
           <Button
-            title="Create"
+            title="Save"
             buttonStyle={{marginTop: 20, backgroundColor: colors.accent}}
             onPress={() => {
               setOverlayVisible(false);

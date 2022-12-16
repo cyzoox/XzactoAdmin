@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, StyleSheet, View, TextInput, ScrollView ,TouchableOpacity,Picker} from "react-native";
+import { Text, StyleSheet, View, TextInput, ScrollView ,TouchableOpacity} from "react-native";
 import colors from "../themes/colors";
 import AppHeader from "./AppHeader";
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
@@ -11,7 +11,7 @@ import DatePicker from 'react-native-date-picker';
 import moment from 'moment'
 import { useAuth } from "../context/AuthContext";
 import AlertwithChild from "./AlertwithChild";
-import { TextInput as TextInput2, Checkbox } from "react-native-paper";
+import {Picker} from '@react-native-picker/picker';
 import AddVariants from "./AddVariants";
 import { set } from "react-native-reanimated";
 import { CheckBox } from "react-native-elements";
@@ -478,9 +478,9 @@ const onCreateAddons = (item) => {
                <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Capital Price</Text>
                <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Selling Price</Text>
                <Text style={{width: 150, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Category</Text>
-               <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Variants</Text>
+               {/* <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Variants</Text>
                <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Addons</Text>
-               <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Options</Text>
+               <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Options</Text> */}
            </View>
            {
                 product_holder.map((element, index) => 
@@ -606,7 +606,7 @@ const onCreateAddons = (item) => {
                             
                             </Picker>
           </View>
-          <View style={{ width: 50, height: 35,  borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center", alignItems:'center'}}>
+          {/* <View style={{ width: 50, height: 35,  borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center", alignItems:'center'}}>
             <CheckBox
                   center
                   checked={element.withVariants}
@@ -627,7 +627,7 @@ const onCreateAddons = (item) => {
                   checked={element.withOptions}
                   onPress={() =>  onCreateOptions(element)}
                 />          
-          </View>
+          </View> */}
         
           <View style={{flexDirection: 'row'}}>
           <TouchableOpacity onPress={()=> handleRemoveItem(element.no)} style={{backgroundColor:colors.red, justifyContent:'center', marginHorizontal: 10, padding:5, borderRadius:25}}>
@@ -637,7 +637,7 @@ const onCreateAddons = (item) => {
           </View>
        
             </View>
-          {element.addons.length === 0 ? null :  <View style={{ flex: 1, flexDirection:'column',marginLeft: 20}}>
+          {/* {element.addons.length === 0 ? null :  <View style={{ flex: 1, flexDirection:'column',marginLeft: 20}}>
               <Text style={{fontSize: 18}}>Addons</Text>
               <View style={{flexDirection:"row"}}>
                 <Text style={{width: 100, textAlign:'center', fontWeight:'bold'}}>Name</Text>
@@ -653,9 +653,9 @@ const onCreateAddons = (item) => {
             </View>
               )
             }
-          </View>}
+          </View>} */}
 
-  {  element.variants.length  === 0 ? null :     <View style={{ flex: 1, flexDirection:'column',marginLeft: 20}}>
+  {/* {  element.variants.length  === 0 ? null :     <View style={{ flex: 1, flexDirection:'column',marginLeft: 20}}>
               <Text style={{fontSize: 18}}>Variants</Text>
               <View style={{flexDirection:"row"}}>
                 <Text style={{width: 100, textAlign:'center', fontWeight:'bold'}}>Name</Text>
@@ -671,9 +671,9 @@ const onCreateAddons = (item) => {
             </View>
               )
             }
-          </View>}
+          </View>} */}
 
-    {   element.options.length  === 0 ? null :     <View style={{ flex: 1, flexDirection:'column',marginLeft: 20}}>
+    {/* {   element.options.length  === 0 ? null :     <View style={{ flex: 1, flexDirection:'column',marginLeft: 20}}>
               <Text style={{fontSize: 18}}>Options</Text>
               <View style={{flexDirection:"row"}}>
                 <Text style={{width: 100, textAlign:'center', fontWeight:'bold'}}>Option</Text>
@@ -686,7 +686,7 @@ const onCreateAddons = (item) => {
             </View>
               )
             }
-          </View>}
+          </View>} */}
      
             </View>
                 )}
