@@ -173,28 +173,28 @@ const StoreScreens = ({ navigation, route }) => {
         <Badge containerStyle={{marginTop:-5}} value="3" status="success" />
       </TouchableOpacity>
       }*/}
-      <View style={{flexDirection: 'row', justifyContent:'space-between'}}>
-      <TouchableOpacity onPress={()=> navigation.navigate('StoreSales', {store: STORE})} style={{flex: 1,backgroundColor: colors.statusBarCoverLight, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
+      <View style={{flexDirection: 'row', justifyContent:'space-between', marginHorizontal: 10}}>
+      <TouchableOpacity onPress={()=> navigation.navigate('StoreSales', {store: STORE})} style={{flex: 1,backgroundColor: colors.charcoalGrey, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
             <Text style={{fontSize: 15, fontWeight:'400', color: colors.white}}>Sales</Text>
             <Text style={{fontSize: 18, fontWeight:'700', color: colors.white}}>{formatMoney(calculateStoreSale(), { symbol: "₱", precision: 2 })}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=> navigation.navigate('Expenses', {store: STORE})} style={{flex: 1,backgroundColor: colors.red, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
+        <TouchableOpacity onPress={()=> navigation.navigate('Expenses', {store: STORE})} style={{flex: 1,backgroundColor: colors.charcoalGrey, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
             <Text style={{fontSize: 15, fontWeight:'400', color: colors.white}}>Expenses</Text>
             <Text style={{fontSize: 18, fontWeight:'700', color: colors.white}}>{formatMoney(calculateStoreExpenses(), { symbol: "₱", precision: 2 })}</Text>
         </TouchableOpacity>
       </View>
-      <View style={{flexDirection: 'row', justifyContent:'space-between'}}>
-      <View style={{flex: 1,backgroundColor: colors.green, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
+      <View style={{flexDirection: 'row', justifyContent:'space-between', marginHorizontal: 10}}>
+      <View style={{flex: 1,backgroundColor: colors.charcoalGrey, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
             <Text style={{fontSize: 15, fontWeight:'400', color: colors.white}}>Products Sold</Text>
             <Text style={{fontSize: 18, fontWeight:'700', color: colors.white}}>{calculateSoldProducts()}</Text>
         </View>
-        <View style={{flex: 1,backgroundColor: colors.accent, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
+        <View style={{flex: 1,backgroundColor: colors.charcoalGrey, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
             <Text style={{fontSize: 15, fontWeight:'400', color: colors.white}}>Returns/Refunds</Text>
             <Text style={{fontSize: 18, fontWeight:'700', color: colors.white}}>0.00</Text>
         </View>
       </View>
       <ScrollView style={{marginTop: 15}}>
-      <View>
+      {/* <View>
         <View style={styles.actualCapital}>
           <View>
               <Text style={{color: colors.white, fontWeight:'900', fontSize: 17, color: colors.accent, fontWeight:'700'}}>Remaining Stocks Capital</Text>
@@ -211,7 +211,7 @@ const StoreScreens = ({ navigation, route }) => {
               <Text style={{color: colors.white, fontSize: 17, color: colors.accent, fontWeight:'700'}}>{formatMoney(calculateStocksTotal(), { symbol: "₱", precision: 2 })}</Text>
           </View>
         </View>       
-      </View>
+      </View> */}
       <View>
         <View style={styles.chartContainer}>
           {/* <View style={{flexDirection:'row', justifyContent:'space-between', paddingVertical: 10, marginHorizontal: 10}}>
@@ -259,10 +259,10 @@ const StoreScreens = ({ navigation, route }) => {
           />
           <CardTiles
               rightTileText="Attendants"
-              leftTileText="Inventory"
+              leftTileText="Bills"
               iconRightName='md-people-circle-outline'
               iconLeftName='ios-receipt-outline'
-              leftRouteName="Inventory"
+              leftRouteName="BillsAndReceipt"
               rightRouteName="Staffs"
               centerTileText="Customers"
               centerRouteName="Customers"

@@ -14,7 +14,7 @@ const CardTiles = ({ leftTileText, rightTileText, leftIconName, rightIconName, i
   return (
     <Grid style={{ paddingBottom: 5, marginHorizontal: 10}}>
         <Row>
-            <Col height={screenWidth / 3 - 10}>
+            <Col height={screenWidth / 3 - 20}>
               <TouchableWithoutFeedback   onPress={()=> navigation.navigate(leftRouteName,{store: extraProps})}>
               <Card
                  
@@ -31,7 +31,7 @@ const CardTiles = ({ leftTileText, rightTileText, leftIconName, rightIconName, i
             </Col>
             {
                 centerTileText ?
-                <Col height={screenWidth / 3 - 10}>
+                <Col height={screenWidth / 3 - 20}>
                   <TouchableWithoutFeedback onPress={()=> navigation.navigate(centerRouteName,{store: extraProps})}>
                   <Card wrapperStyle={{alignItems:'center'}} containerStyle={{borderRadius: 15, margin: 2, flex: 1}}>
                     <LinearGradient colors={[colors.accent, colors.accent]} style={{height: 50, width: 50, borderRadius: 40,justifyContent:'center', alignItems:'center'}}>
@@ -47,7 +47,7 @@ const CardTiles = ({ leftTileText, rightTileText, leftIconName, rightIconName, i
             }
             {
                 rightTileText ?
-                <Col height={screenWidth / 3 - 10}>
+                <Col height={screenWidth / 3 - 20}>
                   <TouchableWithoutFeedback onPress={()=> navigation.navigate(rightRouteName,{store: extraProps})}>
                   <Card wrapperStyle={{alignItems:'center'}} containerStyle={{borderRadius: 15, margin: 2, flex: 1}}>
                     <LinearGradient colors={[colors.accent, colors.accent]} style={{height: 50, width: 50, borderRadius: 40,justifyContent:'center', alignItems:'center'}}>

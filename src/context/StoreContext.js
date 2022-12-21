@@ -1490,9 +1490,30 @@ const StoreProvider = ({ children, projectPartition }) => {
     const projectPOS = realmRef.current;
     projectPOS.write(() => {
         projectPOS.delete(variant);
-        setInventory([...projectPOS.objects("Inventory")]);
   });
+  const newData = [...projectPOS.objects("Inventory")];
+  setInventory(newData)
   };
+
+  const deleteAddon = (addon) => {
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+        projectPOS.delete(addon);
+  });
+  const newData = [...projectPOS.objects("Addon")];
+  setAddon(newData)
+  };
+
+  const deleteOption = (option) => {
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+        projectPOS.delete(option);
+
+  });
+  const newData = [...projectPOS.objects("Option")];
+  setOption(newData)
+  };
+
     return(
         <StoreContext.Provider
         value={{
@@ -1596,7 +1617,9 @@ const StoreProvider = ({ children, projectPartition }) => {
             createOption,
             option,
             onUpdateAddons,
-            onUpdateOptions
+            onUpdateOptions,
+            deleteAddon,
+            deleteOption
           }}
         >
             {children}

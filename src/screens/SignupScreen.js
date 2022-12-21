@@ -1,5 +1,5 @@
 import React,{useEffect, useState} from "react";
-import { View, Text, StyleSheet, StatusBar, Alert, TouchableOpacity,Image,TextInput,ImageBackground } from "react-native";
+import { View, Text, StyleSheet, StatusBar, Alert, TouchableOpacity,Image,TextInput,ImageBackground, ScrollView } from "react-native";
 import AuthForm from "../components/AuthForm";
 // import Loader from "../components/Loader";
 import NavLink from "../components/NavLink";
@@ -13,6 +13,8 @@ const SignupScreen = ({ navigation }) => {
   const { user, signUp, signIn, projectData  } = useAuth();
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [conpass, setConPass] = useState('');
   const [password, setPassword] = useState('');
 
   useEffect(() => {
@@ -76,7 +78,7 @@ const SignupScreen = ({ navigation }) => {
  
  <Image source={require('../../assets/logo.png')} style={{height:140,width:140, resizeMode:"contain"}}/>
  </ImageBackground>
- 
+
  
  <View style={styles.subview}>
  <Text style={styles.text}>Sign up</Text>
@@ -90,11 +92,16 @@ const SignupScreen = ({ navigation }) => {
  placeholderTextColor="#CBCBCB"
  placeholder="Enter password"
  />
+   <TextInput style={styles.input}
+   onChangeText={setConPass}
+ placeholderTextColor="#CBCBCB"
+ placeholder="Confirm password"
+ />
  <TouchableOpacity onPress={onPressSignIn} style={styles.button}>
  <Text style={styles.buttonText}>SIGN UP</Text>
  </TouchableOpacity>
 
-<NavLink text="Already have account?" routename="Login"/>
+<NavLink text="Already have account?" routename="SigninScreen"/>
    </View>
    
  </View>
@@ -118,7 +125,7 @@ const styles = StyleSheet.create({
     width:"100%",
     alignItems:"center",
     justifyContent:"center",
-    height:230,
+    height:200,
     borderBottomEndRadius:50,
     borderBottomStartRadius:50,
     overflow:'hidden'

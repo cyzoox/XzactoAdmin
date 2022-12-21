@@ -20,6 +20,10 @@ import SelectDropdown from 'react-native-select-dropdown'
 import app from "../../getRealmApp";
 import Alert from "./Alert";
 import PinCodeInput from "./PinCodeInput";
+import AddVariants from "./AddVariants";
+import AlertwithChild2 from "./AlertwithChild2";
+import AlertwithChild from "./AlertwithChild";
+import { Keyboard } from "react-native";
 // The AddTask is a button for adding tasks. When the button is pressed, an
 // overlay shows up to request user input for the new task name. When the
 // "Create" button on the overlay is pressed, the overlay closes and the new
@@ -38,7 +42,12 @@ export function ProductDetails({route}) {
       addon,
       option,
       onUpdateAddons,
-      onUpdateOptions
+      onUpdateOptions,
+      deleteAddon,
+      deleteOption,
+      createInventory,
+      createAddon,
+      createOption
       } = useStore();
       const customData = app.currentUser.customData;
     
@@ -56,15 +65,21 @@ console.log(customData.pin)
     const [img,setImg] = useState(product.img)
     const units = ["Kilo", "Gram", "Piece", "Liter","Bundle", "Dozen", "Whole", "Half-Dozen","Ounce", "Milliliter", "Milligrams", "Pack","Ream","Box","Sack","Serving","Gallon","Container","Bottle", "Sachet","Cup"]
     const [visible2, setVisible] = useState(false);
-    const [variants, setVariant] =useState(inventory)
-    const [addons, setAddons] =useState(product.addons)
-    const [options, setOptions] =useState(product.options)
     const [code, setCode] = useState('');
     const [info, setInfo] = useState([]);
     const [error, setError] = useState(null);
     const [onDeleteVariantVisible, setOnDeleteVariantVisible] = useState(false);
+    const [onDeleteAddonVisible, setOnDeleteAddonsVisible] = useState(false);
+    const [onDeleteOptionVisible, setOnDeleteOptionVisible] = useState(false);
     const [selectedVariant, setSelectedVariant] = useState([]);
-
+    const [selectedAddon, setSelectedAddons] = useState([]);
+    const [selectedOption, setSelectedoptions] = useState([]);
+    const [variants, setVariant] =useState([{name:'set name', cost: 0, price: 0}])
+    const [options, setOptions] =useState([{option:'set option'}])
+    const [addons, setAddons] =useState([{name:'set name', cost: 0, price: 0}])
+    const [optionsVisible, setOptionVisible]  = useState(false)
+    const [variantVisible, setVariantVisible]  = useState(false)
+    const [addonsVisible, setAddonsVisible]  = useState(false)
     const filterCategory = () => {
       let holder = [];
       
@@ -254,16 +269,197 @@ console.log(product)
     
   }
 
-  // const onDeleteVariant = (item) => {
-  //   setOnDeleteVariantVisible(true)
-  //   setSelectedVariant(item)
-  // }
+  const onDeleteVariant = (item) => {
+    setOnDeleteVariantVisible(true)
+    setSelectedVariant(item)
+  }
+  
+  const onDeleteAddons = (item) => {
+    setOnDeleteAddonsVisible(true)
+    setSelectedAddons(item)
+  }
+  
+
+  const onDeleteOptions = (item) => {
+    setOnDeleteOptionVisible(true)
+    setSelectedoptions(item)
+  }
   
 
   return (
     <>
      <View style={{flex: 1}}>
-        {/* <Alert visible={onDeleteVariantVisible}  onProceed={()=> {}} onCancel={()=> {setOnDeleteVariantVisible(false), setSelectedVariant([])}} title="Delete Variant?" content={`Are you sure you want to delete ${item.}?}` confirmTitle="Delete"/> */}
+      <Alert visible={onDeleteVariantVisible}  onProceed={()=> {setOnDeleteVariantVisible(false),  deleteVariant(selectedVariant),setSelectedVariant([])}} onCancel={()=> {setOnDeleteVariantVisible(false), setSelectedVariant([])}} title="Delete Variant?" content={`Are you sure you want to delete ${selectedVariant.name}?`} confirmTitle="Delete"/> 
+      <Alert visible={onDeleteAddonVisible}  onProceed={()=> {setOnDeleteAddonsVisible(false),deleteAddon(selectedAddon), setSelectedAddons([])}} onCancel={()=> {setOnDeleteAddonsVisible(false), setSelectedVariant([])}} title="Delete Addon?" content={`Are you sure you want to delete ${selectedAddon.name}?`} confirmTitle="Delete"/> 
+      <Alert visible={onDeleteOptionVisible}  onProceed={()=> {setOnDeleteOptionVisible(false), deleteOption(selectedOption), setSelectedoptions([])}} onCancel={()=> {setOnDeleteOptionVisible(false), setSelectedVariant([])}} title="Delete Option?" content={`Are you sure you want to delete ${selectedOption.option}?`} confirmTitle="Delete"/> 
+      <AlertwithChild2 visible={variantVisible}  onProceed={()=> { setVariantVisible(false), createInventory(product._id, variants)}} onCancel={()=> setVariantVisible(false)}  title="Add Variants"  confirmTitle="S A V E" addButton={true} onPressAddbtn={()=> onAddVariants()}>
+      <View style={{flexDirection:'row',justifyContent:'center', marginVertical: 2, alignItems:'center'}}>
+      <View style={{width: 150, marginHorizontal:2}}>
+        <Text style={{fontWeight:'700', textAlign:'center', fontSize:15}}>Name</Text>
+      </View>
+      <View style={{width: 50, marginHorizontal:2}}>
+        <Text style={{fontWeight:'700', textAlign:'center', fontSize:15}}>Price</Text>
+      </View>
+      <View style={{width: 50, marginHorizontal:2}}> 
+        <Text style={{fontWeight:'700', textAlign:'center', fontSize:15}}>Cost</Text>
+      </View>
+ 
+      </View>
+     
+    <ScrollView>
+   { variants.map((element, index) =>
+             <View style={{flexDirection:'row',justifyContent:'center', marginVertical: 2, alignItems:'center'}}>
+     <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <TextInput2
+            style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
+            underlineColorAndroid = 'transparent'
+            placeholderTextColor='red'
+            disableFullscreenUI={true}
+            defaultValue={element.name}
+            
+            multiline={true}
+            numberOfLines={1}
+            onEndEditing={(e) => {
+               element.name = e.nativeEvent.text;
+               setVariant([...variants]);
+             }}
+          />
+      </View>
+      <View style={{borderWidth: 1, width: 50, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <TextInput2
+            style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
+            underlineColorAndroid = 'transparent'
+            placeholderTextColor='red'
+            disableFullscreenUI={true}
+            defaultValue={`${element.price}`}
+            keyboardType="numeric"
+            multiline={true}
+            numberOfLines={1}
+            onEndEditing={(e) => {
+               element.price = parseFloat(e.nativeEvent.text);
+               setVariant([...variants]);
+             }}
+          />
+      </View>
+             <View style={{borderWidth: 1, width: 50, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <TextInput2
+            style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
+            underlineColorAndroid = 'transparent'
+            placeholderTextColor='red'
+            disableFullscreenUI={true}
+            keyboardType="numeric"
+            defaultValue={`${element.cost}`}
+            multiline={true}
+            numberOfLines={1}
+            onEndEditing={(e) => {
+               element.cost = parseFloat(e.nativeEvent.text);
+               setVariant([...variants]);
+             }}
+          />
+      </View>
+     
+             </View>
+    )}
+    </ScrollView>
+    </AlertwithChild2>
+    <AlertwithChild2 visible={addonsVisible}  onProceed={()=> { setAddonsVisible(false), createAddon(product._id, addons)}} onCancel={()=> setAddonsVisible(false)}  title="Add Addons"  confirmTitle="S A V E" addButton={true} onPressAddbtn={()=> onAddAddons()}>
+      <View style={{flexDirection:'row',justifyContent:'center', marginVertical: 2, alignItems:'center'}}>
+      <View style={{width: 150, marginHorizontal:2}}>
+        <Text style={{fontWeight:'700', textAlign:'center', fontSize:15}}>Name</Text>
+      </View>
+      <View style={{width: 50, marginHorizontal:2}}>
+        <Text style={{fontWeight:'700', textAlign:'center', fontSize:15}}>Price</Text>
+      </View>
+      <View style={{width: 50, marginHorizontal:2}}> 
+        <Text style={{fontWeight:'700', textAlign:'center', fontSize:15}}>Cost</Text>
+      </View>
+      <TouchableOpacity>
+      <EvilIcons name={'trash'} size={26} color={colors.white} style={{marginTop:5}}/>
+      </TouchableOpacity>
+      </View>
+     
+    <ScrollView>
+   {addons.map((element, index) =>
+             <View style={{flexDirection:'row',justifyContent:'center', marginVertical: 2, alignItems:'center'}}>
+     <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <TextInput2
+            style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
+            underlineColorAndroid = 'transparent'
+            placeholderTextColor='red'
+            disableFullscreenUI={true}
+            defaultValue={element.name}
+            multiline={true}
+            numberOfLines={1}
+            onEndEditing={(e) => {
+               element.name = e.nativeEvent.text;
+               setAddons([...addons]);
+             }}
+          />
+      </View>
+      <View style={{borderWidth: 1, width: 50, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <TextInput2
+            style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
+            underlineColorAndroid = 'transparent'
+            placeholderTextColor='red'
+            disableFullscreenUI={true}
+            defaultValue={element.price}
+            keyboardType="numeric"
+            multiline={true}
+            numberOfLines={1}
+            onEndEditing={(e) => {
+               element.price = parseFloat(e.nativeEvent.text);
+               setAddons([...addons]);
+             }}
+          />
+      </View>
+             <View style={{borderWidth: 1, width: 50, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <TextInput2
+            style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
+            underlineColorAndroid = 'transparent'
+            placeholderTextColor='red'
+            disableFullscreenUI={true}
+            defaultValue={element.cost}
+            keyboardType="numeric"
+            multiline={true}
+            numberOfLines={1}
+            onEndEditing={(e) => {
+               element.cost = parseFloat(e.nativeEvent.text);
+               setAddons([...addons]);
+             }}
+          />
+      </View>
+
+             </View>
+    )}
+    </ScrollView>
+    </AlertwithChild2>
+    <AlertwithChild2 visible={optionsVisible} onProceed={()=> { setOptionVisible(false), createOption(product._id, options), Keyboard.dismiss()}} onCancel={()=> setOptionVisible(false)}  title="Add Options"  confirmTitle="S A V E" addButton={true} onPressAddbtn={()=> onAddOptions()}>
+      
+      <ScrollView>
+     { options.map((element, index) =>
+               <View style={{flexDirection:'row',justifyContent:'center', marginVertical: 2, alignItems:'center'}}>
+       
+               <Text style={{textAlign:'center', fontSize: 15, fontWeight: '400'}}>Option : </Text>
+               <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+            <TextInput2
+              style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
+              underlineColorAndroid = 'transparent'
+              placeholderTextColor='red'
+              disableFullscreenUI={true}
+              defaultValue={element.option}
+              multiline={true}
+              numberOfLines={1}
+              onSubmitEditing={(e) => {
+                 element.option = e.nativeEvent.text;
+                 setOptions([...options]);
+               }}
+            />
+        </View>
+    
+               </View>
+      )}
+      </ScrollView>
+      </AlertwithChild2>
         <AppHeader
             centerText="Product Details"
             leftComponent={
@@ -393,14 +589,18 @@ console.log(product)
             />
             <Scanner barcode={setSKU}/>
           </View>
-        {product.withVariants === true &&  <View>
-          <View style={{paddingVertical: 10, flexDirection:'row', justifyContent:'space-between'}}>
+        {product.withVariants === true &&  <View style={{marginTop: 15}}>
+          <View style={{paddingVertical: 10, flexDirection:'row', justifyContent:'space-between', marginRight:5}}>
               <Text style={{fontSize: 20, fontWeight:'bold'}}>Variants</Text>
 
-              {/* <View style={{flexDirection:'row', justifyContent:"center", alignItems:'center'}}>
-                       <EvilIcons name={'close-o'} size={30} color={colors.red} onPress={()=> navigation.goBack()}/>
-                       <Text style={{fontSize:15, color: colors.red}}>  Remove All</Text>
-              </View> */}
+              <View style={[style.shadow,{ justifyContent:"center", alignItems:'center', backgroundColor: colors.white, padding: 5, borderRadius: 10}]}>
+                       <EvilIcons name={'plus'} size={20} color={colors.red} onPress={()=>setVariantVisible(true)}/>
+              </View>
+            </View>
+            <View style={{flexDirection:'row', marginBottom: 10}}>
+              <Text style={{width:  150, textAlign:'center', fontWeight:'bold'}}>Name</Text>
+              <Text style={{width:  55, textAlign:'center', fontWeight:'bold'}}>Cost</Text>
+              <Text style={{width: 55, textAlign:'center', fontWeight:'bold'}}>Price</Text>
             </View>
             <View>
                 {
@@ -451,21 +651,25 @@ console.log(product)
                       }}
                     />
                 </View>
-                {/* <TouchableOpacity onPress={()=> onDeleteVariant(element)}>
+                <TouchableOpacity onPress={()=> onDeleteVariant(element)}>
                   <EvilIcons name={'trash'} size={26} color={colors.red} style={{marginTop:5}}/>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
                 </View>   )})
                 }
             </View>
           </View>}
           {product.withAddons === true &&  <View>
-            <View style={{paddingVertical: 10, flexDirection:'row', justifyContent:'space-between'}}>
+            <View style={{paddingVertical: 10, flexDirection:'row', justifyContent:'space-between', marginRight: 5}}>
               <Text style={{fontSize: 20, fontWeight:'bold'}}>Addons</Text>
 
-              {/* <View style={{flexDirection:'row', justifyContent:"center", alignItems:'center'}}>
-                       <EvilIcons name={'close-o'} size={30} color={colors.red} onPress={()=> navigation.goBack()}/>
-                       <Text style={{fontSize:15, color: colors.red}}>  Remove All</Text>
-              </View> */}
+              <View style={[style.shadow,{ justifyContent:"center", alignItems:'center', backgroundColor: colors.white, padding: 5, borderRadius: 10}]}>
+                       <EvilIcons name={'plus'} size={20} color={colors.red} onPress={()=>setAddonsVisible(true)}/>
+              </View>
+            </View>
+            <View style={{flexDirection:'row', marginBottom: 10}}>
+              <Text style={{width:  150, textAlign:'center', fontWeight:'bold'}}>Name</Text>
+              <Text style={{width:  55, textAlign:'center', fontWeight:'bold'}}>Cost</Text>
+              <Text style={{width: 55, textAlign:'center', fontWeight:'bold'}}>Price</Text>
             </View>
             <View>
                 {
@@ -482,7 +686,6 @@ console.log(product)
                     multiline={true}
                     numberOfLines={1}
                     onEndEditing={(e) => {
-                      element.name = e.nativeEvent.text;
                       onUpdateAddons(element, e.nativeEvent.text,'name')
                     }}
                   />
@@ -498,7 +701,6 @@ console.log(product)
                     multiline={true}
                     numberOfLines={1}
                     onEndEditing={(e) => {
-                      element.price = parseFloat(e.nativeEvent.text);
                       onUpdateAddons(element, parseFloat(e.nativeEvent.text),'price')
                     }}
                   />
@@ -514,26 +716,28 @@ console.log(product)
                       multiline={true}
                       numberOfLines={1}
                       onEndEditing={(e) => {
-                        element.cost = parseFloat(e.nativeEvent.text);
                         onUpdateAddons(element, parseFloat(e.nativeEvent.text),'cost')
                       }}
                     />
                 </View>
-                {/* <TouchableOpacity>
+                <TouchableOpacity onPress={()=> onDeleteAddons(element)}>
                 <EvilIcons name={'trash'} size={26} color={colors.red} style={{marginTop:5}}/>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
                 </View>   )})
                 }
             </View>
           </View>}
           {product.withOptions === true &&  <View>
-            <View style={{paddingVertical: 10, flexDirection:'row', justifyContent:'space-between'}}>
+            <View style={{paddingVertical: 10, flexDirection:'row', justifyContent:'space-between', marginRight: 5}}>
               <Text style={{fontSize: 20, fontWeight:'bold'}}>Options</Text>
 
-              {/* <View style={{flexDirection:'row', justifyContent:"center", alignItems:'center'}}>
-                       <EvilIcons name={'close-o'} size={30} color={colors.red} onPress={()=> navigation.goBack()}/>
-                       <Text style={{fontSize:15, color: colors.red}}>  Remove All</Text>
-              </View> */}
+              <View style={[style.shadow,{ justifyContent:"center", alignItems:'center', backgroundColor: colors.white, padding: 5, borderRadius: 10}]}>
+                       <EvilIcons name={'plus'} size={20} color={colors.red} onPress={()=>setOptionVisible(true)}/>
+              </View>
+            </View>
+            <View style={{flexDirection:'row', marginBottom: 10}}>
+              <Text style={{width:  150, textAlign:'center', fontWeight:'bold'}}>Option</Text>
+
             </View>
             <View>
                 {
@@ -555,9 +759,9 @@ console.log(product)
                     }}
                   />
               </View>
-              {/* <TouchableOpacity>
+            <TouchableOpacity onPress={()=> onDeleteOptions(element)}>
               <EvilIcons name={'trash'} size={26} color={colors.red} style={{marginTop:5}}/>
-              </TouchableOpacity> */}
+              </TouchableOpacity> 
                 </View>   )})
                 }
             </View>
@@ -609,6 +813,16 @@ const style = StyleSheet.create({
     fontSize: 25,
     margin: 20,
     fontFamily: 'Roboto'
+  },
+  shadow: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 5,
+      height: 5,
+    },
+    shadowOpacity: 1.58,
+    shadowRadius: 10,
+    elevation: 3,
   },
   uploadButton: {
     borderRadius: 16,

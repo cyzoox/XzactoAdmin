@@ -43,9 +43,9 @@ export function AddProduct({ createProducts, store, categories, children }) {
   const [withAddons, setWithAddons] = useState(false)
   const [withOptions, setWithOptions] = useState(false)
   const [withVariants, setWithVariants] = useState(false)
-  const [variants, setVariant] =useState([{"no": uuid.v4(),name:'set name', price:0,cost:0},{"no": uuid.v4(),name:'set name', price:0,cost:0},{"no": uuid.v4(),name:'set name', price:0,cost:0}])
-  const [options, setOptions] =useState([{"no": uuid.v4(),option:'option 1'},{"no": uuid.v4(),option:'option 2'},{"no": uuid.v4(),option:'option 3'}])
-  const [addons, setAddons] =useState([{"no": uuid.v4(),name:'set name', price:0,cost:0},{"no": uuid.v4(),name:'set name', price:0,cost:0},{"no": uuid.v4(),name:'set name', price:0,cost:0}])
+  const [variants, setVariant] =useState([])
+  const [options, setOptions] =useState([])
+  const [addons, setAddons] =useState([])
   const [optionsVisible, setOptionVisible]  = useState(false)
   const [variantVisible, setVariantVisible]  = useState(false)
   const [addonsVisible, setAddonsVisible]  = useState(false)
@@ -63,6 +63,16 @@ export function AddProduct({ createProducts, store, categories, children }) {
 const onAddAddons = () => {
 const items =  addons.concat([{"no": uuid.v4(),name:'set name', price:0,cost:0}])
 setAddons(items)
+}
+
+const handleRemoveOption = no => {
+  setOptions(options.filter(item => item.no !== no))
+}
+const handleRemoveVariants= no => {
+setVariant(variants.filter(item => item.no !== no))
+}
+const handleRemoveAddons= no => {
+setAddons(addons.filter(item => item.no !== no))
 }
 
  const filterCategory = () => {
