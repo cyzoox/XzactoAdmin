@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import colors from "../themes/colors";
 // import messaging from '@react-native-firebase/messaging';
 // import firestore from '@react-native-firebase/firestore';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const SigninScreen = ({ navigation }) => {
   const { user, signUp, signIn, projectData  } = useAuth();
   const [loading, setLoading] = useState(false)
@@ -18,13 +18,16 @@ const SigninScreen = ({ navigation }) => {
   useEffect(() => {
     // If there is a user logged in, go to the Projects page.
     // AnimatedSplash.hide()
+    const existingUser =  AsyncStorage.getItem('registered')
     if (user != null) {
       // onAppBootstrap()
-      navigation.navigate("Dashboard", {
-        name: "My Project",
-        projectPartition: `project=${user.id}` ,
-        projectData
-      });
+        navigation.navigate("Dashboard", {
+          name: "My Project",
+          projectPartition: `project=${user.id}` ,
+          projectData
+        });
+     
+     
     }
   }, [user]);
 
@@ -72,7 +75,7 @@ const SigninScreen = ({ navigation }) => {
   return (
     <View style={styles.background}>
     {/* <Loader loading={loading} /> */}
-     <ImageBackground source={require('../../assets/splashbg.jpg')} resizeMode="cover" imageStyle={{}} style={styles.header}>
+     <ImageBackground  resizeMode="cover" imageStyle={{}} style={styles.header}>
  
  <Image source={require('../../assets/logo.png')} style={{height:140,width:140, resizeMode:"contain"}}/>
  </ImageBackground>
@@ -124,7 +127,7 @@ const styles = StyleSheet.create({
     overflow:'hidden'
   },
   header2:{
-    backgroundColor:"#33C1B2",
+    backgroundColor:colors.primary,
     width:"100%",
     alignItems:"center",
     justifyContent:"center",

@@ -134,7 +134,7 @@ useEffect(
             <View style={{flex:1}}>
               <View style={styles.xlsubgrid2}>
                 <Text style={{color: colors.primary, fontWeight:'700', marginRight:10, fontSize:17}}>{`${customData.name}`}</Text>
-                <Button onPress={()=> navigation.navigate('Subscription')} buttonStyle={{ flex:1,backgroundColor: colors.primary, marginRight: 20}} title={`     ${customData.privilege}     `} />
+                <Button onPress={()=> navigation.navigate('Subscription')} titleStyle={{color:colors.white, fontSize:13, height:20}}  buttonStyle={{ flex:1,backgroundColor: colors.primary, marginRight: 20}} title={`     ${customData.privilege}     `} />
                 
               </View>
               <View style={styles.xlsubgrid3}>

@@ -12,6 +12,7 @@ import BillsAndReceiptsScreen from './src/screens/BillsAndReceiptsScreen';
 import CustomersAndCreditScreen from './src/screens/CustomersAndCreditScreen';
 import ExpensesScreen from './src/screens/ExpensesScreen';
 import IncomeScreen from './src/screens/IncomeScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // import {withIAPContext} from 'react-native-iap';
 
 import ReportsScreen from './src/screens/ReportsScreen';
@@ -66,6 +67,7 @@ import { ProductDetailsWarehouse } from "./src/components/ProductDetailsWarehous
 // import Subscription from "./src/screens/Subscription";
 import BatchTransferScreen from "./src/screens/BatchTransferScreen";
 import PinCodeInput from "./src/components/PinCodeInput";
+import Registration from "./src/screens/Registration";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -96,6 +98,7 @@ const StoreStack = createStackNavigator();
 function HomeStackScreen() {
   return (
     <HomeStack.Navigator>
+      
       <HomeStack.Screen
         name="Dashboard"
         component={DashboardScreen}
@@ -399,13 +402,14 @@ function TabScreen() {
 
 
 const App = () => {
+
   return (
     <AuthProvider>
       <PaperProvider>
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
-            name="Login"
+            name="Logins"
             component={SigninScreen}
             options={{ headerShown: false}}
           />
@@ -414,13 +418,16 @@ const App = () => {
             component={SignupScreen}
             options={{ headerShown: false}}
           />
+          
           <Stack.Screen name="Dashboard" options={{headerShown: false}}>
           {(props) => {
               const { navigation, route } = props;
               const { user, projectPartition,projectData } = route.params;
             return(
               <StoreProvider user={user} projectPartition={projectPartition} projectData={projectData}>
+
                 <TabScreen navigation={navigation} route={route} />
+             
               </StoreProvider>
               );
             }

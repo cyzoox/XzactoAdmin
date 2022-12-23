@@ -31,6 +31,7 @@ import {
   Inventory,
   Addon,
   Option,
+  UserInfo,
   
 } from '../../schemas';
 import { useAuth } from './AuthContext';
@@ -632,7 +633,7 @@ const StoreProvider = ({ children, projectPartition }) => {
     });
   };
 
-  
+ 
 
   const createWarehouseProducts = ( product ) => {
     const projectPOS = realmRef.current;
@@ -658,6 +659,8 @@ const StoreProvider = ({ children, projectPartition }) => {
       allow_credit.allow_credit = settings;
     });
   };
+
+
 
   const updateStaff = (staff, new_staff) => {
     // One advantage of centralizing the realm functionality in this provider is
@@ -1513,6 +1516,7 @@ const StoreProvider = ({ children, projectPartition }) => {
   const newData = [...projectPOS.objects("Option")];
   setOption(newData)
   };
+
 
     return(
         <StoreContext.Provider

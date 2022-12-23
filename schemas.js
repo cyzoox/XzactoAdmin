@@ -1823,6 +1823,48 @@ class Option {
   };
 }
 
+class UserInfo {
+  /**
+   *
+   * @param {string} name The name of the task
+   * @param {string status The status of the task. Default value is "Open"
+   * @param {ObjectId} id The ObjectId to create this task with
+   */
+  constructor({
+    id,
+    partition,
+    name,
+    pin,
+    privilege,
+    privilege_due,
+    status
+    
+  }) {
+    this._partition = partition;
+    this._id = id;
+    this.name = name;
+    this.pin = pin;
+    this.privilege = privilege;
+    this.privilege_due = privilege_due;
+    this.status = status;
+
+  }
+
+  
+  static schema = {
+    name: "UserInfo",
+    properties: {
+      _id: "string",
+      _partition: "string",
+      name: "string",
+      pin: "string",
+      privilege: "string?",
+      privilege_due: "string",
+      status: "string",
+    },
+    primaryKey: "_id",
+  };
+}
 
 export { 
          Stores, 
@@ -1854,5 +1896,6 @@ export {
          TR_Details,
          Inventory,
          Addon,
-         Option
+         Option,
+         UserInfo
         };

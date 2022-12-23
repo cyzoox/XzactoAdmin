@@ -16,17 +16,22 @@ const SignupScreen = ({ navigation }) => {
   const [name, setName] = useState('');
   const [conpass, setConPass] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('')
 
+  
   useEffect(() => {
     // If there is a user logged in, go to the Projects page.
     // AnimatedSplash.hide()
+   
     if (user != null) {
       // onAppBootstrap()
-      navigation.navigate("Dashboard", {
-        name: "My Project",
-        projectPartition: `project=${user.id}` ,
-        projectData
-      });
+        navigation.navigate("Dashboard", {
+          name: "My Project",
+          projectPartition: `project=${user.id}` ,
+          projectData
+        });
+     
+     
     }
   }, [user]);
 
@@ -49,11 +54,16 @@ const SignupScreen = ({ navigation }) => {
   // The onPressSignIn method calls AuthProvider.signIn with the
   // email/password in state.
   const onPressSignIn = async () => {
+    if(conpass !== password){
+      setError('Password does not match!');
+      return;
+    }
     setLoading(true)
   
     try {
-      await signUp(email, password);
+      await signUp(email, password, name);
       setLoading(false)
+      navigation.navigate('Register')
     } catch (error) {
       Alert.alert(`Failed to sign in: ${error.message}`);
       setLoading(false)
@@ -64,8 +74,7 @@ const SignupScreen = ({ navigation }) => {
   // email/password in state and then signs in.
   const onPressSignUp = async () => {
     try {
-      await signUp(email, password);
-      signIn(email, password);
+      await signUp(email, password, name);
     } catch (error) {
       Alert.alert(`Failed to sign up: ${error.message}`);
     }
@@ -74,18 +83,25 @@ const SignupScreen = ({ navigation }) => {
   return (
     <View style={styles.background}>
     {/* <Loader loading={loading} /> */}
-     <ImageBackground source={require('../../assets/splashbg.jpg')} resizeMode="cover" imageStyle={{}} style={styles.header}>
+     <ImageBackground  resizeMode="cover" imageStyle={{}} style={styles.header}>
  
  <Image source={require('../../assets/logo.png')} style={{height:140,width:140, resizeMode:"contain"}}/>
  </ImageBackground>
 
- 
  <View style={styles.subview}>
+  
+ <ScrollView>
  <Text style={styles.text}>Sign up</Text>
+ {error.length === 0 ? null : <Text style={{textAlign:'center', color:'red', paddingVertical: 5}}>{error}</Text>}
  <TextInput style={styles.input}
  placeholderTextColor="#CBCBCB"
  onChangeText={setEmail}
  placeholder="Enter email"
+ />
+  <TextInput style={styles.input}
+ placeholderTextColor="#CBCBCB"
+ onChangeText={setEmail}
+ placeholder="Enter full name"
  />
   <TextInput style={styles.input}
    onChangeText={setPassword}
@@ -101,9 +117,10 @@ const SignupScreen = ({ navigation }) => {
  <Text style={styles.buttonText}>SIGN UP</Text>
  </TouchableOpacity>
 
-<NavLink text="Already have account?" routename="SigninScreen"/>
+<NavLink text="Already have account?" />
+</ScrollView>
    </View>
-   
+
  </View>
   );
 };
@@ -148,7 +165,7 @@ const styles = StyleSheet.create({
   },
   subview:{
     width:"90%",
-    alignItems:"flex-start"
+   flex:1
   },
   text:{
     marginTop:40,

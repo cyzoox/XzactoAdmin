@@ -72,9 +72,35 @@ const AuthProvider = ({ children }) => {
 
   // The signUp function takes an email and password and uses the
   // emailPassword authentication provider to register the user.
-  const signUp = async (email, password) => {
+  const signUp = async (email, password, name) => {
     await app.emailPasswordAuth.registerUser({ email, password });
+    const creds = Realm.Credentials.emailPassword(email, password);
+    const newUser = await app.logIn(creds);
+    setUser(newUser);
+    createUserInfo(email, password, name)
   };
+
+  const createUserInfo = ( email, password, name ) => {
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+      // Create a new task in the same partition -- that is, in the same project.
+      projectPOS.create(
+        "UserInfo",
+        new UserInfo({
+          id: user.id,
+          partition: `project=${user.id}`,
+          name: name,
+          pin: '1234',
+          status: "Active",
+          privilege: 'Free',
+          privilege_due: `${moment.unix(date).add(30, 'day').startOf('day')/ 1000}`,
+          password: password,
+          email: email
+        })
+      );
+    });
+  };
+
   // The signOut function calls the logOut function on the currently
   // logged in user
   const signOut = () => {

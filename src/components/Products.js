@@ -43,7 +43,7 @@ export default function Products({product_info, modal_visible,products, store, n
       renderItem={({ item }) => (
         item.store_id === store._id ?
         <TouchableOpacity onLongPress={()=>{ modal_visible(true), product_info(item)}} onPress={()=> navigation.navigate('ProductDetails', { product: item, categories: categories, store: store})} style={styles.itemContainer}>
-          <Image source={{uri: item.img}} resizeMode="stretch" style={{flex: 2, height: 80, width: '100%'}}/>
+          <Image source={{uri: item.img}} resizeMode="stretch" style={{flex: 2, height: 70, width: '90%', marginTop: 5}}/>
           <View style={{paddingVertical: 5}}>
             <Text style={{textAlign:'center', fontSize:10, fontWeight:'700'}}>{item.name}</Text>
             <Text style={{textAlign:'center', fontSize:9}}>{item.brand}</Text>
@@ -73,12 +73,12 @@ const styles = StyleSheet.create({
     shadowColor: "#EBECF0",
     shadowOffset: {
       width: 0,
-      height: 5,
+      height: 1,
      
     },
     shadowOpacity: 0.89,
     shadowRadius: 2,
-    elevation: 5,
+    elevation: 2,
   },
   itemName: {
     fontSize: 16,
