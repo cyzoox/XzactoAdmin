@@ -81,11 +81,11 @@ const StoreProvider = ({ children, projectPartition }) => {
     const [returned, setStoreReturned] = useState([])
     const [discount, setStoreDiscounts] = useState([])
     const [payment, setPayments] = useState([])
-    const [user_info, setUser] = useState([])
     const realmRef = useRef(null);
     const [inventory, setInventory] = useState([]);
     const [option, setOption] = useState([]);
     const [addon, setAddon] = useState([]);
+    const [user_info, setUserInfo] = useState([]);
 
     const date = moment().unix()
     const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
@@ -268,6 +268,12 @@ const StoreProvider = ({ children, projectPartition }) => {
       setOption([...syncOption]);
       syncOption.addListener(() => {
         setOption([...syncOption]);
+      });
+
+      const syncUsernfo = projectPOS.objects("UserInfo");
+      setUserInfo([...syncUsernfo]);
+      syncUsernfo.addListener(() => {
+        setUserInfo([...syncUsernfo]);
       });
 
       const syncSettings = projectPOS.objects("Settings");

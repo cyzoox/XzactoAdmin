@@ -234,7 +234,7 @@ setAddons(addons.filter(item => item.no !== no))
             underlineColorAndroid = 'transparent'
             placeholderTextColor='red'
             disableFullscreenUI={true}
-            defaultValue={element.price}
+            defaultValue={`${element.price}`}
             keyboardType="numeric"
             multiline={true}
             numberOfLines={1}
@@ -251,7 +251,7 @@ setAddons(addons.filter(item => item.no !== no))
             placeholderTextColor='red'
             disableFullscreenUI={true}
             keyboardType="numeric"
-            defaultValue={element.cost}
+            defaultValue={`${element.cost}`}
             multiline={true}
             numberOfLines={1}
             onEndEditing={(e) => {

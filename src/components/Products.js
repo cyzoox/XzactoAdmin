@@ -7,6 +7,7 @@ import colors from '../themes/colors';
 import SearchInput, { createFilter } from 'react-native-search-filter';
 const KEYS_TO_FILTERS = ['store_id'];
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+
 export default function Products({product_info, modal_visible,products, store, navigation, categories}) {
   const [items, setItems] = useState([
     { name: 'TURQUOISE', code: '#1abc9c' },
@@ -54,7 +55,14 @@ export default function Products({product_info, modal_visible,products, store, n
                <MaterialCommunityIcons name={'alert-octagram-outline'} size={20} color={colors.white}/>
             </Text> : null
           }
-          
+       {item.stock <= 10 ? <View style={styles.container}>
+                <View style={[styles.label,
+                        {height:20},
+                        ]}>
+                  <Text style={{color: colors.white, fontSize:11, fontWeight:'bold'}}>Low stock</Text>
+                </View>
+         </View>: null}
+            
         </TouchableOpacity>: null
       )}
     />
@@ -68,7 +76,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems:'center',
     borderRadius: 5,
-   
+    backgroundColor: colors.white,
     height: 150,
     shadowColor: "#EBECF0",
     shadowOffset: {
@@ -79,6 +87,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.89,
     shadowRadius: 2,
     elevation: 2,
+    overflow: 'hidden',
   },
   itemName: {
     fontSize: 16,
@@ -91,4 +100,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.charcoalGrey,
   },
+  container: {
+    position: 'absolute',
+    transform: [{rotate: '40deg'}],
+    right: -25,
+    top:13,
+    backgroundColor:'red',
+    width:100
+},
+label: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    
+},
+text: {
+    color: '#fff',
+    // fontFamily: '.HelveticaNeueInterface-MediumP4',
+    fontSize: 12,
+},
 });

@@ -68,6 +68,8 @@ import { ProductDetailsWarehouse } from "./src/components/ProductDetailsWarehous
 import BatchTransferScreen from "./src/screens/BatchTransferScreen";
 import PinCodeInput from "./src/components/PinCodeInput";
 import Registration from "./src/screens/Registration";
+import Onboarding from "./src/screens/Onboarding";
+import ForgotPassword from "./src/screens/ForgotPassword";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -408,17 +410,27 @@ const App = () => {
       <PaperProvider>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen
-            name="Logins"
+        <Stack.Screen
+            name="Login"
             component={SigninScreen}
             options={{ headerShown: false}}
           />
+        <Stack.Screen
+            name="Onboarding"
+            component={Onboarding}
+            options={{ headerShown: false}}
+          />
+        
          <Stack.Screen
             name="Signup"
             component={SignupScreen}
             options={{ headerShown: false}}
           />
-          
+             <Stack.Screen
+            name="ForgotPassword"
+            component={ForgotPassword}
+            options={{ headerShown: false}}
+          />
           <Stack.Screen name="Dashboard" options={{headerShown: false}}>
           {(props) => {
               const { navigation, route } = props;

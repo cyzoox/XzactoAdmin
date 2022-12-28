@@ -70,6 +70,11 @@ const AuthProvider = ({ children }) => {
     setUser(newUser);
   };
 
+  const forgotPassword = async  (email) => {
+
+    await app.emailPasswordAuth.sendResetPasswordEmail({ email });
+  }
+
   // The signUp function takes an email and password and uses the
   // emailPassword authentication provider to register the user.
   const signUp = async (email, password, name) => {
@@ -117,6 +122,7 @@ const AuthProvider = ({ children }) => {
         signUp,
         signIn,
         signOut,
+        forgotPassword,
         user,
       // list of projects the user is a memberOf
       }}

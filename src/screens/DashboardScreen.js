@@ -7,12 +7,17 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 import { Divider } from "react-native-paper";
 import { useAuth } from "../context/AuthContext";
+import EvilIcons from 'react-native-vector-icons/EvilIcons'
 // import Loader from "../components/Loader";
 import app from "../../getRealmApp";
 import moment from 'moment'
+import SubscribeCard from "react-native-subscribe-card";
 
 import AlertwithChild from "../components/AlertwithChild";
-import { Button } from "react-native-elements";
+import Alert from "../components/Alert";
+import { Button, Overlay } from "react-native-elements";
+const { width: ScreenWidth } = Dimensions.get("screen");
+
 const DashboardScreen = ({navigation}) => {
   const {signOut, projectData} = useAuth();
   const { 
@@ -21,7 +26,7 @@ const DashboardScreen = ({navigation}) => {
     products,
     expenses, 
     transactions,
-   
+    user_info
    
   } = useStore();
 // Access a logged in user's read-only custom data
@@ -29,12 +34,18 @@ const [sub_alert, setSubsciptionAlert] = useState(false)
 const [alert_visible, alertVisible] = useState(false);
 const customData = app.currentUser.customData;
 const [text, setText] = useState('');
-  const hasUnsavedChanges = Boolean(text);
+const hasUnsavedChanges = Boolean(text);
 const [totalDuration, setTotalDuration] = useState(0);
-
+const [subscriptionVisible, setSubscriptionVisible] = useState(false);
+const [plan0, setPlan0] = useState(true);
+const [plan1, setPlan1] = useState(false);
+const [plan2, setPlan2] = useState(false);
+const [plan3, setPlan3] = useState(false);
+const [selectPlanVisible, setselectPlanVisible] = useState(false);
 const userData = async() => {
   await app.currentUser.refreshCustomData();
 }
+
 
 
 
@@ -51,9 +62,14 @@ useEffect(
       if(moment().unix() > parseInt(customData.privilege_due)){
         setSubsciptionAlert(true)
       }
+      if(user_info.length === 0){
+        setSubscriptionVisible(true)
+      }
       },
     [navigation, hasUnsavedChanges]
   );
+
+
   
   const calculateTotalCapital = () => {
     let total = 0
@@ -111,7 +127,7 @@ useEffect(
   return (
     <View style={{flex: 1}}>
       {/* <Loader loading={loading}/> */}
- 
+        <Alert  visible={selectPlanVisible} onProceed={()=> setselectPlanVisible(false)} onCancel={()=> setselectPlanVisible(false)} title="Avail Plan" content="Proceed to avail free plan?" confirmTitle="Proceed"/>
         <AlertwithChild
           visible={alert_visible}
           onProceed={signOut}
@@ -134,7 +150,7 @@ useEffect(
             <View style={{flex:1}}>
               <View style={styles.xlsubgrid2}>
                 <Text style={{color: colors.primary, fontWeight:'700', marginRight:10, fontSize:17}}>{`${customData.name}`}</Text>
-                <Button onPress={()=> navigation.navigate('Subscription')} titleStyle={{color:colors.white, fontSize:13, height:20}}  buttonStyle={{ flex:1,backgroundColor: colors.primary, marginRight: 20}} title={`     ${customData.privilege}     `} />
+                <Button onPress={()=> setSubscriptionVisible(true)} titleStyle={{color:colors.white, fontSize:13, height:20}}  buttonStyle={{ flex:1,backgroundColor: colors.primary, marginRight: 20}} title={`     ${customData.privilege}     `} />
                 
               </View>
               <View style={styles.xlsubgrid3}>
@@ -257,6 +273,156 @@ useEffect(
                 </View>
     </View>
     </ScrollView>
+    <Overlay fullScreen isVisible={subscriptionVisible} onBackdropPress={()=> setSubscriptionVisible(false)}>
+      <View style={{
+        flex: 1,
+        backgroundColor: colors.white,
+        alignItems: "center",
+      }}>
+      <View style={{position:'absolute', right: 20, top: 20}}>
+        <TouchableOpacity onPress={()=> {user_info.length === 0 ? alert('Select plan.'): setSubscriptionVisible(false)}}>
+              <EvilIcons name={'close-o'} size={40} color={colors.black}/>
+        </TouchableOpacity>
+      </View>
+      <View style={{ width: "80%", marginTop: "20%" }}>
+      <Text
+        style={{
+          textAlign: "center",
+          color: colors.black,
+          fontSize: 32,
+          fontFamily: "Roboto-Bold",
+        }}
+      >
+        Pricing Plan
+      </Text>
+      <View style={{ marginTop: 24 }}>
+        <Text
+          style={{
+            color: colors.black,
+            lineHeight: 18,
+            textAlign: "center",
+            fontFamily: "Roboto-Medium",
+          }}
+        >
+          Choose a subscription plan to unlock all the functionality of the
+          application
+        </Text>
+      </View>
+    </View>
+    <View
+      style={{ height: "45%", marginTop: 64, justifyContent: "space-evenly" }}
+    >
+     <SubscribeCard
+        title="Free plan"
+        descriptionPrice="Free"
+        description=" but limited access to features"
+        currency="₱"
+        price={0}
+        isSelected={plan0}
+        timePostfix="/mo"
+        onPress={() => {setPlan0(true), setPlan1(false), setPlan2(false), setPlan3(false)}}
+        containerStyle={{backgroundColor: colors.primary, borderRadius:10, borderColor:colors.grey}}
+        outerContainerStyle={{borderColor:colors, backgroundColor:colors.grey}}
+        selectedContainerStyle={{backgroundColor:colors.compliment}}
+        selectedOuterContainerStyle={{backgroundColor:colors.compliment, borderColor: colors.primary}}
+        selectedDescriptionPriceTextStyle={{color: colors.primary}}
+        selectedPriceTextStyle={{color: colors.primary}}
+        selectedCurrencyTextStyle={{color: colors.primary}}
+        priceTextStyle={{color: colors.white}}
+        descriptionPriceTextStyle={{color: colors.white}}
+        currencyTextStyle={{color: colors.white}}
+      />
+      <SubscribeCard
+        title="1 year plan"
+        descriptionPrice="₱2400"
+        description=" billed every year"
+        currency="₱"
+        price={200}
+        isSelected={plan1}
+        timePostfix="/mo"
+        onPress={() => {setPlan0(false), setPlan1(true), setPlan2(false), setPlan3(false)}}
+        containerStyle={{backgroundColor: colors.primary, borderRadius:10, borderColor:colors.grey}}
+        outerContainerStyle={{borderColor:colors, backgroundColor:colors.grey}}
+        selectedContainerStyle={{backgroundColor:colors.compliment}}
+        selectedOuterContainerStyle={{backgroundColor:colors.compliment, borderColor: colors.primary}}
+        selectedDescriptionPriceTextStyle={{color: colors.primary}}
+        selectedPriceTextStyle={{color: colors.primary}}
+        selectedCurrencyTextStyle={{color: colors.primary}}
+        priceTextStyle={{color: colors.white}}
+        descriptionPriceTextStyle={{color: colors.white}}
+        currencyTextStyle={{color: colors.white}}
+      />
+      <SubscribeCard
+        title="5 months plan"
+        descriptionPrice="₱1100"
+        description=" billed every 5 months"
+        currency="₱"
+        price={220}
+        isSelected={plan2}
+        timePostfix="/mo"
+        onPress={() =>  {setPlan0(false), setPlan1(false), setPlan2(true), setPlan3(false)}}
+        containerStyle={{backgroundColor: colors.primary, borderRadius:10, borderColor:colors.grey}}
+        outerContainerStyle={{borderColor:colors, backgroundColor:colors.grey}}
+        selectedContainerStyle={{backgroundColor:colors.compliment}}
+        selectedOuterContainerStyle={{backgroundColor:colors.compliment, borderColor: colors.primary}}
+        selectedDescriptionPriceTextStyle={{color: colors.primary}}
+        selectedPriceTextStyle={{color: colors.primary}}
+        selectedCurrencyTextStyle={{color: colors.primary}}
+        priceTextStyle={{color: colors.white}}
+        descriptionPriceTextStyle={{color: colors.white}}
+        currencyTextStyle={{color: colors.white}}
+      />
+      <SubscribeCard
+        title="Monthly Plan"
+        currency="₱"
+        price={250}
+        isSelected={plan3}
+        timePostfix="/mo"
+        onPress={() =>  {setPlan0(false), setPlan1(false), setPlan2(false), setPlan3(true)}}
+        containerStyle={{backgroundColor: colors.primary, borderRadius:10, borderColor:colors.grey}}
+        outerContainerStyle={{borderColor:colors, backgroundColor:colors.grey}}
+        selectedContainerStyle={{backgroundColor:colors.compliment}}
+        selectedOuterContainerStyle={{backgroundColor:colors.compliment, borderColor: colors.primary}}
+        selectedDescriptionPriceTextStyle={{color: colors.primary}}
+        selectedPriceTextStyle={{color: colors.primary}}
+        selectedCurrencyTextStyle={{color: colors.primary}}
+        priceTextStyle={{color: colors.white}}
+        descriptionPriceTextStyle={{color: colors.white}}
+        currencyTextStyle={{color: colors.white}}
+      />
+    </View>
+    <View
+      style={{
+        flex: 1,
+        marginBottom: 16,
+        justifyContent: "flex-end",
+      }}
+    >
+      <TouchableOpacity
+        style={{
+          height: 50,
+          borderRadius: 12,
+          width: ScreenWidth * 0.9,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: colors.primary,
+          shadowRadius: 12,
+          shadowOpacity: 0.5,
+          shadowColor: "#805bfa",
+          shadowOffset: {
+            width: 0,
+            height: 3,
+          },
+        }}
+        onPress={()=> setselectPlanVisible(true)}
+      >
+        <Text style={{ color: "#fff", fontFamily: "Roboto-Bold" }}>
+          Continue
+        </Text>
+      </TouchableOpacity>
+    </View>
+    </View>
+    </Overlay>
     </View>
   );
 };

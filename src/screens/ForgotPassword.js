@@ -1,5 +1,5 @@
 import React,{useEffect, useState} from "react";
-import { View, Text, StyleSheet, StatusBar, Alert, TouchableOpacity,Image,TextInput,ImageBackground, ScrollView } from "react-native";
+import { View, Text, StyleSheet, StatusBar, Alert, TouchableOpacity,Image,TextInput,ImageBackground } from "react-native";
 import AuthForm from "../components/AuthForm";
 // import Loader from "../components/Loader";
 import NavLink from "../components/NavLink";
@@ -8,32 +8,14 @@ import { useAuth } from "../context/AuthContext";
 import colors from "../themes/colors";
 // import messaging from '@react-native-firebase/messaging';
 // import firestore from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SignupScreen = ({ navigation }) => {
-  const { user, signUp, signIn, projectData  } = useAuth();
+const ForgotPassword = ({ navigation }) => {
+  const { user, signUp, signIn, projectData, forgotPassword  } = useAuth();
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [conpass, setConPass] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('')
 
-  
-  useEffect(() => {
-    // If there is a user logged in, go to the Projects page.
-    // AnimatedSplash.hide()
-   
-    if (user != null) {
-      // onAppBootstrap()
-        navigation.navigate("Dashboard", {
-          name: "My Project",
-          projectPartition: `project=${user.id}` ,
-          projectData
-        });
-     
-     
-    }
-  }, [user]);
 
 /*  async function onAppBootstrap() {
     // Register the device with FCM
@@ -53,32 +35,19 @@ const SignupScreen = ({ navigation }) => {
 
   // The onPressSignIn method calls AuthProvider.signIn with the
   // email/password in state.
-  const onPressSignIn = async () => {
-    if(conpass !== password){
-      setError('Password does not match!');
-      return;
-    }
+  const onPressSend = async () => {
     setLoading(true)
   
     try {
-      await signUp(email, password, name);
+      await forgotPassword(email);
       setLoading(false)
-      navigation.navigate('Register')
     } catch (error) {
       Alert.alert(`Failed to sign in: ${error.message}`);
       setLoading(false)
     }
   };
 
-  // The onPressSignUp method calls AuthProvider.signUp with the
-  // email/password in state and then signs in.
-  const onPressSignUp = async () => {
-    try {
-      await signUp(email, password, name);
-    } catch (error) {
-      Alert.alert(`Failed to sign up: ${error.message}`);
-    }
-  };
+
 
   return (
     <View style={styles.background}>
@@ -87,45 +56,27 @@ const SignupScreen = ({ navigation }) => {
  
  <Image source={require('../../assets/logo.png')} style={{height:140,width:140, resizeMode:"contain"}}/>
  </ImageBackground>
+ 
 
  <View style={styles.subview}>
-  
- <ScrollView>
- <Text style={styles.text}>Sign up</Text>
- {error.length === 0 ? null : <Text style={{textAlign:'center', color:'red', paddingVertical: 5}}>{error}</Text>}
+ <Text style={styles.text}>Forgot Password? Please enter your email.</Text>
  <TextInput style={styles.input}
  placeholderTextColor="#CBCBCB"
  onChangeText={setEmail}
  placeholder="Enter email"
  />
-  <TextInput style={styles.input}
- placeholderTextColor="#CBCBCB"
- onChangeText={setName}
- placeholder="Enter full name"
- />
-  <TextInput style={styles.input}
-   onChangeText={setPassword}
- placeholderTextColor="#CBCBCB"
- placeholder="Enter password"
- />
-   <TextInput style={styles.input}
-   onChangeText={setConPass}
- placeholderTextColor="#CBCBCB"
- placeholder="Confirm password"
- />
- <TouchableOpacity onPress={onPressSignIn} style={styles.button}>
- <Text style={styles.buttonText}>SIGN UP</Text>
+ <TouchableOpacity onPress={onPressSend} style={styles.button}>
+ <Text style={styles.buttonText}>Send Email</Text>
  </TouchableOpacity>
+<NavLink text="No account yet?" routeName="Signup" />
 
-<NavLink text="Already have account?" />
-</ScrollView>
    </View>
-
+   
  </View>
   );
 };
 
-SignupScreen.navigationOptions = () => {
+ForgotPassword.navigationOptions = () => {
   return {
     headerShown: false
   };
@@ -142,13 +93,13 @@ const styles = StyleSheet.create({
     width:"100%",
     alignItems:"center",
     justifyContent:"center",
-    height:200,
+    height:230,
     borderBottomEndRadius:50,
     borderBottomStartRadius:50,
     overflow:'hidden'
   },
   header2:{
-    backgroundColor:"#33C1B2",
+    backgroundColor:colors.primary,
     width:"100%",
     alignItems:"center",
     justifyContent:"center",
@@ -165,7 +116,7 @@ const styles = StyleSheet.create({
   },
   subview:{
     width:"90%",
-   flex:1
+    alignItems:"flex-start"
   },
   text:{
     marginTop:40,
@@ -218,4 +169,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignupScreen;
+export default ForgotPassword;

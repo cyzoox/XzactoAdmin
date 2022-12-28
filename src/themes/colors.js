@@ -16,7 +16,8 @@ const colors = {
     border: 'rgba(0, 0, 0, 0.1)',
     statusBarCoverDark: '#012138',
     statusBarCoverLight: '#80B8DB',
-    transparent: 'transparent'
+    transparent: 'transparent',
+    compliment: '#ffbc96'
 }
 
 export default colors;

@@ -18,7 +18,14 @@ const SigninScreen = ({ navigation }) => {
   useEffect(() => {
     // If there is a user logged in, go to the Projects page.
     // AnimatedSplash.hide()
-    const existingUser =  AsyncStorage.getItem('registered')
+    async function board() {
+      const doneOnboarding = await AsyncStorage.getItem('OnBoarding')
+      if(doneOnboarding == null ){
+          navigation.navigate('Onboarding')
+      }
+    }
+  
+
     if (user != null) {
       // onAppBootstrap()
         navigation.navigate("Dashboard", {
@@ -29,6 +36,7 @@ const SigninScreen = ({ navigation }) => {
      
      
     }
+    board();
   }, [user]);
 
 /*  async function onAppBootstrap() {
@@ -97,7 +105,7 @@ const SigninScreen = ({ navigation }) => {
  <Text style={styles.buttonText}>LOGIN</Text>
  </TouchableOpacity>
 <NavLink text="No account yet?" routeName="Signup" />
-
+<NavLink text="Forgot Password" routeName="ForgotPassword" />
    </View>
    
  </View>
