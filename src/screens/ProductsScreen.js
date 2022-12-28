@@ -46,7 +46,8 @@ const ProductsScreen = ({ navigation }) => {
           category,
           createExpired,
           createBO,
-          createReturned
+          createReturned,
+          user_info
         } = useStore();
         console.log(category)
         const [confirm, setConfirm] = useState(false);
@@ -464,7 +465,7 @@ const ProductsScreen = ({ navigation }) => {
             codeLength={4}
             value={code}
             onTextChange={code => setCode(code)}/> */}
-              <PinCodeInput pinCode={customData.pin} onCheckPassword={onCheckPassword}/>
+              <PinCodeInput pinCode={user_info[0].pin} onCheckPassword={onCheckPassword}/>
             </View>
         </Overlay>
     </View>

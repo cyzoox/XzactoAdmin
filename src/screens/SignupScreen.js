@@ -98,26 +98,24 @@ const SignupScreen = ({ navigation }) => {
  onChangeText={setEmail}
  placeholder="Enter email"
  />
-  <TextInput style={styles.input}
- placeholderTextColor="#CBCBCB"
- onChangeText={setName}
- placeholder="Enter full name"
- />
+
   <TextInput style={styles.input}
    onChangeText={setPassword}
  placeholderTextColor="#CBCBCB"
  placeholder="Enter password"
+ secureTextEntry={true}
  />
    <TextInput style={styles.input}
    onChangeText={setConPass}
  placeholderTextColor="#CBCBCB"
  placeholder="Confirm password"
+ secureTextEntry={true}
  />
  <TouchableOpacity onPress={onPressSignIn} style={styles.button}>
  <Text style={styles.buttonText}>SIGN UP</Text>
  </TouchableOpacity>
 
-<NavLink text="Already have account?" />
+<NavLink text="Already have account?" routeName="Login"/>
 </ScrollView>
    </View>
 

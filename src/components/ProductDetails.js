@@ -47,7 +47,8 @@ export function ProductDetails({route}) {
       deleteOption,
       createInventory,
       createAddon,
-      createOption
+      createOption,
+      user_info
       } = useStore();
       const customData = app.currentUser.customData;
     
@@ -775,7 +776,7 @@ console.log(product)
 
         <Overlay isVisible={visible2} onBackdropPress={setVisible}>
             <View style={{padding: 20}}>
-              <PinCodeInput pinCode={customData.pin} onCheckPassword={onCheckPassword}/>
+              <PinCodeInput pinCode={user_info[0].pin} onCheckPassword={onCheckPassword}/>
             
             {
                 error &&

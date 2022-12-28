@@ -5,7 +5,7 @@ import { useStore } from "../context/StoreContext";
 import formatMoney from 'accounting-js/lib/formatMoney.js'
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
-import { Divider } from "react-native-paper";
+import { Divider, TextInput } from "react-native-paper";
 import { useAuth } from "../context/AuthContext";
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
 // import Loader from "../components/Loader";
@@ -15,19 +15,23 @@ import SubscribeCard from "react-native-subscribe-card";
 
 import AlertwithChild from "../components/AlertwithChild";
 import Alert from "../components/Alert";
-import { Button, Overlay } from "react-native-elements";
+import uuid from 'react-native-uuid';
+
+import { Button, Overlay, Tooltip  } from "react-native-elements";
+import AlertwithChild2 from "../components/AlertwithChild2";
+import AlertwithChild3 from "../components/AlertwithChild3";
 const { width: ScreenWidth } = Dimensions.get("screen");
 
 const DashboardScreen = ({navigation}) => {
-  const {signOut, projectData} = useAuth();
+  const {user,signOut, projectData} = useAuth();
   const { 
     stores,
     loading,
     products,
     expenses, 
     transactions,
-    user_info
-   
+    user_info,
+    onCreateUserPlan
   } = useStore();
 // Access a logged in user's read-only custom data
 const [sub_alert, setSubsciptionAlert] = useState(false)
@@ -41,6 +45,11 @@ const [plan0, setPlan0] = useState(true);
 const [plan1, setPlan1] = useState(false);
 const [plan2, setPlan2] = useState(false);
 const [plan3, setPlan3] = useState(false);
+const [username, setUserName] = useState('');
+const [pinCode, setPinCode] = useState('');
+const [cpinCode, setCPinCode] = useState('');
+const [error,setError] = useState('')
+const [open, setOpen] = useState(false);
 const [selectPlanVisible, setselectPlanVisible] = useState(false);
 const userData = async() => {
   await app.currentUser.refreshCustomData();
@@ -123,12 +132,29 @@ useEffect(
     alertVisible(true)
   }
 
+  const onSelectFreePlan = () => {
+    if(pinCode !== cpinCode){
+      setError('Pin code does not match!')
+      return;
+    }
+    setselectPlanVisible(false)
+    const date = moment().unix()
+    let plan={
+      partition: `project=${user.id}`,
+      id: uuid.v4(),
+      name: username,
+      pin: pinCode,
+      privilege: 'Free Plan',
+      privilege_due:  `${moment.unix(date).add(60, 'day').startOf('day')/ 1000}`
+    }
+    onCreateUserPlan(plan)
+
+  }
 
   return (
     <View style={{flex: 1}}>
       {/* <Loader loading={loading}/> */}
-        <Alert  visible={selectPlanVisible} onProceed={()=> setselectPlanVisible(false)} onCancel={()=> setselectPlanVisible(false)} title="Avail Plan" content="Proceed to avail free plan?" confirmTitle="Proceed"/>
-        <AlertwithChild
+        <AlertwithChild3
           visible={alert_visible}
           onProceed={signOut}
           title="Sign Out?"
@@ -136,7 +162,44 @@ useEffect(
           onCancel={()=> alertVisible(false)}
         >
           <Text style={{paddingHorizontal:30, textAlign:'center', paddingVertical:10}}>Are you sure you want to sign out?</Text>
-        </AlertwithChild>
+        </AlertwithChild3>
+        <AlertwithChild3
+          visible={selectPlanVisible}
+          onProceed={onSelectFreePlan}
+          title="AVAIL FREE PLAN"
+          confirmTitle="Proceed"
+          onCancel={()=> setselectPlanVisible(false)}
+        >
+          {error.length > 0 ? <Text style={{color:'red', textAlign:'center'}}>{error}</Text> : null}
+          <Text style={{padding: 10, marginLeft: 10}}>Please fill in additinal information :</Text>
+          <View style={{paddingHorizontal: 20}}>
+          <TextInput 
+            onChangeText={(text)=> setUserName(text)}
+            mode="outlined"
+            label="Set your Username"
+            style={{height: 50}}
+          />
+           <TextInput 
+            onChangeText={(text)=> setPinCode(text)}
+            mode="outlined"
+            label="Set your Pin"
+            style={{height: 50}}
+            maxLength={4}
+            keyboardType="numeric"
+            secureTextEntry={true}
+          />
+           <TextInput 
+            onChangeText={(text)=> setCPinCode(text)}
+            mode="outlined"
+            label="Confirm Pin"
+            style={{height: 50}}
+            maxLength={4}
+            keyboardType="numeric"
+            secureTextEntry={true}
+          />
+          </View>
+        
+        </AlertwithChild3>
        <View style={styles.xlgridStyle}>
          <View style={{position: 'absolute', top: 20, left: 20}}>
            <Text style={{fontSize:25, color: colors.white, marginLeft:15}}>XZACTO ADMIN</Text>
@@ -146,24 +209,32 @@ useEffect(
               <TouchableOpacity style={{position: 'absolute', top: 20, right: 20}} onPress={onsignOut}>
                 <Image style={{width: 40, height: 40}} source={require('../../assets/logout.png')}/>
               </TouchableOpacity>
-           <View style={styles.xlsubgrid}>
-            <View style={{flex:1}}>
-              <View style={styles.xlsubgrid2}>
-                <Text style={{color: colors.primary, fontWeight:'700', marginRight:10, fontSize:17}}>{`${customData.name}`}</Text>
-                <Button onPress={()=> setSubscriptionVisible(true)} titleStyle={{color:colors.white, fontSize:13, height:20}}  buttonStyle={{ flex:1,backgroundColor: colors.primary, marginRight: 20}} title={`     ${customData.privilege}     `} />
-                
-              </View>
-              <View style={styles.xlsubgrid3}>
-              <TouchableOpacity style={{justifyContent:'center', marginRight: 20}}  onPress={onsignOut}>
-                <Image style={{width: 38, height: 38}} source={require('../../assets/expired.png')}/>
-              </TouchableOpacity>
-                 
-                  <Button buttonStyle={{borderColor:colors.coverDark}} titleStyle={{color:colors.primary, fontSize:13}} title={`${moment.unix(customData.privilege_due).format('DD MMM YYYY hh:mm:ss A')}`} type="outline"/>
-              
-              </View>
-              </View>
-            
-           </View>
+            {
+              user_info.map(item => {
+                return(
+                  <View style={styles.xlsubgrid}>
+                  <View style={{flex:1}}>
+                    <View style={styles.xlsubgrid2}>
+                      <Text style={{color: colors.primary, fontWeight:'700', marginRight:10, fontSize:17, marginLeft: 20}}>{`${item.name}`}</Text>
+                      <Button onPress={()=> setSubscriptionVisible(true)} titleStyle={{color:colors.white, fontSize:13, height:20}}  buttonStyle={{ flex:1,backgroundColor: colors.primary, marginRight: 20}} title={`     ${item.privilege}     `} />
+                      
+                    </View>
+                    <View style={styles.xlsubgrid3}>
+                    <TouchableOpacity style={{justifyContent:'center', marginRight: 20}}  onPress={onsignOut}>
+                      <Image style={{width: 38, height: 38}} source={require('../../assets/expired.png')}/>
+                    </TouchableOpacity>
+                       
+                        <Button buttonStyle={{borderColor:colors.coverDark}} titleStyle={{color:colors.primary, fontSize:13}} title={`${moment.unix(item.privilege_due).format('DD MMM YYYY hh:mm:ss A')}`} type="outline"/>
+                    
+                    </View>
+                    </View>
+                  
+                 </View>
+                )
+        
+              })
+            }
+     
       
         </View>
 
@@ -279,12 +350,24 @@ useEffect(
         backgroundColor: colors.white,
         alignItems: "center",
       }}>
-      <View style={{position:'absolute', right: 20, top: 20}}>
-        <TouchableOpacity onPress={()=> {user_info.length === 0 ? alert('Select plan.'): setSubscriptionVisible(false)}}>
+  <View style={{position:'absolute', right: 20, top: 20}}>
+  { user_info.length !== 0 ?  
+        <TouchableOpacity onPress={()=> setSubscriptionVisible(false)}>
+              <EvilIcons name={'close-o'} size={40} color={colors.black}/>
+        </TouchableOpacity> :
+        <Tooltip
+        visible={open}
+        onOpen={() => setOpen(true)}
+        onClose={() => setOpen(false)}
+        popover={<Text style={{ color: "#fff" }}>Tooltip text</Text>}
+      >
+        <TouchableOpacity onPress={()=> setOpen(!open)}>
               <EvilIcons name={'close-o'} size={40} color={colors.black}/>
         </TouchableOpacity>
+      </Tooltip>
+      }
       </View>
-      <View style={{ width: "80%", marginTop: "20%" }}>
+      <View style={{ width: "80%", marginTop: "10%" }}>
       <Text
         style={{
           textAlign: "center",
@@ -299,7 +382,7 @@ useEffect(
         <Text
           style={{
             color: colors.black,
-            lineHeight: 18,
+            lineHeight: 15,
             textAlign: "center",
             fontFamily: "Roboto-Medium",
           }}
@@ -310,9 +393,9 @@ useEffect(
       </View>
     </View>
     <View
-      style={{ height: "45%", marginTop: 64, justifyContent: "space-evenly" }}
+      style={{ height: "55%", marginTop: 64, justifyContent: "space-evenly" }}
     >
-     <SubscribeCard
+    {user_info.length === 0 ? <SubscribeCard
         title="Free plan"
         descriptionPrice="Free"
         description=" but limited access to features"
@@ -331,7 +414,7 @@ useEffect(
         priceTextStyle={{color: colors.white}}
         descriptionPriceTextStyle={{color: colors.white}}
         currencyTextStyle={{color: colors.white}}
-      />
+      /> : null}
       <SubscribeCard
         title="1 year plan"
         descriptionPrice="₱2400"
@@ -375,7 +458,7 @@ useEffect(
       <SubscribeCard
         title="Monthly Plan"
         currency="₱"
-        price={250}
+        price={1400}
         isSelected={plan3}
         timePostfix="/mo"
         onPress={() =>  {setPlan0(false), setPlan1(false), setPlan2(false), setPlan3(true)}}
@@ -414,7 +497,7 @@ useEffect(
             height: 3,
           },
         }}
-        onPress={()=> setselectPlanVisible(true)}
+        onPress={()=>{user_info.length !== 0 ? setOpen(true): setselectPlanVisible(true)}}
       >
         <Text style={{ color: "#fff", fontFamily: "Roboto-Bold" }}>
           Continue

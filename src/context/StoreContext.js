@@ -272,6 +272,7 @@ const StoreProvider = ({ children, projectPartition }) => {
 
       const syncUsernfo = projectPOS.objects("UserInfo");
       setUserInfo([...syncUsernfo]);
+      console.log(syncUsernfo)
       syncUsernfo.addListener(() => {
         setUserInfo([...syncUsernfo]);
       });
@@ -1523,6 +1524,16 @@ const StoreProvider = ({ children, projectPartition }) => {
   setOption(newData)
   };
 
+  const onCreateUserPlan = (plan) => {
+    const projectPOS = realmRef.current;
+   
+    projectPOS.write(() => {
+      projectPOS.create(
+        "UserInfo",
+        new UserInfo(plan)
+      );
+  });
+  }
 
     return(
         <StoreContext.Provider
@@ -1629,7 +1640,8 @@ const StoreProvider = ({ children, projectPartition }) => {
             onUpdateAddons,
             onUpdateOptions,
             deleteAddon,
-            deleteOption
+            deleteOption,
+            onCreateUserPlan
           }}
         >
             {children}
