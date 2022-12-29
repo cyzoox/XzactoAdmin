@@ -61,9 +61,9 @@ const SignupScreen = ({ navigation }) => {
     setLoading(true)
   
     try {
-      await signUp(email, password, name);
+      await signUp(email, password);
       setLoading(false)
-      navigation.navigate('Register')
+      navigation.navigate('Login')
     } catch (error) {
       Alert.alert(`Failed to sign in: ${error.message}`);
       setLoading(false)

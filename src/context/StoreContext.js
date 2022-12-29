@@ -115,6 +115,14 @@ const StoreProvider = ({ children, projectPartition }) => {
     Realm.open(config).then((projectPOS) => {
       realmRef.current = projectPOS;
 
+      
+      const syncUsernfo = projectPOS.objects("UserInfo");
+      setUserInfo([...syncUsernfo]);
+      syncUsernfo.addListener(() => {
+        setUserInfo([...syncUsernfo]);
+      });
+
+
       const syncStaffs = projectPOS.objects("Staffs");
       let sortedStaffs = syncStaffs.sorted("name");
       setStaffs([...sortedStaffs]);
@@ -268,13 +276,6 @@ const StoreProvider = ({ children, projectPartition }) => {
       setOption([...syncOption]);
       syncOption.addListener(() => {
         setOption([...syncOption]);
-      });
-
-      const syncUsernfo = projectPOS.objects("UserInfo");
-      setUserInfo([...syncUsernfo]);
-      console.log(syncUsernfo)
-      syncUsernfo.addListener(() => {
-        setUserInfo([...syncUsernfo]);
       });
 
       const syncSettings = projectPOS.objects("Settings");

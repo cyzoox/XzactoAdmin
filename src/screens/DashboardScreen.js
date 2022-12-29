@@ -137,7 +137,7 @@ useEffect(
       setError('Pin code does not match!')
       return;
     }
-    setselectPlanVisible(false)
+
     const date = moment().unix()
     let plan={
       partition: `project=${user.id}`,
@@ -148,7 +148,8 @@ useEffect(
       privilege_due:  `${moment.unix(date).add(60, 'day').startOf('day')/ 1000}`
     }
     onCreateUserPlan(plan)
-
+    setSubscriptionVisible(false)
+    setselectPlanVisible(false)
   }
 
   return (
