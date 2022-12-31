@@ -13,8 +13,7 @@ import app from "../../getRealmApp";
 import moment from 'moment'
 import SubscribeCard from "react-native-subscribe-card";
 
-import AlertwithChild from "../components/AlertwithChild";
-import Alert from "../components/Alert";
+
 import uuid from 'react-native-uuid';
 
 import { Button, Overlay, Tooltip  } from "react-native-elements";
@@ -418,10 +417,10 @@ useEffect(
       /> : null}
       <SubscribeCard
         title="1 year plan"
-        descriptionPrice="₱2400"
+        descriptionPrice="₱16800"
         description=" billed every year"
         currency="₱"
-        price={200}
+        price={1400}
         isSelected={plan1}
         timePostfix="/mo"
         onPress={() => {setPlan0(false), setPlan1(true), setPlan2(false), setPlan3(false)}}
@@ -438,10 +437,10 @@ useEffect(
       />
       <SubscribeCard
         title="5 months plan"
-        descriptionPrice="₱1100"
+        descriptionPrice="₱7000"
         description=" billed every 5 months"
         currency="₱"
-        price={220}
+        price={1400}
         isSelected={plan2}
         timePostfix="/mo"
         onPress={() =>  {setPlan0(false), setPlan1(false), setPlan2(true), setPlan3(false)}}

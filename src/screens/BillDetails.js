@@ -25,7 +25,7 @@ const BillDetails = ({navigation, route}) => {
       const calculateTotal = () => {
         let total = 0;
         trdetails.forEach(list => {
-                total += list.quantity * list.sprice  
+                total += list.quantity * (list.sprice + list.addon_price)
         });
        return total;
     }
