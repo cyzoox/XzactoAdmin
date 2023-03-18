@@ -16,7 +16,10 @@ class Stores {
     id,
     attendant,
     attendant_id,
-    store_type
+    store_type,
+    lowstock,
+    vat,
+    cashierview
     
   }) {
     this._partition = partition;
@@ -28,6 +31,9 @@ class Stores {
     this.attendant = attendant;
     this.attendant_id = attendant_id;
     this.store_type = store_type;
+    this.lowstock = lowstock;
+    this.vat = vat;
+    this.cashierview =cashierview
   }
 
   
@@ -42,13 +48,56 @@ class Stores {
       password: "string",
       attendant: "string",
       attendant_id: "string",
-      store_type: "string"
+      store_type: "string",
+      cashierview: "bool?",
+      vat: "float?",
+      lowstock: "float?"
     },
     primaryKey: "_id",
   };
 }
 
 
+
+class Suppliers {
+  /**
+   *
+   * @param {string} name The name of the task
+   * @param {string status The status of the task. Default value is "Open"
+   * @param {ObjectId} id The ObjectId to create this task with
+   */
+  constructor({
+    id,
+    partition,
+    contact,
+    address,
+    store_id,
+    name
+    
+  }) {
+    this._partition = partition;
+    this._id = id;
+    this.name = name;
+    this.contact = contact;
+    this.address = address;
+    this.store_id = store_id;
+  }
+
+  
+  static schema = {
+    name: "Supplier",
+    properties: {
+      _id: "string",
+      _partition: "string",
+      name: "string",
+      contact: "string",
+      address: "string",
+      store_id: "string",
+      
+    },
+    primaryKey: "_id",
+  };
+}
 
 class SupplierWarehouse {
   /**
@@ -127,18 +176,17 @@ class List {
   static schema = {
     name: "List",
     properties: {
-      _id: "string?",
-      _partition: "string?",
-      uid: 'string',
+      _id: "string",
+      _partition: "string",
       name: "string",
       brand: "string",
-      oprice: "int",
-      sprice: "int",
+      oprice: "float",
+      sprice: "float",
       unit: "string",
-      category: "string",
+      category: "string?",
       store_id: "string",
       store: "string",
-      quantity: "int"
+      quantity: "float"
     },
     primaryKey: "_id",
   };
@@ -225,9 +273,6 @@ class Products {
     withAddons,
     withVariants,
     withOptions,
-    addons,
-    variants,
-    options,
 
   }) {
     this._partition = partition;
@@ -247,55 +292,29 @@ class Products {
     this.withAddons = withAddons;
     this.withVariants = withVariants;
     this.withOptions = withOptions;
-    this.addons = addons;
-    this.variants = variants;
-    this.options = options;
   }
 
   
   static schema = {
     name: "Products",
     properties: {
-      _id: "string?",
-      _partition: "string?",
-      uid: 'string',
-      name: "string",
-      brand: "string",
-      oprice: "int",
-      sprice: "int",
-      unit: "string",
-      category: "string",
-      store_id: "string",
-      store: "string",
-      stock: "int",
-      sku: "string",
-      img: "string",
-      pr_id: "string",
-      withAddons: "bool",
-      withVariants: "bool",
-      withOptions: "bool",
-      addons:{
-        name: 'Addons',
-        properties:{
-          name: "string",
-          price: "float",
-          cost: "float"
-        }
-      },
-      variants:{
-        name: 'Variants',
-        properties:{
-          name: "string",
-          price: "float",
-          cost: "float"
-        }
-      },
-      options:{
-        name: 'Options',
-        properties:{
-          option: "string"
-        }
-      },
+      _id: "string",
+      _partition: "string",
+      name: "string?",
+      brand: "string?",
+      oprice: "float?",
+      sprice: "float?",
+      unit: "string?",
+      category: "string?",
+      store_id: "string?",
+      store: "string?",
+      stock: "float?",
+      sku: "string?",
+      img: "string?",
+      pr_id: "string?",
+      withAddons: "bool?",
+      withVariants: "bool?",
+      withOptions: "bool?",
     },
     primaryKey: "_id",
   };
@@ -350,19 +369,18 @@ class ExpiredWarehouse {
   static schema = {
     name: "ExpiredWarehouse",
     properties: {
-      _id: "string?",
-      _partition: "string?",
+      _id: "string",
+      _partition: "string",
       owner_id: 'string',
       date: 'string',
       timeStamp: 'int',
-      product_name: 'string',
-      product_id: 'string',
+      product: 'string',
       year_month: 'string',
       year_week: 'string',
       year: 'string',
-      quantity: 'string',
-      sprice: 'int',
-      oprice: 'int',
+      quantity: 'float',
+      sprice: 'float',
+      oprice: 'float',
       brand: 'string',
       exp_date: 'string'
     },
@@ -424,8 +442,7 @@ class PulloutWarehouse {
       owner_id: 'string',
       date: 'string',
       timeStamp: 'int',
-      product_name: 'string',
-      product_id: 'string',
+      product: 'string',
       year_month: 'string',
       year_week: 'string',
       year: 'string',
@@ -560,23 +577,23 @@ class BO {
   static schema = {
     name: "BO",
     properties: {
-      _id: "string?",
-      _partition: "string?",
+      _id: "string",
+      _partition: "string",
       store_name: 'string',
       store_id: 'string',
       date: 'string',
       timeStamp: 'int',
       product_name: 'string',
       product_id: 'string',
-      total: 'int',
+      total: 'float',
       year: 'string',
       year_month: 'string',
       year_week: 'string',
       attendant_name: 'string',
       attendant_id: 'string',
-      quantity: 'string',
-      sprice: 'int',
-      oprice: 'int',
+      quantity: 'float',
+      sprice: 'float',
+      oprice: 'float',
       brand: 'string',
     },
     primaryKey: "_id",
@@ -696,7 +713,6 @@ class Expenses {
     properties: {
       _id: "string",
       _partition: "string",
-      uid: 'string',
       timeStamp: 'int',
       description: "string",
       store_id: "string",
@@ -705,6 +721,9 @@ class Expenses {
       attendant: "string",
       attendant_id: "string",
       amount: "float",
+      year_week: "string",
+      year_month:"string",
+      year: "string"
     },
     primaryKey: "_id",
   };
@@ -780,7 +799,6 @@ class Customers {
     properties: {
       _id: "string",
       _partition: "string",
-      uid: 'string',
       address: "string?",
       store_id: "string",
       credit_balance: "float?",
@@ -819,7 +837,8 @@ class DeliveryReport {
     received_by,
     delivery_receipt,
     store_id,
-    store_name
+    store_name,
+    // tr_id
 
   }) {
     this._id = id,
@@ -840,6 +859,7 @@ class DeliveryReport {
     this.delivery_receipt = delivery_receipt,
     this.store_id = store_id,
     this.store_name = store_name
+    // this.tr_id = tr_id
   }
 
   static schema = {
@@ -862,7 +882,8 @@ class DeliveryReport {
       received_by: "string",
       delivery_receipt: "string",
       store_name: "string",
-      store_id: "string"
+      store_id: "string",
+      // tr_id:"string"
     },
     primaryKey: "_id",
   };
@@ -1114,7 +1135,6 @@ class Staffs {
     properties: {
       _id: "string",
       _partition: "string",
-      uid: 'string',
       password: "string",
       store_id: "string",
       login_am: "string?",
@@ -1187,9 +1207,9 @@ class Pullout {
       year_month: "string",
       timeStamp: "int",
       product: "string",
-      quantity: "int",
-      sprice: "int",
-      oprice: "int",
+      quantity: "float",
+      sprice: "float",
+      oprice: "float",
       brand: "string",
       pullout_by: "string",
       store_id: "string",
@@ -1250,8 +1270,8 @@ class Returned {
   static schema = {
     name: "Returned",
     properties: {
-      _id: "string?",
-      _partition: "string?",
+      _id: "string",
+      _partition: "string",
       date: "string",  
       year: "string",
       year_week: "string",
@@ -1264,7 +1284,7 @@ class Returned {
       store_name: "string",
       product_name: "string",
       quantity: "int",
-      total: "int",
+      total: "float",
       reason: "string",
       receipt_no: "string"
 
@@ -1320,10 +1340,10 @@ class Discount {
   static schema = {
     name: "Discount",
     properties: {
-      _id: "string?",
-      _partition: "string?",
+      _id: "string",
+      _partition: "string",
       transaction_id: "string", 
-      discount_total: "int", 
+      discount_total: "float", 
       attendant: "string",
       attendant_id: "string",
       store_id: "string",  
@@ -1391,17 +1411,17 @@ class Expired {
   static schema = {
     name: "Expired",
     properties: {
-      _id: "string?",
-      _partition: "string?",
+      _id: "string",
+      _partition: "string",
       date: "string",
       year: "string",
       year_week: "string",
       year_month: "string",
       timeStamp: "int",
       product: "string",
-      quantity: "int",
-      sprice: "int",
-      oprice: "int",
+      quantity: "float",
+      sprice: "float",
+      oprice: "float",
       store_id: "string",
       attendant: "string",
       attendant_id: "string",
@@ -1527,8 +1547,8 @@ class Payment_Logs {
   static schema = {
     name: "Payment_Logs",
     properties: {
-      _id: "string?",
-      _partition: "string?",
+      _id: "string",
+      _partition: "string",
       date: "string",
       year: "string",
       year_week: "string",
@@ -1537,7 +1557,7 @@ class Payment_Logs {
       customer_id: "string",
       customer_name: "string",
       received_by: "string",
-      amount: "int",
+      amount: "float",
       store_name: "string",
       store_id: "string",
       receipt_no: "string"
@@ -1576,7 +1596,8 @@ class Transactions {
     discount_name,
     vat,
     received,
-    change
+    change, 
+    profit
   }) {
     this._partition = partition;
     this._id = id;
@@ -1599,7 +1620,8 @@ class Transactions {
     this.discount_name = discount_name,
     this.vat = vat,
     this.received = received,
-    this.change = change
+    this.change = change,
+    this.profit = profit
   }
  
   static schema = {
@@ -1626,7 +1648,8 @@ class Transactions {
       discount_name: 'string',
       vat: "float",
       received: "float",
-      change: "float"
+      change: "float",
+      profit: "float?"
     },
     primaryKey: "_id",
   };
@@ -1661,7 +1684,11 @@ class TR_Details {
     product_id,
     status,
     attendant_name,
-    attendant_id
+    attendant_id,
+    addon,
+    addon_price,
+    addon_cost,
+    option
   }) {
     this._partition = partition;
     this._id = id;
@@ -1683,7 +1710,11 @@ class TR_Details {
     this.product_id = product_id,
     this.status = status,
     this.attendant_name = attendant_name,
-    this.attendant_id = attendant_id
+    this.attendant_id = attendant_id,
+    this.addon = addon,
+    this.addon_price = addon_price,
+    this.addon_cost = addon_cost,
+    this.option = option
   }
 
   
@@ -1709,11 +1740,16 @@ class TR_Details {
       timeStamp: 'int',
       status: 'string',
       attendant_name: "string",
-      attendant_id: "string"
+      attendant_id: "string",
+      addon: "string",
+      addon_price: "float",
+      addon_cost: "float",
+      option: "string"
     },
     primaryKey: "_id",
   };
 }
+
 
 class Inventory {
   /**
@@ -1745,10 +1781,10 @@ class Inventory {
     properties: {
       _id: "string",
       _partition : "string",
-      name: "string",
-      cost: "float",
-      price: "float",
-      product_id: "string"
+      name: "string?",
+      cost: "float?",
+      price: "float?",
+      product_id: "string?"
     },
     primaryKey: "_id",
   };
@@ -1784,10 +1820,10 @@ class Addon {
     properties: {
       _id: "string",
       _partition : "string",
-      name: "string",
-      cost: "float",
-      price: "float",
-      product_id: "string"
+      name: "string?",
+      cost: "float?",
+      price: "float?",
+      product_id: "string?"
     },
     primaryKey: "_id",
   };
@@ -1818,8 +1854,8 @@ class Option {
     properties: {
       _id: "string",
       _partition : "string",
-      option: "string",
-      product_id: "string"
+      option: "string?",
+      product_id: "string?"
     },
     primaryKey: "_id",
   };
@@ -1839,7 +1875,10 @@ class UserInfo {
     pin,
     privilege,
     privilege_due,
-    status
+    status,
+    no_of_stores,
+    no_of_cashiers,
+    no_of_products
     
   }) {
     this._partition = partition;
@@ -1849,6 +1888,9 @@ class UserInfo {
     this.privilege = privilege;
     this.privilege_due = privilege_due;
     this.status = status;
+    this.no_of_stores = no_of_stores;
+    this.no_of_cashiers = no_of_cashiers;
+    this.no_of_products = no_of_products
 
   }
 
@@ -1858,11 +1900,14 @@ class UserInfo {
     properties: {
       _id: "string",
       _partition: "string",
-      name: "string",
-      pin: "string",
+      name: "string?",
+      pin: "string?",
       privilege: "string?",
-      privilege_due: "string",
-      status: "string",
+      privilege_due: "string?",
+      status: "string?",
+      no_of_stores: "int?",
+      no_of_cashiers: "int?",
+      no_of_products: "int?"
     },
     primaryKey: "_id",
   };
@@ -1877,6 +1922,7 @@ export {
          Staffs, 
          List, 
          Settings,
+         Suppliers,
          SupplierWarehouse, 
          WarehouseProducts, 
          CategoriesWarehouse, 

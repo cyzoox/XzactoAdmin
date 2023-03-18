@@ -50,9 +50,9 @@ export function ProductDetails({route}) {
       createOption,
       user_info
       } = useStore();
-      const customData = app.currentUser.customData;
+//       const customData = app.currentUser.customData;
     
-console.log(customData.pin)
+// console.log(customData.pin)
     const [name, setName] = useState(product.name);
     const [brand, setBrand] = useState(product.brand);
     const [oprice, setOPrice] = useState(product.oprice);
@@ -381,6 +381,7 @@ console.log(product)
      
     <ScrollView>
    {addons.map((element, index) =>
+ 
              <View style={{flexDirection:'row',justifyContent:'center', marginVertical: 2, alignItems:'center'}}>
      <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
           <TextInput2
@@ -474,7 +475,7 @@ console.log(product)
        
         <ScrollView style={{marginHorizontal: 20}}>
         <TouchableOpacity onPress={()=> openGallery()} style={style.imageContainer}>
-                    <Image source={{ uri: img }} style={style.backgroundImage}/>
+                    <Image resizeMode="contain" source={{ uri: img }} style={style.backgroundImage}/>
                   </TouchableOpacity>
                   <TextInput
             mode="outlined"
@@ -675,7 +676,9 @@ console.log(product)
             <View>
                 {
                   addon.map(element => {
+                   
                     return(
+                      element.product_id === product._id &&
               <View style={{flexDirection:'row', marginVertical:5}}>
               <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
                   <TextInput2
@@ -744,6 +747,7 @@ console.log(product)
                 {
                   option.map(element => {
                     return(
+                      element.product_id === product._id &&
               <View style={{flexDirection:'row', marginVertical:5}}>
               <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
                   <TextInput2
@@ -798,7 +802,6 @@ const style = StyleSheet.create({
   },
   backgroundImage: {
    flex: 1,
-    resizeMode:'stretch',
   },
   uploadContainer: {
     backgroundColor: '#f6f5f8',

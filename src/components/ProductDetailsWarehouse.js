@@ -423,15 +423,10 @@ export function ProductDetailsWarehouse({route}) {
 }
 
 const style = StyleSheet.create({
-  imageContainer: {
-    backgroundColor: '#000000',
-    height: Dimensions.get('window').height /4,
-    marginHorizontal: 50,
-    borderRadius: 20
-  },
+ 
   backgroundImage: {
    flex: 1,
-    resizeMode:'stretch',
+    resizeMode:'contain',
   },
   uploadContainer: {
     backgroundColor: '#f6f5f8',
@@ -469,5 +464,11 @@ const style = StyleSheet.create({
     color: '#f6f5f8',
     fontSize: 20,
     fontFamily: 'Roboto'
-  }
+  },
+  imageContainer: {
+    backgroundColor: '#000000',
+    height: Dimensions.get('window').height /4,
+    marginHorizontal: 50,
+    borderRadius: 20
+  },
 });

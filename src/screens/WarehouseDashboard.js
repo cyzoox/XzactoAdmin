@@ -11,58 +11,14 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const WarehouseDashboard = ({navigation}) => {
-  const { 
-    transfer_logs,
-    warehouse_products,
-    warehouse_delivery_report_summary
-  } = useStore();
+
 
   // useEffect(() => {
   //   Orientation.lockToPortrait()
   // });
 
 
-  const calculateTotalCapital = () => {
-    let total = 0
-    warehouse_products.forEach(items => {
-      total += items.oprice * items.stock
-    });
-    return total;
-  }
-
-  const calculateTotalReceived = () => {
-    let total = 0
-    warehouse_delivery_report_summary.forEach(items => {
-      total += items.total
-    });
-    return total;
-  }
-
-  const calculateTotalDelivery = () => {
-    let total = 0
-    transfer_logs.forEach(items => {
-      total += items.quantity * items.oprice
-    });
-    return total;
-  }
-
-
-  const calculateCapitalInStock = () => {
-    let total = 0
-    warehouse_products.forEach(items => {
-      total += items.sprice * items.stock
-    });
-    return total;
-  }
-
-  const calculateProjectedIncome = () => {
-    let total = 0
-    warehouse_products.forEach(items => {
-      total += (items.sprice - items.oprice ) * items.stock
-    });
-    return total;
-  }
-
+ 
 
 
 
@@ -74,82 +30,50 @@ const WarehouseDashboard = ({navigation}) => {
        
         <Grid style={{ height:windowHeight/ 4, margin: 10}}>
         <ScrollView>
-            <Row style={{ height: 100, marginBottom: 5 }}>
-                <Col  style={styles.sgridStyle}>
-                    <TouchableOpacity onPress={()=> navigation.navigate('WarehouseProducts')} style={{flex : 1, flexDirection:'row', alignItems:'center', justifyContent:'space-between'}}>
-                    <Text style={{marginHorizontal:10, fontSize: 20, fontWeight: '700'}}>Inventory</Text>
-                        <View style={{marginHorizontal:10,  backgroundColor: colors.boldGrey, padding:10,overflow: 'hidden',borderRadius: 50}} onPress={()=> {}}>
-                       
-                            <Image style={{height: 30, width: 30}} source={require('../../assets/inventory.png')} />
-                        </View>
-                    </TouchableOpacity>
-                </Col>
-                <Col  style={styles.sgridStyle}>
-                        <TouchableOpacity style={{flex: 1, flexDirection:'row', alignItems:'center', justifyContent:'space-between'}} onPress={()=> navigation.navigate('WarehouseReports')}>
-                            <Text style={{marginHorizontal:10, fontSize: 20, fontWeight: '700'}}>Reports</Text>
-                            <View style={{marginHorizontal:10,  backgroundColor: colors.boldGrey, padding:10,overflow: 'hidden',borderRadius: 50}} onPress={()=> {}}>
-                            <Image style={{height: 30, width: 30}} source={require('../../assets/statistics.png')} />
-                            </View>
-                           
-                        </TouchableOpacity>
-                </Col>
-            </Row>
           
-            <Row style={styles.lgridStyle}>
-                <View style={{height: 50, width: 50, backgroundColor:colors.boldGrey, borderRadius: 30, justifyContent:'center', alignItems:'center'}}>
-                <Image style={{height: 30, width: 30}} source={require('../../assets/capital.png')} />
+              <Row>
+                <TouchableOpacity style={styles.lgridStyle} onPress={()=> navigation.navigate('WarehouseProducts')} >
+                <View>
+                <Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/warehouseicons/warehouse1.png')} />
                 </View>
                 <View>
-                    <Text style={{color:'gray', fontSize: 16}}>  Remaining Stocks Capital</Text>
+                    <Text style={{color:'gray', fontSize: 19, fontWeight:'900'}}>Inventory Management</Text>
                 </View>
                 <View>
-                    <Text style={{color:colors.secondary, fontSize: 16}}>{formatMoney(calculateTotalCapital(), { symbol: '₱', precision: 2 })}</Text>
+                  
                 </View>
+                </TouchableOpacity>
+             
             </Row>
-            <Row style={styles.lgridStyle}>
-            <View style={{height: 50, width: 50, backgroundColor: colors.boldGrey, borderRadius: 30, justifyContent:'space-between', alignItems:'center'}}>
-            <Image style={{height: 30, width: 30}} source={require('../../assets/capital.png')} />
-                </View>
-                <View sty>
-                    <Text style={{color:'gray', fontSize: 16}}>  Remaining Stocks SRP</Text>
+            <Row>
+                <TouchableOpacity style={styles.lgridStyle} onPress={()=> navigation.navigate('WarehouseReports')} >
+                <View >
+                <Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/warehouseicons/logs.png')} />
                 </View>
                 <View>
-                    <Text style={{color:colors.secondary, fontSize: 16}}> {formatMoney(calculateCapitalInStock(), { symbol: '₱', precision: 2 })}</Text>
+                    <Text style={{color:'gray', fontSize: 19, fontWeight:'900'}}>Warehouse Reports</Text>
                 </View>
+                <View>
+                  
+                </View>
+                </TouchableOpacity>
+             
             </Row>
-            <Row style={styles.lgridStyle}>
-            <View style={{height: 50, width: 50, backgroundColor: colors.boldGrey, borderRadius: 30, justifyContent:'center', alignItems:'center'}}>
-            <Image style={{height: 30, width: 30}} source={require('../../assets/capital.png')} />
+            <Row>
+                <TouchableOpacity style={styles.lgridStyle} onPress={()=> navigation.navigate('WarehouseSupplier')} >
+                <View >
+                <Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/iconsstore/supplier1.png')} />
                 </View>
                 <View>
-                    <Text style={{color:'gray', fontSize: 16}}> SRP Capital Margin</Text>
+                    <Text style={{color:'gray', fontSize: 19, fontWeight:'900'}}>Suppliers</Text>
                 </View>
                 <View>
-                    <Text style={{color:colors.secondary, fontSize: 16}}> {formatMoney(calculateProjectedIncome(), { symbol: '₱', precision: 2 })}</Text>
+                  
                 </View>
+                </TouchableOpacity>
+             
             </Row>
-            <Row style={styles.lgridStyle}>
-            <View style={{height: 50, width: 50, backgroundColor: colors.boldGrey, borderRadius: 30, justifyContent:'center', alignItems:'center'}}>
-            <Image style={{height: 30, width: 30}} source={require('../../assets/capital.png')} />
-                </View>
-                <View>
-                    <Text style={{color:'gray', fontSize: 16}}>  Received Stocks Capital</Text>
-                </View>
-                <View>
-                    <Text style={{color:colors.secondary, fontSize: 16}}> {formatMoney(calculateTotalReceived(), { symbol: '₱', precision: 2 })}</Text>
-                </View>
-            </Row>
-            <Row style={styles.lgridStyle}>
-            <View style={{height: 50, width: 50, backgroundColor: colors.boldGrey, borderRadius: 30, justifyContent:'center', alignItems:'center'}}>
-            <Image style={{height: 30, width: 30}} source={require('../../assets/capital.png')} />
-                </View>
-                <View>
-                    <Text style={{color:'gray', fontSize: 16}}>  Delivered Stocks Capital</Text>
-                </View>
-                <View>
-                    <Text style={{color:colors.secondary, fontSize: 16}}> {formatMoney(calculateTotalDelivery(), { symbol: '₱', precision: 2 })}</Text>
-                </View>
-            </Row>
+       
             </ScrollView>
         </Grid>
    
@@ -204,6 +128,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   lgridStyle : {
+    flex:1,
     height: 90,
     backgroundColor: colors.white, 
     margin: 5, 

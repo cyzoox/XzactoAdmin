@@ -19,7 +19,8 @@ const AddBatchWarehouseProducts = ({navigation}) => {
     const {user} = useAuth();
   const {warehouse_category,createWarehouseProducts,  warehouse_products,createWarehouseDeliveryReport, 
     createDeliveryReport,
-    createDeliverySummary} = useStore();
+    createDeliverySummary,
+    warehouse_supplier} = useStore();
 
 
     const units = ["Kilo", "Gram", "Piece", "Liter","Bundle", "Dozen", "Whole", "Half-Dozen","Ounce", "Milliliter", "Milligrams", "Pack","Ream","Box","Sack","Serving","Gallon","Container","Bottle"]
@@ -32,7 +33,7 @@ const AddBatchWarehouseProducts = ({navigation}) => {
   const [query,setQuery] = useState('')
   const [delivery_no, setDeliveryNo] = useState('')
   const [delivered_by, setDeliveredBy] = useState('')
-  const [supplier, setSupplier] = useState('')
+  const [supplier, setSupplier] = useState([])
   const [term,setTerm] = useState('')
   const filteredProducts = warehouse_products.filter(createFilter(term, KEYS_TO_FILTERS))
   const [visible, setVisible] = useState(false)
@@ -114,8 +115,8 @@ const saveToDeliveryReports = () => {
             quantity: parseFloat(items.qty),
             oprice: parseFloat(items.oprice),
             sprice: parseFloat(items.sprice),
-            supplier: supplier,
-            supplier_id: '',
+            supplier: supplier._id,
+            supplier_id: supplier.name,
             delivered_by: delivered_by,
             received_by: '',
             delivery_receipt: delivery_no,
@@ -136,8 +137,8 @@ const saveToDeliveryReports = () => {
             year_month : month+'-'+year,
             year_week : week+'-'+year,
             date: moment(date, "MMMM DD, YYYY").format('MMMM DD, YYYY'),
-            supplier: supplier,
-            supplier_id: '',
+            supplier: supplier._id,
+            supplier_id: supplier.name,
             delivered_by: delivered_by,
             received_by: '',
             delivery_receipt: delivery_no,
@@ -190,15 +191,20 @@ const onCancel = () => {
             <Text style={{color: colors.red, textAlign: 'center'}}>{errorMsg.length === 0 ? null : errorMsg}</Text>
         <Row style={{height: 30}}>
                 <Col size={1.5} style={{borderWidth: .2, borderColor: 'grey', justifyContent:'center', alignItems:'center'}}>
-                <TextInput 
-                                style={{textAlign:'center', flex: 1, paddingBottom:0, paddingTop: 0}}
-                                underlineColorAndroid = 'transparent'
-                                onChangeText={(text)=> setSupplier(text)}
-                                disableFullscreenUI={true}
-                                placeholder="Supplier"
-                                defaultValue={supplier}
-                                
-                            />
+                <Picker
+                  selectedValue={warehouse_supplier}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setSupplier(itemValue)
+                  }>
+                    <Picker.Item label="Supplier" value="default" />
+                 {
+                                warehouse_supplier.map(item => 
+                                  
+                                <Picker.Item label={item.name} value={item} />
+                                )
+                            } 
+                </Picker>
+     
                 </Col>
                 <Col  style={{borderWidth: .2, borderColor: 'grey', justifyContent:'center', alignItems:'center'}}>
                 <TextInput 

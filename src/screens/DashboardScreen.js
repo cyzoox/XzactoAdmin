@@ -1,5 +1,5 @@
 import React,{useEffect, useState} from "react";
-import { Text, StyleSheet, View, Dimensions , TouchableOpacity, Image, ScrollView } from "react-native";
+import { Text, StyleSheet, View, Dimensions , TouchableOpacity, Image, ScrollView, Alert } from "react-native";
 import colors from "../themes/colors";
 import { useStore } from "../context/StoreContext";
 import formatMoney from 'accounting-js/lib/formatMoney.js'
@@ -12,15 +12,16 @@ import EvilIcons from 'react-native-vector-icons/EvilIcons'
 import app from "../../getRealmApp";
 import moment from 'moment'
 import SubscribeCard from "react-native-subscribe-card";
-
+import { StackActions } from '@react-navigation/native';
 
 import uuid from 'react-native-uuid';
-
+import { CommonActions } from '@react-navigation/native';
 import { Button, Overlay, Tooltip  } from "react-native-elements";
 import AlertwithChild2 from "../components/AlertwithChild2";
 import AlertwithChild3 from "../components/AlertwithChild3";
 const { width: ScreenWidth } = Dimensions.get("screen");
-
+import SearchInput, { createFilter } from 'react-native-search-filter';
+const KEYS_TO_FILTERS = ['date'];
 const DashboardScreen = ({navigation}) => {
   const {user,signOut, projectData} = useAuth();
   const { 
@@ -30,16 +31,17 @@ const DashboardScreen = ({navigation}) => {
     expenses, 
     transactions,
     user_info,
-    onCreateUserPlan
+    onCreateUserPlan,
+    staffs
   } = useStore();
 // Access a logged in user's read-only custom data
 const [sub_alert, setSubsciptionAlert] = useState(false)
 const [alert_visible, alertVisible] = useState(false);
-const customData = app.currentUser.customData;
+// const customData = app.currentUser.customData;
 const [text, setText] = useState('');
-const hasUnsavedChanges = Boolean(text);
+const [hasUnsavedChanges,sethasUnsavedChanges] = useState(false)
 const [totalDuration, setTotalDuration] = useState(0);
-const [subscriptionVisible, setSubscriptionVisible] = useState(false);
+const [subscriptionVisible, setSubscriptionVisible] = useState(true);
 const [plan0, setPlan0] = useState(true);
 const [plan1, setPlan1] = useState(false);
 const [plan2, setPlan2] = useState(false);
@@ -50,57 +52,64 @@ const [cpinCode, setCPinCode] = useState('');
 const [error,setError] = useState('')
 const [open, setOpen] = useState(false);
 const [selectPlanVisible, setselectPlanVisible] = useState(false);
-const userData = async() => {
-  await app.currentUser.refreshCustomData();
-}
+const [plan_three_selected, setPlanThreeSelected] = useState(false);
+const [e, setEData] = useState([]);
+const date = moment().unix()
+const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
 
+const filteredTransaction = transactions.filter(createFilter(today, KEYS_TO_FILTERS))
+const filteredExpenses= expenses.filter(createFilter(today, KEYS_TO_FILTERS))
 
 
 
 useEffect(
     () =>
-     {  navigation.addListener('beforeRemove', (e) => {
-      e.preventDefault();
-      return
-  })
-      userData()
-
-      const date = moment().unix()
-  
-      if(moment().unix() > parseInt(customData.privilege_due)){
-        setSubsciptionAlert(true)
+    navigation.addListener('beforeRemove', (e) => {
+      if(hasUnsavedChanges){
+        navigation.dispatch(e.data.action)
       }
-      if(user_info.length === 0){
-        setSubscriptionVisible(true)
-      }
-      },
-    [navigation, hasUnsavedChanges]
+        // If we don't have unsaved changes, then we don't need to do anything
+        e.preventDefault();
+        return; 
+    }),[navigation, hasUnsavedChanges]
+   
   );
 
 
   
-  const calculateTotalCapital = () => {
-    let total = 0
-    products.forEach(items => {
-      total += items.oprice * items.stock
-    });
-    return total;
-  }
+  // const calculateTotalCapital = () => {
+  //   let total = 0
+  //   products.forEach(items => {
+  //     total += items.oprice * items.stock
+  //   });
+  //   return total;
+  // }
 
-  const calculateCapitalInStock = () => {
-    let total = 0
-    products.forEach(items => {
-      total += items.sprice * items.stock
-    });
-    return total;
-  }
+  // const calculateCapitalInStock = () => {
+  //   let total = 0
+  //   products.forEach(items => {
+  //     total += items.sprice * items.stock
+  //   });
+  //   return total;
+  // }
 
   const calculateStoreExpenses = (id) => {
     let total = 0;
-    expenses.forEach(item => {
+    filteredExpenses.forEach(item => {
       if(item.store_id === id){
         total += item.amount
       }
+      
+    });
+    return total;
+  }
+
+  const calculateExpenses = () => {
+    let total = 0;
+    filteredExpenses.forEach(item => {
+    
+        total += item.amount
+  
       
     });
     return total;
@@ -114,11 +123,11 @@ useEffect(
     return total;
   }
 
-  const calculateStoreSale = (id) => {
+  const calculateStoreSale = (id, sid) => {
       let total = 0;
 
-      transactions.forEach(item => {
-        if(item.store_id === id  && item.status === "Completed"){
+      filteredTransaction.forEach(item => {
+        if(item.attendant_id === id  && item.status === "Completed" && item.store_id === sid){
           total += item.total;
         }
        
@@ -127,8 +136,52 @@ useEffect(
       return total;
   }
 
+  const calculateStoreSaleProfit = (id, sid) => {
+    let total = 0;
+
+    filteredTransaction.forEach(item => {
+      if(item.attendant_id === id  && item.status === "Completed" && item.store_id === sid){
+        total += item.profit;
+      }
+     
+    });
+
+    return total;
+}
+
+  const calculateSale = () => {
+    let total = 0;
+
+    filteredTransaction.forEach(item => {
+      if(item.status === "Completed"){
+        total += item.total;
+      }
+       
+      
+     
+    });
+
+    return total;
+}
+
+
+const calculateProfit = () => {
+  let total = 0;
+
+  filteredTransaction.forEach(item => {
+    if(item.status === "Completed"){
+      total += item.profit;
+    }
+   
+    
+   
+  });
+
+  return total;
+}
   const onsignOut = () => {
     alertVisible(true)
+    sethasUnsavedChanges(true)
   }
 
   const onSelectFreePlan = () => {
@@ -151,12 +204,22 @@ useEffect(
     setselectPlanVisible(false)
   }
 
+  const onSelectPlan = () => {
+    if(plan0 == true){
+      setselectPlanVisible(true)
+    }
+    if(plan3 == true){
+      setPlanThreeSelected(true)
+    }
+  }
+
+
   return (
     <View style={{flex: 1}}>
       {/* <Loader loading={loading}/> */}
         <AlertwithChild3
           visible={alert_visible}
-          onProceed={signOut}
+          onProceed={()=>{navigation.goBack(), user.logOut()}}
           title="Sign Out?"
           confirmTitle="Sign Out"
           onCancel={()=> alertVisible(false)}
@@ -200,6 +263,48 @@ useEffect(
           </View>
         
         </AlertwithChild3>
+        <AlertwithChild3
+          visible={plan_three_selected}
+          onProceed={onSelectFreePlan}
+          title="AVAIL FREE PLAN"
+          confirmTitle="Proceed"
+          onCancel={()=> setPlanThreeSelected(false)}
+        >
+          {error.length > 0 ? <Text style={{color:'red', textAlign:'center'}}>{error}</Text> : null}
+          <Text style={{padding: 10, marginLeft: 10}}>Please fill in additinal information :</Text>
+          <View style={{paddingHorizontal: 20}}>
+          <TextInput 
+            onChangeText={(text)=> setUserName(text)}
+            mode="outlined"
+            label="Set your Username"
+            style={{height: 50}}
+          />
+          <View>
+            <TouchableOpacity>
+              
+            </TouchableOpacity>
+          </View>
+           <TextInput 
+            onChangeText={(text)=> setPinCode(text)}
+            mode="outlined"
+            label="Set your Pin"
+            style={{height: 50}}
+            maxLength={4}
+            keyboardType="numeric"
+            secureTextEntry={true}
+          />
+           <TextInput 
+            onChangeText={(text)=> setCPinCode(text)}
+            mode="outlined"
+            label="Confirm Pin"
+            style={{height: 50}}
+            maxLength={4}
+            keyboardType="numeric"
+            secureTextEntry={true}
+          />
+          </View>
+        
+        </AlertwithChild3>
        <View style={styles.xlgridStyle}>
          <View style={{position: 'absolute', top: 20, left: 20}}>
            <Text style={{fontSize:25, color: colors.white, marginLeft:15}}>XZACTO ADMIN</Text>
@@ -221,10 +326,10 @@ useEffect(
                     </View>
                     <View style={styles.xlsubgrid3}>
                     <TouchableOpacity style={{justifyContent:'center', marginRight: 20}}  onPress={onsignOut}>
-                      <Image style={{width: 38, height: 38}} source={require('../../assets/expired.png')}/>
+                      <Image style={{width: 45, height: 45}} source={require('../../assets//xzacto_icons/callendar4.png')}/>
                     </TouchableOpacity>
                        
-                        <Button buttonStyle={{borderColor:colors.coverDark}} titleStyle={{color:colors.primary, fontSize:13}} title={`${moment.unix(item.privilege_due).format('DD MMM YYYY hh:mm:ss A')}`} type="outline"/>
+                        <Button onPress={()=> navigation.navigate('AccountSreen')} buttonStyle={{borderColor:colors.coverDark, borderRadius: 20, paddingHorizontal: 10, marginTop: 5}} titleStyle={{color:colors.primary, fontSize:13}} title={`${moment.unix(item.privilege_due).format('DD MMM YYYY hh:mm:ss A')}`} type="outline"/>
                     
                     </View>
                     </View>
@@ -239,6 +344,60 @@ useEffect(
         </View>
 
     <ScrollView>
+    <View style={{   borderRadius: 10,
+        borderColor: '#fff',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
+    margin: 15}}>
+       <View>
+       <Text style={{textAlign:'center', fontSize: 19, fontWeight:'900', paddingVertical: 10}}>Today's Sale </Text> 
+       <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 10,paddingVertical: 10}}>
+          <Text style={{fontSize: 15, flex: 3}}></Text>
+          <Text style={{fontSize: 15, textAlign:'center', fontWeight:'bold', color: colors.red}}>Sales</Text>
+          <Text style={{fontSize: 15, marginLeft: 40, fontWeight:'bold', color: colors.green}}>Profit</Text>
+        </View>
+        <Divider/>
+                <View>
+                {
+                    stores.map((item, index) => {
+                      return(
+                        <View key={index} style={{flexDirection:'column', justifyContent:'space-between', marginHorizontal: 10,paddingVertical: 10}}>
+                        <Text style={{fontSize: 18, flex: 3, fontWeight: 'bold'}}>{item.name}</Text>
+                        {
+                          staffs.map(subitem => 
+                            subitem.store_id === item._id &&
+                            <View  style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 10,paddingVertical: 10}}>
+                            <Text style={{fontSize: 15, flex: 3}}>{subitem.name}</Text>
+                            <Text style={{fontSize: 15}}>{formatMoney(calculateStoreSale(subitem._id, item._id), { symbol: "₱ ", precision: 2 })}</Text>
+                            <Text style={{fontSize: 15, marginLeft: 30}}>{formatMoney(calculateStoreSaleProfit(subitem._id, item._id), { symbol: "₱ ", precision: 2 })}</Text>
+                            </View>
+                          )
+                        }
+                       {/* <Text style={{fontSize: 15}}>{formatMoney(calculateStoreSale(item._id), { symbol: "₱ ", precision: 2 })}</Text>
+                        <Text style={{fontSize: 15, marginLeft: 30}}>{formatMoney(calculateStoreSaleProfit(item._id), { symbol: "₱ ", precision: 2 })}</Text>  */}
+                      </View>
+                      )
+                     
+                    })
+                  }
+                </View>
+                <Divider/>
+                <View>
+                  <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 10, paddingVertical: 10}}>
+                    <Text style={{fontSize: 15, fontWeight:'bold', flex: 3}}>Total</Text>
+                    <Text style={{fontSize: 15, fontWeight:'bold'}}>{formatMoney(calculateSale(), { symbol: "₱ ", precision: 2 })}</Text>
+                    <Text style={{fontSize: 15, fontWeight:'bold', marginLeft: 30}}>{formatMoney(calculateProfit(), { symbol: "₱ ", precision: 2 })}</Text>
+                  </View>
+                </View>
+                </View>
+    </View>
         <View style={{   borderRadius: 10,
         borderColor: '#fff',
     backgroundColor: '#fff',
@@ -252,49 +411,10 @@ useEffect(
     elevation: 3,
     margin: 15}}>
        <View>
-       <Text style={{textAlign:'center', fontSize: 19, fontWeight:'900', paddingVertical: 10}}>Today's Sale </Text>
+       <Text style={{textAlign:'center', fontSize: 19, fontWeight:'900', paddingVertical: 10}}>Today's Expenses </Text>
         <Divider/>
                 <View>
                   {
-                    stores.map((item, index) => {
-                      return(
-                        <View key={index} style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 10,paddingVertical: 10}}>
-                        <Text style={{fontSize: 15}}>{item.name}</Text>
-                        <Text style={{fontSize: 15}}>{formatMoney(calculateStoreSale(item._id), { symbol: "₱ ", precision: 2 })}</Text>
-                      </View>
-                      )
-                     
-                    })
-                  }
-                 
-                 
-                </View>
-                <Divider/>
-                <View>
-                  <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 10, paddingVertical: 10}}>
-                    <Text style={{fontSize: 15, fontWeight:'bold'}}>Total</Text>
-                    <Text style={{fontSize: 15, fontWeight:'bold'}}>{formatMoney(0, { symbol: "₱ ", precision: 2 })}</Text>
-                  </View>
-                </View>
-                </View>
-    </View>
-    <View style={{   borderRadius: 10,
-        borderColor: '#fff',
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-    elevation: 3,
-    margin: 15}}>
-       <View>
-       <Text style={{textAlign:'center', fontSize: 19, fontWeight:'900', paddingVertical: 10}}>Today's Expenses </Text> 
-        <Divider/>
-                <View>
-                {
                     stores.map((item, index) => {
                       return(
                         <View key={index} style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 10,paddingVertical: 10}}>
@@ -305,18 +425,21 @@ useEffect(
                      
                     })
                   }
+                 
+                 
                 </View>
                 <Divider/>
                 <View>
                   <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 10, paddingVertical: 10}}>
                     <Text style={{fontSize: 15, fontWeight:'bold'}}>Total</Text>
-                    <Text style={{fontSize: 15, fontWeight:'bold'}}>{formatMoney(0, { symbol: "₱ ", precision: 2 })}</Text>
+                    <Text style={{fontSize: 15, fontWeight:'bold'}}>{formatMoney(calculateExpenses(), { symbol: "₱ ", precision: 2 })}</Text>
                   </View>
                 </View>
                 </View>
     </View>
+   
 
-    <View style={{   borderRadius: 10,
+    {/* <View style={{   borderRadius: 10,
         borderColor: '#fff',
     backgroundColor: '#fff',
     shadowColor: '#000',
@@ -342,7 +465,7 @@ useEffect(
                   </View>
                 </View>
                 </View>
-    </View>
+    </View> */}
     </ScrollView>
     <Overlay fullScreen isVisible={subscriptionVisible} onBackdropPress={()=> setSubscriptionVisible(false)}>
       <View style={{
@@ -416,11 +539,11 @@ useEffect(
         currencyTextStyle={{color: colors.white}}
       /> : null}
       <SubscribeCard
-        title="1 year plan"
-        descriptionPrice="₱16800"
-        description=" billed every year"
+        title="BASIC PLAN"
+        descriptionPrice=""
+        description="1 store, 1 cashier, 15 products"
         currency="₱"
-        price={1400}
+        price={180}
         isSelected={plan1}
         timePostfix="/mo"
         onPress={() => {setPlan0(false), setPlan1(true), setPlan2(false), setPlan3(false)}}
@@ -436,11 +559,11 @@ useEffect(
         currencyTextStyle={{color: colors.white}}
       />
       <SubscribeCard
-        title="5 months plan"
-        descriptionPrice="₱7000"
-        description=" billed every 5 months"
+        title="STANDARD PLAN"
+        descriptionPrice=""
+        description="1 store, 2 cashier, 30 products"
         currency="₱"
-        price={1400}
+        price={480}
         isSelected={plan2}
         timePostfix="/mo"
         onPress={() =>  {setPlan0(false), setPlan1(false), setPlan2(true), setPlan3(false)}}
@@ -456,9 +579,10 @@ useEffect(
         currencyTextStyle={{color: colors.white}}
       />
       <SubscribeCard
-        title="Monthly Plan"
+        title="PREMIUM PLAN"
         currency="₱"
-        price={1400}
+        description="customize according to your needs"
+        price={820}
         isSelected={plan3}
         timePostfix="/mo"
         onPress={() =>  {setPlan0(false), setPlan1(false), setPlan2(false), setPlan3(true)}}
@@ -497,7 +621,7 @@ useEffect(
             height: 3,
           },
         }}
-        onPress={()=>{user_info.length !== 0 ? setOpen(true): setselectPlanVisible(true)}}
+        onPress={()=> onSelectPlan()}
       >
         <Text style={{ color: "#fff", fontFamily: "Roboto-Bold" }}>
           Continue

@@ -13,23 +13,33 @@ const TopSeller = ({navigation, route}) => {
   const { alltrdetails} = useStore();
   const filteredProducts = alltrdetails.filter(createFilter(store._id, KEYS_TO_FILTERS));
 
-const reducerArray= ()=>{  
-    const result = filteredProducts.reduce((r, { product_id, name, quantity }) => {
-        var temp = r.find(o => o.product_id === product_id);
-        if (!temp) {
-            r.push({ product_id, name, quantity });
-        } else {
-            temp.quantity += Math.round(quantity * 100) / 100;
-        }
-        return r;
-    }, []);
+
+  const sortData = () => {
+    return filteredProducts.sort((a, b) => {
+      if (a.product_id === b.product_id) {
+        return a.quantity - b.quantity;
+      }
+      return a.id - b.id;
+    });
+  };
+
+// const reducerArray= ()=>{  
+//     const result = filteredProducts.reduce((r, { product_id, name, quantity }) => {
+//         var temp = r.find(o => o.product_id === product_id);
+//         if (!temp) {
+//             r.push({ product_id, name, quantity });
+//         } else {
+//             temp.quantity += Math.round(quantity * 100) / 100;
+//         }
+//         return r;
+//     }, []);
  
 
-   const  results = result.sort((a, b) =>  b.quantity - a.quantity);
+  //  const  results = result.sort((a, b) =>  b.quantity - a.quantity);
 
-    return results;
+  //   return results;
        
-    }
+  //   }
 
  
 
@@ -58,7 +68,7 @@ const reducerArray= ()=>{
         </Text>
         </View>
           <Leaderboard 
-            data={reducerArray()} 
+            data={sortData()} 
             sortBy='quantity' 
             labelBy='name'
             rankStyle={{fontSize: 15}}

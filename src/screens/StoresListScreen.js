@@ -7,11 +7,13 @@ import { useStore } from "../context/StoreContext";
 import colors from "../themes/colors";
 
 import formatMoney from 'accounting-js/lib/formatMoney.js'
-
+import moment from 'moment'
 import { TextInput } from "react-native-paper";
 // import Orientation from 'react-native-orientation';
-
+import SearchInput, { createFilter } from 'react-native-search-filter';
+const KEYS_TO_FILTERS = ['date'];
 import { useAuth } from "../context/AuthContext";
+import Alert from "../components/Alert";
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -27,7 +29,11 @@ const StoresList = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [type, setStoreType] = useState('');
-
+  const [upgrade_plan, setUpgradePlan] = useState(false)
+  const date = moment().unix()
+  const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
+  
+  const filteredTransaction = transactions.filter(createFilter(today, KEYS_TO_FILTERS))
 
   // useEffect(() => {
   //   Orientation.lockToPortrait()
@@ -45,7 +51,7 @@ const StoresList = ({ navigation }) => {
   const calculateDailySales = (id) => {
     let total = 0;
 
-    transactions.forEach(item => {
+    filteredTransaction.forEach(item => {
       if(item.store_id === id && item.status === "Completed"){
         total += item.total;
       }
@@ -56,8 +62,8 @@ const StoresList = ({ navigation }) => {
 
     const renderItem = ({ item }) => (
     
-        <ListItem bottomDivider underlayColor="white" containerStyle={style.storeCard} onPress={()=> navigation.navigate('StoreDashboard', {'storess': item})}>
-          <Avatar title={item.name[0]} size='large' source={require('../../assets/store.png')}/>
+        <ListItem bottomDivider underlayColor="white" containerStyle={style.lgridStyle} onPress={()=> navigation.navigate('StoreDashboard', {'storess': item})}>
+          <Avatar title={item.name[0]} size='large' source={require('../../assets/xzacto_icons/iconsstore/stores2.png')}/>
           <ListItem.Content>
             <ListItem.Title>{item.name}</ListItem.Title>
             <ListItem.Subtitle>{item.branch}</ListItem.Subtitle>
@@ -65,29 +71,18 @@ const StoresList = ({ navigation }) => {
           <Text style={{fontSize: 17, fontWeight:'700', color: colors.primary}}>{formatMoney(calculateDailySales(item._id), { symbol: '₱', precision: 2 })}</Text>
         </ListItem>
       )
-
+     
       const onAddStore = () => {
-        switch (stores.length) {
-          case 0:
+          if(user_info[0].no_of_stores === stores.length || user_info[0].no_of_stores < stores.length){
+            setUpgradePlan(true)
+          }else{
             setOverlayVisible(true)
-            break;
-          case 1:
-            setOverlayVisible(true)
-            break;
-          case 2:
-            setOverlayVisible(true)
-            break;
-          case 3:
-            setOverlayVisible(true)
-            break;
-
-          default:
-            break;
-        }
+          }
       }
 
     return (
         <View style={{flex:1}}>
+           <Alert visible={upgrade_plan} onCancel={()=> setUpgradePlan(false)} onProceed={()=> setOverlayVisible2(true)}  title="Upgrade Plan" content="Maximum number of stores has been reach please upgrade your plan." confirmTitle="OK"/>
             {/* <Loader loading={loading}/> */}
             <View style={style.xlgridStyle}>
               <Text style={{fontSize: 40, color: 'white', fontWeight:'700', marginBottom: 20, marginLeft: 20,textAlign:'center',marginTop: 70}}>STORES</Text>
@@ -161,34 +156,36 @@ const StoresList = ({ navigation }) => {
       </Overlay>
       <Overlay
         isVisible={overlayVisible2}
-        overlayStyle={{ width: "80%" }}
+        overlayStyle={{ width: "90%", borderRadius: 15 }}
         onBackdropPress={() => setOverlayVisible2(false)}
       >
-           <TouchableOpacity onPress={()=> setOverlayVisible2(false)} style={{position:'absolute', right: 10, top: 10}}>
-              <Text style={{textDecorationLine:'underline', fontSize:14, color: 'red'}}>Close</Text>
-            </TouchableOpacity>
-            <Text style={{fontSize:20, fontWeight:'700', textAlign:'center', marginTop: 10}}>Choose Plan</Text>
+
+            <Text style={{fontSize:25, fontWeight:'700', textAlign:'center', marginTop: 10, color: colors.primary}}>Upgrade your plan</Text>
         <View style={{justifyContent:'center', alignItems:'center', marginBottom: 10}}>
           <ScrollView contentContainerStyle={{marginTop: 10}} horizontal>
           <PricingCard
-          color="#cd7f32"
-          title="Bronze Plan"
-          price="₱250.00"
-          info={['2 Stores', 'Basic Support', '']}
+          color={colors.accent}
+          containerStyle={{borderRadius: 15, borderColor: colors.primary}}
+          title="Basic Plan"
+          price="180.00"
+          info={['1 Store', '1 Cashier', '15 products']}
           button={{ title: ' SUBSCRIBE' }}
         />
         <PricingCard
-          color="#C0C0C0"
-          title="Silver Plan"
-          price="₱500.00"
-          info={['5 Stores', 'Priority CS','']}
-          button={{ title: ' SUBSCRIBE' }}
+          color={colors.accent}
+          containerStyle={{borderRadius: 15, borderColor: colors.primary}}
+          title="Standard Plan"
+          price="480.00"
+          info={['1 Store', '2 Cashier','30 Products']}
+          button={{ title: ' SUBSCRIBE'}}
         />
         <PricingCard
-          color="#D4AF37"
-          title="Gold Plan"
-          price="₱1000.00"
-          info={['10 Store', 'Priority CS', 'Access to Warehouse Feature']}
+           color={colors.accent}
+           containerStyle={{borderRadius: 15, borderColor: colors.primary}}
+            
+          title="Premium Plan"
+          price="820.00"
+          info={['2 Store', '2 Cashier', '100 Products']}
           button={{ title: ' SUBSCRIBE' }}
         />
           </ScrollView>
@@ -236,7 +233,30 @@ const style = StyleSheet.create({
     shadowOpacity: 0.89,
     shadowRadius: 2,
     elevation: 5,
-  }
+  },
+  lgridStyle : {
+    flex:1,
+    height: 90,
+    padding:10,
+    backgroundColor: colors.white, 
+    marginHorizontal: 15, 
+    marginTop: 10, 
+    marginBottom: 5,
+    borderRadius: 15, 
+    flexDirection:'row', 
+    justifyContent:'space-between', 
+    paddingHorizontal: 10, 
+    alignItems:'center',
+    shadowColor: "#EBECF0",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+     
+    },
+    shadowOpacity: 0.89,
+    shadowRadius: 2,
+    elevation: 5,
+  },
 });
 
 export default StoresList;

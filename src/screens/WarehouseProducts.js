@@ -39,7 +39,7 @@ const MyFlatListInGrid = ({filteredProducts, navigation, categories}) => {
     // fixed
     spacing={15}
     renderItem={({ item }) => (
-     <TouchableOpacity onLongPress={()=>{ modal_visible(true), product_info(item)}} onPress={()=> navigation.navigate('ProductWarehouseDetails', { product: item, categories: categories})} style={[styles.itemContainer, { backgroundColor: item.stock > 10 ? colors.white : colors.red }]}>
+     <TouchableOpacity onLongPress={()=>{ modal_visible(true), product_info(item)}} onPress={()=> navigation.navigate('ProductWarehouseDetails', { product: item, categories: categories})} style={[styles.itemContainer]}>
     
         <Image source={{uri: item.img}} resizeMode="stretch" style={{flex: 2, height: 80, width: '100%'}}/>
         <View style={{paddingVertical: 5}}>
@@ -47,6 +47,18 @@ const MyFlatListInGrid = ({filteredProducts, navigation, categories}) => {
           <Text style={{textAlign:'center', fontSize:9}}>{item.brand}</Text>
           <Text style={{textAlign:'center', fontSize:9}}>{Math.round(item.stock * 100) / 100} In Stock</Text>
         </View>
+        {
+            item.stock < 10 ?<Text style={{paddingHorizontal: 2,paddingVertical: 2, backgroundColor:colors.red, borderRadius: 15,position: 'absolute', right: 10, top: 10,}}>
+               <MaterialCommunityIcons name={'alert-octagram-outline'} size={20} color={colors.white}/>
+            </Text> : null
+          }
+       {item.stock <= 10 ? <View style={styles.container}>
+                <View style={[styles.label,
+                        {height:20},
+                        ]}>
+                  <Text style={{color: colors.white, fontSize:11, fontWeight:'bold'}}>Low stock</Text>
+                </View>
+         </View>: null}
       </TouchableOpacity>
     )}
   />
@@ -82,14 +94,14 @@ const MyFlatListInList = ({filteredProducts, totalPrice, setCustomModal2,setCust
                
                 <TouchableOpacity style={{marginHorizontal: 3, justifyContent:'center'}} onPress={()=> {setCustomModal2(true), setProduct(item), setProductQty(item.stock)}}>
                 <Image 
-                        source={require('../../assets/expired2.png')}
-                        style={{width: 25, height: 25}}
+                        source={require('../../assets/xzacto_icons/callendar5.png')}
+                        style={{width: 40, height: 40}}
                       />
                   </TouchableOpacity>
                   <TouchableOpacity style={{marginHorizontal: 5, justifyContent:'center'}} onPress={()=>{ setCustomModal4(true), setProduct(item), setProductQty(item.stock)}}>
                       <Image 
-                        source={require('../../assets/delivery2.png')}
-                        style={{width: 28, height: 34}}
+                        source={require('../../assets/xzacto_icons/warehouseicons/transfer.png')}
+                        style={{width: 40, height: 40}}
                       />
                   </TouchableOpacity>
                 {/*  <TouchableOpacity style={{marginHorizontal: 3}} onPress={()=>{ setCustomModal4(true), setProduct(item), setProductQty(item.stock)}}>
@@ -568,7 +580,7 @@ const onCancelAlert = () => {
         <TouchableOpacity style={{justifyContent:"center", alignItems:'center'}}  onPress={()=> warehouse_category.length === 0 ? setAlert(true) :navigation.navigate('AddWarehouseProducts')}>
             <Image 
               resizeMode="cover"
-              source={require('../../assets/add_product.png')}
+              source={require('../../assets/xzacto_icons/addproducts.png')}
               style={{width:40, height:40}}
             />
             <Text style={{textAlign:'center',fontSize: 10 }}>Add Products</Text>
@@ -578,7 +590,7 @@ const onCancelAlert = () => {
                  <>
                 <Image 
                           resizeMode="cover"
-                          source={require('../../assets/add_cat.png')}
+                          source={require('../../assets/xzacto_icons/batch_edit.png')}
                           style={{width:40, height:40}}
                         />
                         <Text style={{textAlign:'center',fontSize: 10 }}>Add Category</Text>
@@ -597,7 +609,7 @@ const onCancelAlert = () => {
           <TouchableOpacity style={{justifyContent:"center", alignItems:'center'}}  onPress={()=> warehouse_category.length === 0 ? setAlert(true) : navigation.navigate('WarehouseBatchEdit')}>
             <Image 
               resizeMode="cover"
-              source={require('../../assets/batch_edit.png')}
+              source={require('../../assets/xzacto_icons/batch_edit_(2).png')}
               style={{width:40, height:40}}
             />
             <Text style={{textAlign:'center',fontSize: 10 }}>Batch Edit</Text>
@@ -606,7 +618,7 @@ const onCancelAlert = () => {
       <TouchableOpacity onPress={()=> warehouse_category.length === 0 ? setAlert(true) : navigation.navigate('AddBatchWarehouseProducts')} style={{justifyContent:"center", alignItems:'center'}}>
             <Image 
               resizeMode="cover"
-              source={require('../../assets/batch_add.png')}
+              source={require('../../assets/xzacto_icons/batch_adding.png')}
               style={{width:40, height:40}}
             />
             <Text style={{textAlign:'center',fontSize: 10 }}>Batch Adding</Text>
@@ -614,7 +626,7 @@ const onCancelAlert = () => {
               <TouchableOpacity onPress={()=> warehouse_category.length === 0 ? setAlert(true) : navigation.navigate('BatchTransfer')} style={{justifyContent:"center", alignItems:'center'}}>
             <Image 
               resizeMode="cover"
-              source={require('../../assets/delivery2.png')}
+              source={require('../../assets//xzacto_icons/batch_transfer.png')}
               style={{width:40, height:40}}
             />
             <Text style={{textAlign:'center',fontSize: 10 }}>Batch Transfer</Text>
@@ -623,7 +635,7 @@ const onCancelAlert = () => {
       </View>
      
       <View style={{flex:1}}>
-      <Categories tabs = {warehouse_category} store={user} onTabChange={onTabChange}/>
+      <Categories tabs = {warehouse_category} store={user} onTabChange={onTabChange} origin={'warehouse'}/>
       {displayType === "list" ? <MyFlatListInList setCustomModal2={setCustomModal2} setCustomModal4={setCustomModal4} setProduct={setProduct} setProductQty={setProductQty} filteredProducts={filteredProducts} totalPrice={calculateTotalPrice()}/> :<MyFlatListInGrid filteredProducts={filteredProducts} navigation={navigation} categories={warehouse_category} />  }
      
       </View>
@@ -783,6 +795,36 @@ trinput:{
   shadowRadius: 2,
   elevation: 2,
 
+},
+itemContainer: {
+  justifyContent: 'center',
+  alignItems:'center',
+  borderRadius: 5,
+  backgroundColor: colors.white,
+  height: 150,
+  shadowColor: "#EBECF0",
+  shadowOffset: {
+    width: 0,
+    height: 1,
+   
+  },
+  shadowOpacity: 0.89,
+    shadowRadius: 2,
+    elevation: 2,
+    overflow: 'hidden',
+},
+label: {
+  justifyContent: 'center',
+  alignItems: 'center',
+  
+},
+container: {
+  position: 'absolute',
+  transform: [{rotate: '40deg'}],
+  right: -25,
+  top:13,
+  backgroundColor:'red',
+  width:100
 }
 });
 

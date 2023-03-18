@@ -41,14 +41,14 @@ const StaffsScreen = ({navigation, route}) => {
   console.log(staffs)
   const renderItem = ({ item }) => (
     item.store_id === STORE._id &&
-    <ListItem underlayColor='#f1f1f1' onPress={()=> onEditStaff(item)} bottomDivider containerStyle={{borderRadius: 20, marginHorizontal: 15, marginVertical: 2}}>
+    <ListItem underlayColor='#f1f1f1' onPress={()=> onEditStaff(item)} bottomDivider containerStyle={styles.listStyle}>
     <Avatar containerStyle={{
           borderColor: 'grey',
           borderStyle: 'solid',
           borderWidth: 1,
           borderRadius: 20,
           backgroundColor:colors.white
-        }} size={40} source={require('../../assets/user2.png')}/>
+        }} size={50} source={require('../../assets//xzacto_icons/iconsstore/cashier.png')}/>
 <ListItem.Content>
   <ListItem.Title>{item.name}</ListItem.Title>
 </ListItem.Content>
@@ -141,6 +141,29 @@ StaffsScreen.navigationOptions = () => {
 const styles = StyleSheet.create({
   text: {
     fontSize: 30
+  },
+  listStyle: {
+    flex:1,
+    height: 75,
+    backgroundColor: colors.white, 
+    marginHorizontal: 15,
+    paddingHorizontal: 15, 
+    marginBottom: 10,
+    marginTop: 10, 
+    borderRadius: 15, 
+    flexDirection:'row', 
+    justifyContent:'space-between', 
+    paddingHorizontal: 10, 
+    alignItems:'center',
+    shadowColor: "#EBECF0",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+     
+    },
+    shadowOpacity: 0.89,
+    shadowRadius: 2,
+    elevation: 5,
   }
 });
 

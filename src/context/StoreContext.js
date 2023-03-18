@@ -32,10 +32,11 @@ import {
   Addon,
   Option,
   UserInfo,
-  
+  Suppliers
 } from '../../schemas';
 import { useAuth } from './AuthContext';
 import moment from 'moment'
+import Supplier from '../screens/Supplier';
 
 
 const StoreContext = React.createContext(null);
@@ -86,6 +87,7 @@ const StoreProvider = ({ children, projectPartition }) => {
     const [option, setOption] = useState([]);
     const [addon, setAddon] = useState([]);
     const [user_info, setUserInfo] = useState([]);
+    const [suppliers, setSupplier] = useState([])
 
     const date = moment().unix()
     const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
@@ -97,6 +99,39 @@ const StoreProvider = ({ children, projectPartition }) => {
       type: 'openImmediately',
     };
     const config = {
+      schema:[ Stores.schema, 
+        Categories.schema, 
+        Expenses.schema, 
+        Customers.schema, 
+        Staffs.schema, 
+        List.schema, 
+        Settings.schema,
+        SupplierWarehouse.schema, 
+        WarehouseProducts.schema, 
+        CategoriesWarehouse.schema, 
+        BOWarehouse.schema,
+        PulloutWarehouse.schema,
+        ExpiredWarehouse.schema,
+        DeliveryReportWarehouse.schema,
+        DeliveryReport.schema,
+        DeliveryReportSummary.schema,
+        TransferLogs.schema,
+        DeliveryStoreSummary.schema,
+        Expired.schema,
+        Pullout.schema,
+        BO.schema,
+        Returned.schema,
+        Discount.schema,
+        Payment_Logs.schema,
+        Transactions.schema,
+        TR_Details.schema,
+        Products.schema,
+        Inventory.schema,
+        Addon.schema,
+        Option.schema,
+        UserInfo.schema,
+        Suppliers.schema],
+        
       sync: {
     
         user: user,
@@ -157,8 +192,7 @@ const StoreProvider = ({ children, projectPartition }) => {
       });
 
       const syncExpenses = projectPOS.objects("Expenses");
-      const filteredExpenses = syncExpenses.filtered("date == $0", today);
-      let sortedExpenses = filteredExpenses.sorted("timeStamp");
+      let sortedExpenses = syncExpenses.sorted("timeStamp");
       setExpenses([...sortedExpenses]);
       sortedExpenses.addListener(() => {
         setExpenses([...sortedExpenses]);
@@ -193,8 +227,8 @@ const StoreProvider = ({ children, projectPartition }) => {
 
 
       const syncTransactions = projectPOS.objects("Transactions");
-      const filteredTransactions = syncTransactions.filtered("date == $0", today);
-      let sortedTransactions = filteredTransactions.sorted("timeStamp");
+    
+      let sortedTransactions = syncTransactions.sorted("timeStamp");
       setTransactions([...sortedTransactions]);
       sortedTransactions.addListener(() => {
         setTransactions([...sortedTransactions]);
@@ -216,6 +250,14 @@ const StoreProvider = ({ children, projectPartition }) => {
       setSupplierWarehouse([...sortedSupplierWarehouse]);
       sortedSupplierWarehouse.addListener(() => {
         setSupplierWarehouse([...sortedSupplierWarehouse]);
+   
+      });
+
+      const syncSupplier = projectPOS.objects("Supplier");
+      let sortedSupplier = syncSupplier.sorted("name");
+      setSupplier([...sortedSupplier]);
+      sortedSupplier.addListener(() => {
+        setSupplier([...sortedSupplier]);
    
       });
 
@@ -334,6 +376,13 @@ const StoreProvider = ({ children, projectPartition }) => {
        
         });
         break;
+
+    case 'category':
+          projectPOS.write(() => {
+            product.category = item;
+         
+          });
+          break;
     }
 
    
@@ -473,6 +522,18 @@ const StoreProvider = ({ children, projectPartition }) => {
     });
   };
 
+  const createSupplier = ( supplier ) => {
+
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+      // Create a new task in the same partition -- that is, in the same project.
+      projectPOS.create(
+        "Supplier",
+        new Suppliers(supplier)
+      );
+    });
+  };
+
   const createtransferLogs = ( logs ) => {
 
     const projectPOS = realmRef.current;
@@ -513,7 +574,7 @@ const StoreProvider = ({ children, projectPartition }) => {
         filteredProducts4[0].stock -= productss.stock;
         projectPOS.create(
           "Products",
-          new Product(productss)
+          new Products(productss)
         );
       }else{
         filteredProducts4[0].stock -= productss.stock;
@@ -681,6 +742,19 @@ const StoreProvider = ({ children, projectPartition }) => {
     });
   };
 
+  const updateCustomer = (customer, new_customer) => {
+    // One advantage of centralizing the realm functionality in this provider is
+    // that we can check to make sure a valid status was passed in here.
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+      customer.name = new_customer.name
+      customer.address = new_customer.address
+      customer.mobile_no = new_customer.mobile_no
+      customer.credit_balance =  new_customer.credit_balance
+    });
+  };
+
+
 
   const updateProduct = (product, new_product) => {
     // One advantage of centralizing the realm functionality in this provider is
@@ -754,6 +828,22 @@ const StoreProvider = ({ children, projectPartition }) => {
       const projectPOS = realmRef.current;
       projectPOS.write(() => {
         option.option = element;
+      });
+   
+   
+  };
+
+  const updateStore = (stores, newStore) => {
+    // One advantage of centralizing the realm functionality in this provider is
+    // that we can check to make sure a valid status was passed in here.
+
+      const projectPOS = realmRef.current;
+      projectPOS.write(() => {
+        stores.name= newStore.name,
+        stores.password= newStore.password,
+        stores.lowstock= newStore.lowstock,
+        stores.vat= newStore.vat,
+        stores.cashierview= newStore.cashierview
       });
    
    
@@ -1255,8 +1345,11 @@ const StoreProvider = ({ children, projectPartition }) => {
     const projectPOS = realmRef.current;
     const syncStoreDelivery= projectPOS.objects("DeliveryReport");
 
+  
+
     if(type === 1){
       const filteredStoreDelivery= syncStoreDelivery.filtered("date == $0", date);
+      console.log(filteredStoreDelivery)
       setStoreDelivery([...filteredStoreDelivery]);
     }
     if(type === 2){
@@ -1489,11 +1582,17 @@ const StoreProvider = ({ children, projectPartition }) => {
   });
   };
 
-  const deleteCategory = (tab) => {
+  const deleteCategory = (tab, origin) => {
     const projectPOS = realmRef.current;
     projectPOS.write(() => {
         projectPOS.delete(tab);
-    setCategory([...projectPOS.objects("Categories").sorted("name")]);
+        if(origin==='warehouse'){
+          setWarehouseCategory([...projectPOS.objects("CategoriesWarehouse").sorted("name")]);
+        }
+        if(origin==='store'){
+          setCategory([...projectPOS.objects("Categories").sorted("name")]);
+        }
+   
   });
   };
 
@@ -1642,7 +1741,11 @@ const StoreProvider = ({ children, projectPartition }) => {
             onUpdateOptions,
             deleteAddon,
             deleteOption,
-            onCreateUserPlan
+            onCreateUserPlan,
+            suppliers,
+            createSupplier,
+            updateStore,
+            updateCustomer
           }}
         >
             {children}

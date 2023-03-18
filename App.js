@@ -54,7 +54,7 @@ import CustomerCreditDetails from "./src/screens/CustomerCredtiDetails";
 import TransferLogs from "./src/screens/TransferLogs";
 import StoreDeliveryReportDetails from "./src/screens/StoreDeliveryReportDetails";
 import Discount from "./src/screens/Discount";
-// import AccountSreen from "./src/screens/AccountScreen";
+ import AccountSreen from "./src/screens/AccountScreen";
 import BatchEditScreen from "./src/components/BatchEditScreen";
 import XZReadScreen from "./src/screens/XZReadScreen";
 import AddBatchStoreProducts from "./src/components/AddBatchStoreProducts";
@@ -70,6 +70,9 @@ import PinCodeInput from "./src/components/PinCodeInput";
 import Registration from "./src/screens/Registration";
 import Onboarding from "./src/screens/Onboarding";
 import ForgotPassword from "./src/screens/ForgotPassword";
+import Supplier from "./src/screens/Supplier";
+import StoreSettings from "./src/screens/StoreSettings";
+import DeliveryRequest from "./src/screens/DeliveryRequest";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -132,11 +135,11 @@ function HomeStackScreen() {
         component={Subscription}
         options={{headerShown:false}}
       /> */}
-       {/* <HomeStack.Screen
+       <HomeStack.Screen
         name="AccountSreen"
         component={AccountSreen}
         options={{headerShown:false}}
-      /> */}
+      />
     </HomeStack.Navigator>
   );
 }
@@ -269,6 +272,22 @@ function StoreStackScreen() {
         component={AddBatchStoreProducts}
         options={{headerShown:false}}
       />
+       <StoreStack.Screen
+        name="Suppliers"
+        component={Supplier}
+        options={{headerShown:false}}
+      />
+       <StoreStack.Screen
+        name="StoreSettings"
+        component={StoreSettings}
+        options={{headerShown:false}}
+      />
+      <StoreStack.Screen
+        name="DeliveryRequest"
+        component={DeliveryRequest}
+        options={{headerShown:false}}
+      />
+
     </StoreStack.Navigator>
   )
 }

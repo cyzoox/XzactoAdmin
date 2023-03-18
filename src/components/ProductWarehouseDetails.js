@@ -341,14 +341,14 @@ export function ProductWarehouseDetails({route, }) {
 
 const style = StyleSheet.create({
   imageContainer: {
-    backgroundColor: '#000000',
+    backgroundColor: colors.grey,
     height: Dimensions.get('window').height /4,
     marginHorizontal: 50,
     borderRadius: 20
   },
   backgroundImage: {
    flex: 1,
-    resizeMode:'stretch',
+    resizeMode:'contain',
   },
   uploadContainer: {
     backgroundColor: '#f6f5f8',

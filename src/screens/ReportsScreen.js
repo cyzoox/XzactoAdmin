@@ -30,36 +30,36 @@ const ReportsScreen = ({navigation}) => {
         />
       
         <ScrollView style={{flex: 1, marginBottom: 10}}>
-        <ListItem underlayColor='#f1f1f1' onPress={()=> navigation.navigate('SummaryReports', {store: STORE})} containerStyle={styles.buttonStyle} bottomDivider>
-        <Avatar size='medium'  source={require('../../assets/chart2.png')}/>
+        <ListItem underlayColor='#f1f1f1' onPress={()=> navigation.navigate('SummaryReports', {store_info: STORE})} containerStyle={styles.cardStyle} bottomDivider>
+        <Avatar size='medium'  source={require('../../assets/xzacto_icons/warehouseicons/report.png')}/>
         <ListItem.Content >
           <ListItem.Title>Reports Summary</ListItem.Title>
 
         </ListItem.Content>
       </ListItem>
-      <ListItem underlayColor='#f1f1f1' onPress={()=> navigation.navigate('DeliveryStockReports', {store: STORE})} containerStyle={styles.buttonStyle}  bottomDivider>
-      <Avatar size='medium'  source={require('../../assets/chart2.png')}/>
+      <ListItem underlayColor='#f1f1f1' onPress={()=> navigation.navigate('DeliveryStockReports', {store: STORE})} containerStyle={styles.cardStyle}  bottomDivider>
+      <Avatar size='medium'  source={require('../../assets/xzacto_icons/warehouseicons/report.png')}/>
         <ListItem.Content>
           <ListItem.Title>Delivery Stock Report</ListItem.Title>
 
         </ListItem.Content>
       </ListItem>
-      <ListItem underlayColor='#f1f1f1' onPress={()=> navigation.navigate('BOEP', {store: STORE})} containerStyle={styles.buttonStyle} bottomDivider>
-      <Avatar size='medium'  source={require('../../assets/chart2.png')}/>
+      <ListItem underlayColor='#f1f1f1' onPress={()=> navigation.navigate('BOEP', {store: STORE})} containerStyle={styles.cardStyle} bottomDivider>
+      <Avatar size='medium'  source={require('../../assets/xzacto_icons/warehouseicons/report.png')}/>
         <ListItem.Content>
           <ListItem.Title>Pullout / Expired Report</ListItem.Title>
  
         </ListItem.Content>
       </ListItem>
-      <ListItem underlayColor='#f1f1f1' onPress={()=> navigation.navigate('Inventory', {info: STORE})} containerStyle={styles.buttonStyle}  bottomDivider>
-      <Avatar size='medium'  source={require('../../assets/chart2.png')}/>
+      <ListItem underlayColor='#f1f1f1' onPress={()=> navigation.navigate('Inventory', {info: STORE})} containerStyle={styles.cardStyle}  bottomDivider>
+      <Avatar size='medium'  source={require('../../assets/xzacto_icons/warehouseicons/report.png')}/>
         <ListItem.Content>
           <ListItem.Title>Remaining Stock Report</ListItem.Title>
    
         </ListItem.Content>
       </ListItem>
-      <ListItem underlayColor='#f1f1f1' onPress={()=> navigation.navigate('TopSeller', {info: STORE})} containerStyle={styles.buttonStyle}  bottomDivider>
-      <Avatar size='medium'  source={require('../../assets/chart2.png')}/>
+      <ListItem underlayColor='#f1f1f1' onPress={()=> navigation.navigate('TopSeller', {info: STORE})} containerStyle={styles.cardStyle}  bottomDivider>
+      <Avatar size='medium'  source={require('../../assets/xzacto_icons/warehouseicons/report.png')}/>
         <ListItem.Content>
           <ListItem.Title>Top Selling Products</ListItem.Title>
 
@@ -102,6 +102,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 20,
     backgroundColor:'gray'
+  },
+  cardStyle: {
+    flex:1,
+    height: 70,
+    marginBottom: 10,
+    backgroundColor: colors.white, 
+    marginHorizontal: 20, 
+    marginTop: 10, 
+    borderRadius: 15, 
+    flexDirection:'row', 
+    justifyContent:'space-between', 
+    paddingHorizontal: 10, 
+    alignItems:'center',
+    shadowColor: "#EBECF0",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+     
+    },
+    shadowOpacity: 0.89,
+    shadowRadius: 2,
+    elevation: 5,
   }
 });
 

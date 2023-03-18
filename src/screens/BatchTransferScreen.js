@@ -13,6 +13,7 @@ import AlertwithChild from "../components/AlertwithChild";
 import AppHeader from "../components/AppHeader";
 const units = ["Kilo", "Gram", "Piece", "Liter","Bundle", "Dozen", "Whole", "Half-Dozen","Ounce", "Milliliter", "Milligrams", "Pack","Ream","Box","Sack","Serving","Gallon","Container","Bottle"]
 import {Picker} from '@react-native-picker/picker';
+import Alert from "../components/Alert";
 
 const BatchTransferScreen = ({navigation,route}) => {
 
@@ -20,12 +21,9 @@ const BatchTransferScreen = ({navigation,route}) => {
     const {stores,warehouse_category,createWarehouseProducts,  warehouse_products,createWarehouseDeliveryReport, 
         createDeliveryReport, createStoreDeliverySummary,onSendProducts,createtransferLogs} = useStore();
 
-    const [product_holder, setProductHolder] = useState([
-        {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4()},
-        {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4()}
-    ])
+    const [product_holder, setProductHolder] = useState([])
     const [sku, setSKU] = useState('')
-    const [date, setDate] = useState(new Date())
+    // const [date, setDate] = useState(new Date())
     const [open, setOpen] = useState(false)
     const [query,setQuery] = useState('')
     const [delivery_no, setDeliveryNo] = useState('')
@@ -34,8 +32,9 @@ const BatchTransferScreen = ({navigation,route}) => {
     const [errorMsg, setErrorMsg] = useState('')
     const [alert_visible,alertVisible] = useState(false)
     const [selected_store, setSelectedStore] = useState([])
+    const [visible, setVisible] = useState(false);
     const onAddItem = () => {
-        const items =  product_holder.concat([{"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, id: uuid.v4()}])
+        const items =  product_holder.concat([{"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, id: uuid.v4(),    img:'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png', }])
        setProductHolder(items)
      }
 
@@ -49,9 +48,11 @@ const BatchTransferScreen = ({navigation,route}) => {
   }
     
  const onSaveItems = () => {
-  
+          if(selected_store.length===0){
+            return setVisible(true)
+          }
          product_holder.forEach(items => {
-            console.log('test: ',items)
+       
              let wproducts = {
                 partition: `project=${user.id}`,
                 id: uuid.v4(),
@@ -65,8 +66,11 @@ const BatchTransferScreen = ({navigation,route}) => {
                 store: selected_store.name,
                 stock: parseFloat(items.qty),
                 sku:'',
-                img:'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png',
-                pr_id: items.id
+                img:items.img,
+                pr_id: items.id,
+                withAddons: false,
+                withVariants: false,
+                withOptions: false
               }
               onSendProducts(wproducts, items);
          });
@@ -85,9 +89,29 @@ const BatchTransferScreen = ({navigation,route}) => {
 
  const saveToDeliveryReports = () => {
    let dates = moment().unix()
-    let year = moment(date, "MMMM DD, YYYY").format('YYYY');
-    let month = moment(date, "MMMM DD, YYYY").format('MMMM');
-    let week = moment(date, "MMMM DD, YYYY").format('WW');
+    // let year = moment(date, "MMMM DD, YYYY").format('YYYY');
+    // let month = moment(date, "MMMM DD, YYYY").format('MMMM');
+    // let week = moment(date, "MMMM DD, YYYY").format('WW');
+
+    
+    let drs = {
+      partition: `project=${user.id}`,
+      id: uuid.v4(),
+      timeStamp: moment(dates).unix(),
+      year :moment.unix(dates).format('YYYY'),
+      year_month :moment.unix(dates).format('MMMM-YYYY'),
+      year_week :moment.unix(dates).format('WW-YYYY'),
+      date: moment.unix(dates).format('MMMM DD, YYYY'),
+      supplier: 'Warehouse',
+      supplier_id: 'Warehouse',
+      delivered_by: 'C/o Warehouse',
+      received_by: 'C/o Warehouse',
+      delivery_receipt: 'C/o Warehouse',
+      total: calculateTotal(),
+      store_id: selected_store._id,
+      store_name: selected_store.name,
+    }
+    createStoreDeliverySummary(drs)
   
     product_holder.forEach(items => {
         let delivery = {
@@ -109,6 +133,7 @@ const BatchTransferScreen = ({navigation,route}) => {
             delivery_receipt: 'C/o Warehouse',
             store_id: selected_store._id,
             store_name: selected_store.name,
+            tr_id: drs.id
           }
         
           let trproducts = {
@@ -135,24 +160,6 @@ const BatchTransferScreen = ({navigation,route}) => {
   
     
 
-          let drs = {
-            partition: `project=${user.id}`,
-            id: uuid.v4(),
-            timeStamp: moment(dates).unix(),
-            year :moment.unix(dates).format('YYYY'),
-            year_month :moment.unix(dates).format('MMMM-YYYY'),
-            year_week :moment.unix(dates).format('WW-YYYY'),
-            date: moment.unix(dates).format('MMMM DD, YYYY'),
-            supplier: 'Warehouse',
-            supplier_id: 'Warehouse',
-            delivered_by: 'C/o Warehouse',
-            received_by: 'C/o Warehouse',
-            delivery_receipt: 'C/o Warehouse',
-            total: calculateTotal(),
-            store_id: selected_store._id,
-            store_name: selected_store.name,
-          }
-          createStoreDeliverySummary(drs)
         alertVisible(false)
         navigation.goBack()
 
@@ -165,6 +172,7 @@ const BatchTransferScreen = ({navigation,route}) => {
 
   return (
       <View style={{flex: 1}}>
+         <Alert visible={visible} onCancel={()=> setVisible(false)} onProceed={()=> setVisible(false)} title="Select Store" content="Please select store." confirmTitle="OK"/>
         <AppHeader 
                 centerText="Batch Transfer" 
                 leftComponent={
@@ -237,6 +245,7 @@ const BatchTransferScreen = ({navigation,route}) => {
                                         element.oprice = itemValue.oprice,
                                         element.sprice = itemValue.sprice,
                                         element.qty = 1,
+                                        element.img = itemValue.img
                                         setProductHolder([...product_holder])
                                 }
                                   }>

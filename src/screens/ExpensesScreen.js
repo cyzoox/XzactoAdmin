@@ -176,9 +176,10 @@ const onSelectFilter = () => {
         rightComponent={
           <ModalInputForm
                 displayComponent={
-                    <>
+                    <View style={{flexDirection:"row", justifyContent:"center", alignItems:"center"}}>
                         <EvilIcons style={{textAlign:'center'}}  name={'plus'} size={30} color={colors.white}/>
-                    </>
+                        <Text style={{color: colors.white, textAlign:'center', marginLeft: 3}}>Admin Expense</Text>
+                    </View>
                 }
                 title="Add Expenses" 
                 onSave={onSave}>

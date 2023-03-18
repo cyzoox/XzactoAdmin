@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Overlay, Input, Button, Text } from "react-native-elements";
-import {TouchableOpacity, View, StatusBar, TextInput as CustomInput} from 'react-native';
+import {TouchableOpacity, View, StatusBar, TextInput as CustomInput, StyleSheet, Dimensions, Image} from 'react-native';
 import styles from "../../stylesheet";
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
 import colors from "../themes/colors";
@@ -14,7 +14,7 @@ import { useStore } from "../context/StoreContext";
 import uuid from 'react-native-uuid';
 import {Picker} from '@react-native-picker/picker';
 import Scanner from "./BarcodeScanner";
-
+import * as ImagePicker from "react-native-image-picker"
 // The AddTask is a button for adding tasks. When the button is pressed, an
 // overlay shows up to request user input for the new task name. When the
 // "Create" button on the overlay is pressed, the overlay closes and the new
@@ -23,7 +23,8 @@ export function AddWarehouseProducts({ navigation }) {
   const {user} = useAuth();
   const {warehouse_category,createWarehouseProducts,  warehouse_products,createWarehouseDeliveryReport, 
     createDeliveryReport,
-    createDeliverySummary} = useStore();
+    createDeliverySummary,
+    warehouse_supplier} = useStore();
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [name, setName] = useState('');
   const [brand, setBrand] = useState('');
@@ -37,8 +38,11 @@ export function AddWarehouseProducts({ navigation }) {
   const [deliveredby, setDeliveredBy] = useState("");
   const [receiptno, setDeliveryNo] = useState("");
   const [id, setId] = useState("");
-  const [sku, setSKU] = ("");
+  const [sku, setSKU] = useState("");
   const [date, setDate] = useState(new Date())
+  const [selected_supplier,setSelectedSupplier]=useState([])
+  const [selectSupplier, setSelectSupplier] = useState('');
+  const [img,setImg] = useState('')
 const [errorMsg, setErrorMsg] = useState('');
   const units = ["Kilo", "Gram", "Piece", "Liter","Bundle", "Dozen", "Whole", "Half-Dozen","Ounce", "Milliliter", "Milligrams", "Pack","Ream","Box","Sack","Serving","Gallon","Container"]
 
@@ -47,6 +51,10 @@ const [errorMsg, setErrorMsg] = useState('');
 
 
   const onSaveProduct = () => {
+    if(selected_supplier.length === 0){
+      setErrorMsg('Please select supplier.')
+      return;
+    }
     if(name.length === 0){
       setErrorMsg('Please fill in product name.')
       return;
@@ -100,7 +108,7 @@ const [errorMsg, setErrorMsg] = useState('');
       stock: parseFloat(quantity),
       pr_id: uuid.v4(),
       sku:'test', 
-      img: 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'
+      img: img.length === 0 ? 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png' : img
     }
     createWarehouseProducts(products);
     saveToDeliveryReports()
@@ -125,8 +133,8 @@ const [errorMsg, setErrorMsg] = useState('');
             quantity: parseFloat(quantity),
             oprice: parseFloat(oprice),
             sprice: parseFloat(sprice),
-            supplier: deliveredby,
-            supplier_id: '',
+            supplier: selected_supplier.name,
+            supplier_id: selected_supplier._id,
             delivered_by: deliveredby,
             received_by: '',
             delivery_receipt: receiptno,
@@ -147,9 +155,9 @@ const [errorMsg, setErrorMsg] = useState('');
             year_month : month+'-'+year,
             year_week : week+'-'+year,
             date: moment(date, "MMMM DD, YYYY").format('MMMM DD, YYYY'),
-            supplier: deliveredby,
-            pr_id: uuid.v4(),
-            supplier_id: '',
+            supplier: selected_supplier.name,
+            supplier_id: selected_supplier._id,
+            pr_id: uuid.v4(),       
             delivered_by: deliveredby,
             received_by: '',
             delivery_receipt: receiptno,
@@ -158,6 +166,49 @@ const [errorMsg, setErrorMsg] = useState('');
         createDeliverySummary(productss)
         navigation.goBack()
  }
+
+ const openGallery = () => {
+   
+
+  ImagePicker.launchImageLibrary({
+      maxWidth:500,
+      maxHeight: 500,
+      mediaType: 'photo',
+      includeBase64: true
+  },
+   image => {
+    if (image.didCancel) {
+      console.log('User cancelled image picker');
+    } else if (image.error) {
+      console.log('ImagePicker Error: ', response.error);
+    } else {
+      
+      let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/sbpcmedia/upload'
+      let base64Img = `data:image/jpg;base64,${image.assets[0].base64}`
+      let data = {
+          "file" : base64Img,
+          "upload_preset" : "ancbewi9"
+      }
+      fetch(CLOUDINARY_URL, {
+          body: JSON.stringify(data),
+          headers: {
+              'content-type': 'application/json'
+          },
+          method: 'POST',
+      }).then(async r => {
+          let data = await r.json()
+          let photo = 'https'+data.url.slice(4)
+          setImg('https'+data.url.slice(4))
+       
+
+      }).catch(error =>{
+          console.log('error : ', error)
+      })
+    }
+  })
+
+
+}
 
   return (
     <>
@@ -170,6 +221,9 @@ const [errorMsg, setErrorMsg] = useState('');
         }
         screen="Warehouse"
         />
+          <TouchableOpacity onPress={()=> openGallery()} style={style.imageContainer}>
+                    <Image resizeMode="contain" source={{ uri: img }} style={style.backgroundImage}/>
+                  </TouchableOpacity>
         <Text style={{color: colors.red, textAlign: 'center'}}>{errorMsg.length === 0 ? null : errorMsg}</Text>
         <ScrollView style={{margin: 15}}>
         <View style={{flexDirection:'row', borderWidth: 1, borderRadius: 5, borderColor: colors.coverDark}}>
@@ -197,6 +251,7 @@ const [errorMsg, setErrorMsg] = useState('');
                     label="Quantity"
                     placeholder="Quantity"
                     value={`${quantity}`}
+                    keyboardType="number-pad"
                     onChangeText={(text)=> setQuantity(text)}
                     />
         </View>
@@ -282,12 +337,43 @@ const [errorMsg, setErrorMsg] = useState('');
               style={{flex: 3, paddingVertical:13}}
               value={sku}
               placeholder="Barcode"
-              onChangeText={(text) => setSKU(text)}
+              onChangeText={(text)=> setSKU(text)}
               
             />
             <Scanner barcode={setSKU}/>
           </View>
+     
+          <View style={{flexDirection:'row', justifyContent:'space-evenly'}}>
+          <SelectDropdown
+                    data={warehouse_supplier}
+                    defaultButtonText="Supplier"
+                    onSelect={(selectedItem, index) => {
+                      setSelectedSupplier(selectedItem)
+                    }}
+                    buttonTextAfterSelection={(selectedItem, index) => {
+                      // text represented after item is selected
+                      // if data array is an array of objects then return selectedItem.property to render after item is selected
+                      return selectedItem.name
+                    }}
+                    rowTextForSelection={(item, index) => {
+                      // text represented for each item in dropdown
+                      // if data array is an array of objects then return item.property to represent item in dropdown
+                      return item.name
+                    }}
+                    buttonStyle={{
+                        marginTop: 5,
+                        flex: 1, 
+                        height: 60,
+                        backgroundColor: "#FFF",
+                        borderRadius: 5,
+                        borderWidth: 1,
+                        borderColor: "#444",}}
+                        buttonTextStyle={{textAlign: 'left', color: 'grey', fontSize: 15}}
+                  />
               
+
+                  
+          </View>
                 <TextInput
                     mode="outlined"
                     label="Received by"
@@ -321,3 +407,62 @@ const [errorMsg, setErrorMsg] = useState('');
     </>
   );
 }
+
+const style = StyleSheet.create({
+  imageContainer: {
+    backgroundColor: '#000000',
+    height: Dimensions.get('window').height /4,
+    marginHorizontal: 50,
+    borderRadius: 20
+  },
+  backgroundImage: {
+   flex: 1,
+  },
+  uploadContainer: {
+    backgroundColor: '#f6f5f8',
+    borderTopLeftRadius: 45,
+    borderTopRightRadius: 45,
+    position: 'absolute',
+    bottom: 1,
+    width: Dimensions.get('window').width,
+    height: 200,
+  },
+  uploadContainerTitle: {
+    alignSelf: 'center',
+    fontSize: 25,
+    margin: 20,
+    fontFamily: 'Roboto'
+  },
+  shadow: {
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 5,
+      height: 5,
+    },
+    shadowOpacity: 1.58,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  uploadButton: {
+    borderRadius: 16,
+    alignSelf: 'center',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 7,
+      height: 5,
+    },
+    shadowOpacity: 1.58,
+    shadowRadius: 9,
+    elevation: 4,
+    margin: 10,
+    padding: 10,
+    backgroundColor: '#fe5b29',
+    width: Dimensions.get('window').width - 60,
+    alignItems: 'center'
+  },
+  uploadButtonText: {
+    color: '#f6f5f8',
+    fontSize: 20,
+    fontFamily: 'Roboto'
+  }
+});

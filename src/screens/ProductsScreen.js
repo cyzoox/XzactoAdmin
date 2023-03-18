@@ -25,7 +25,7 @@ import PinCodeInput from "../components/PinCodeInput";
 const KEYS_TO_FILTERS = ['name', 'category'];
 
 const ProductsScreen = ({ navigation }) => {
-  const customData = app.currentUser.customData;
+  // const customData = app.currentUser.customData;
   const route = useRoute();
   const STORE =  route.params.store
   const {user} = useAuth();
@@ -450,7 +450,7 @@ const ProductsScreen = ({ navigation }) => {
               </TouchableOpacity>
         </View>
       </View>
-      <Categories tabs = {category} store={STORE} onTabChange={onTabChange}/>
+      <Categories tabs = {category} store={STORE} onTabChange={onTabChange}  origin={'store'}/>
       <Products product_info={setProductInfo} modal_visible={setCustomModal} categories={category} products={filteredProducts} store={STORE} navigation={navigation}/>
       <Overlay isVisible={visible2} onBackdropPress={setVisible}>
            

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Text, StyleSheet, View, TextInput, ScrollView ,TouchableOpacity,Picker} from "react-native";
+import { Text, StyleSheet, View, TextInput, ScrollView ,TouchableOpacity, Image} from "react-native";
+import {Picker} from '@react-native-picker/picker';
 import colors from "../themes/colors";
 import AppHeader from "./AppHeader";
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
@@ -10,18 +11,21 @@ import DatePicker from 'react-native-date-picker';
 import moment from 'moment'
 import { useAuth } from "../context/AuthContext";
 import AlertwithChild from "./AlertwithChild";
+
 const units = ["Kilo", "Gram", "Piece", "Liter","Bundle", "Dozen", "Whole", "Half-Dozen","Ounce", "Milliliter", "Milligrams", "Pack","Ream","Box","Sack","Serving","Gallon","Container","Bottle"]
+import * as ImagePicker from "react-native-image-picker"
 
 const AddBatchWarehouseProducts = ({navigation,route}) => {
 
     const {user} = useAuth();
     const {warehouse_category,createWarehouseProducts,  warehouse_products,createWarehouseDeliveryReport, 
         createDeliveryReport,
-        createDeliverySummary} = useStore();
+        createDeliverySummary,
+        warehouse_supplier} = useStore();
 
     const [product_holder, setProductHolder] = useState([
-        {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4()},
-        {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4()}
+        {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4(), img: 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'},
+        {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4(), img: 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'}
     ])
     const [sku, setSKU] = useState('')
     const [date, setDate] = useState(new Date())
@@ -29,11 +33,12 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
     const [query,setQuery] = useState('')
     const [delivery_no, setDeliveryNo] = useState('')
     const [delivered_by, setDeliveredBy] = useState('')
-    const [supplier, setSupplier] = useState('')
+    const [supplier, setSupplier] = useState([])
     const [errorMsg, setErrorMsg] = useState('')
     const [alert_visible,alertVisible] = useState(false)
+    const [img,setImg] = useState('')
     const onAddItem = () => {
-        const items =  product_holder.concat([{"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, id: uuid.v4()}])
+        const items =  product_holder.concat([{"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, id: uuid.v4(), img: 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'}])
        setProductHolder(items)
      }
 
@@ -45,7 +50,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
   
       return total;
   }
-    
+    console.log(product_holder)
  const onSaveItems = () => {
      if(supplier.length === 0){
          setErrorMsg('Please fill in supplier.')
@@ -72,7 +77,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                  owner_id: user.id,
                  stock: parseFloat(items.qty),
                  sku: '',
-                 img:'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'
+                 img:items.img
                }
              createWarehouseProducts(products)
          });
@@ -99,8 +104,8 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
             quantity: parseFloat(items.qty),
             oprice: parseFloat(items.oprice),
             sprice: parseFloat(items.sprice),
-            supplier: supplier,
-            supplier_id: '',
+            supplier: supplier._id,
+            supplier_id: supplier.name,
             delivered_by: delivered_by,
             received_by: '',
             delivery_receipt: delivery_no,
@@ -121,8 +126,8 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
             year_month : month+'-'+year,
             year_week : week+'-'+year,
             date: moment(date, "MMMM DD, YYYY").format('MMMM DD, YYYY'),
-            supplier: supplier,
-            supplier_id: '',
+            supplier: supplier._id,
+            supplier_id: supplier.name,
             delivered_by: delivered_by,
             received_by: '',
             delivery_receipt: delivery_no,
@@ -136,6 +141,48 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
 
      const handleRemoveItem = no => {
       setProductHolder(product_holder.filter(item => item.no !== no))
+  }
+
+  const openGallery = (element) => {
+   
+
+    ImagePicker.launchImageLibrary({
+        maxWidth:500,
+        maxHeight: 500,
+        mediaType: 'photo',
+        includeBase64: true
+    },
+     image => {
+      if (image.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (image.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        
+        let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/sbpcmedia/upload'
+        let base64Img = `data:image/jpg;base64,${image.assets[0].base64}`
+        let data = {
+            "file" : base64Img,
+            "upload_preset" : "ancbewi9"
+        }
+        fetch(CLOUDINARY_URL, {
+            body: JSON.stringify(data),
+            headers: {
+                'content-type': 'application/json'
+            },
+            method: 'POST',
+        }).then(async r => {
+            let data = await r.json()
+            let photo = 'https'+data.url.slice(4)
+            
+            element.img = photo
+            setProductHolder([...product_holder]);
+  
+        }).catch(error =>{
+            console.log('error : ', error)
+        })
+      }
+    })
   }
 
   return (
@@ -157,15 +204,20 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
          {errorMsg.length !== 0 ? <Text style={{textAlign:'center', color: colors.red, fontWeight: '700'}}>{errorMsg}</Text>: null}
          <View>
              <View style={{flexDirection:'row'}}>
-                <View style={{borderWidth: 1,flex: 1, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
-                    <TextInput
-                        style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
-                        underlineColorAndroid = 'transparent'
-                                onChangeText={(text)=> setSupplier(text)}
-                                disableFullscreenUI={true}
-                                placeholder="Supplier"
-                                defaultValue={supplier}
-                    />
+             <View style={{borderWidth: 1, width: 190, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center"}}>
+                <Picker
+                  selectedValue={supplier}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setSupplier(itemValue)
+                  }>
+                    <Picker.Item label="Supplier" value="default" />
+                 {
+                                warehouse_supplier.map(item => 
+                                  
+                                <Picker.Item label={item.name} value={item} />
+                                )
+                            } 
+                </Picker>
                 </View>
                 <View style={{borderWidth: 1,flex: 1, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
                     <TextInput
@@ -199,7 +251,8 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
          <ScrollView contentContainerStyle={{flex: 1}}>
           <ScrollView horizontal contentContainerStyle={{flexDirection:'column', marginTop: 20}}>
           <View style={{flexDirection:'row'}}>
-          <Text style={{ marginHorizontal: 10, padding:5, borderRadius:25}}>       </Text>
+          <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}></Text>
+          <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Image</Text>
                <Text style={{width: 150, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Product Name</Text>
                <Text style={{width: 150, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Brand</Text>
                <Text style={{width: 150, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Qty</Text>
@@ -210,11 +263,61 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
            </View>
            {
                 product_holder.map((element, index) => 
-            <View style={{flexDirection:'row', marginVertical: 3}}>
+            <View style={{flexDirection:'row', marginVertical: 3,width: 150}}>
             <TouchableOpacity onPress={()=> handleRemoveItem(element.no)} style={{backgroundColor:colors.red, justifyContent:'center', marginHorizontal: 10, padding:5, borderRadius:25}}>
             <EvilIcons name={'trash'} size={26} color={colors.white}/>
             </TouchableOpacity>
-            <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, flexDirection:'row'}}>
+            <View>
+              <TouchableOpacity onPress={()=> {
+                
+   
+
+                  ImagePicker.launchImageLibrary({
+                      maxWidth:500,
+                      maxHeight: 500,
+                      mediaType: 'photo',
+                      includeBase64: true
+                  },
+                   image => {
+                    if (image.didCancel) {
+                      console.log('User cancelled image picker');
+                    } else if (image.error) {
+                      console.log('ImagePicker Error: ', response.error);
+                    } else {
+                      
+                      let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/sbpcmedia/upload'
+                      let base64Img = `data:image/jpg;base64,${image.assets[0].base64}`
+                      let data = {
+                          "file" : base64Img,
+                          "upload_preset" : "ancbewi9"
+                      }
+                      fetch(CLOUDINARY_URL, {
+                          body: JSON.stringify(data),
+                          headers: {
+                              'content-type': 'application/json'
+                          },
+                          method: 'POST',
+                      }).then(async r => {
+                          let data = await r.json()
+                          let photo = 'https'+data.url.slice(4)
+                          
+                          element.img = photo
+                          setProductHolder([...product_holder]);
+                
+                      }).catch(error =>{
+                          console.log('error : ', error)
+                      })
+                    }
+                  })
+                
+              }}>
+                <Image 
+                  source={{uri: element.img}}
+                  style={{height:50, width: 50}}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={{borderWidth: 1, width: 150, height: 50, borderRadius: 5, borderColor: colors.boldGrey, marginHorizontal:2, flexDirection:'row'}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -252,7 +355,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                                 
                                 </Picker>
           </View>
-          <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <View style={{borderWidth: 1, width: 150, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -265,7 +368,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                  }}
               />
           </View>
-          <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <View style={{borderWidth: 1, width: 150, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -279,7 +382,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                  }}
               />
           </View>
-          <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center"}}>
+          <View style={{borderWidth: 1, width: 150, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center"}}>
           <Picker
                             selectedValue={element.unit}
                             onValueChange={(itemValue, itemIndex) =>
@@ -295,7 +398,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                             
                             </Picker>
           </View>
-          <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <View style={{borderWidth: 1, width: 150, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -309,7 +412,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                  }}
               />
           </View>
-          <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <View style={{borderWidth: 1, width: 150, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -323,7 +426,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                  }}
               />
           </View>
-          <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center"}}>
+          <View style={{borderWidth: 1, width: 150, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center"}}>
           <Picker
                             selectedValue={element.category}
                             onValueChange={(itemValue, itemIndex) =>

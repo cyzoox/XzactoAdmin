@@ -20,7 +20,7 @@ import colors from "../themes/colors";
 import Alert from "./Alert";
 const { width, height } = Dimensions.get('window');
 
-export function Categories({tabs, store, onTabChange}) {
+export function Categories({tabs, store, onTabChange, origin}) {
   const {deleteCategory} = useStore();
   const [active, setActive] = useState('');
   const [tabData, setTab] = useState([]);
@@ -60,7 +60,7 @@ export function Categories({tabs, store, onTabChange}) {
   return (
     <>
     <View style={style.tabs}>
-    <Alert visible={alert_visible} onCancel={()=> {setAlert(false),setTab([])}} onProceed={()=> {deleteCategory(tabData), setAlert(false),setTab([])}} title={`Delete ${tabData.name} category?`} content={`Are you sure you want to delete ${tabData.name} category?`} confirmTitle="Proceed"/>
+    <Alert visible={alert_visible} onCancel={()=> {setAlert(false),setTab([])}} onProceed={()=> {deleteCategory(tabData, origin), setAlert(false),setTab([])}} title={`Delete ${tabData.name} category?`} content={`Are you sure you want to delete ${tabData.name} category?`} confirmTitle="Proceed"/>
         <ScrollView  
           horizontal={true}
           showsHorizontalScrollIndicator={false}

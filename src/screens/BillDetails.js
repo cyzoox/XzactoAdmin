@@ -16,6 +16,7 @@ const BillDetails = ({navigation, route}) => {
     const store =  route.params.store
     const {getTRDetails,trdetails } = useStore();
 
+    console.log(trdetails)
 
     useEffect(() => {
         getTRDetails(transactions._id)
@@ -34,6 +35,7 @@ const BillDetails = ({navigation, route}) => {
         <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 20, marginVertical: 3}}>
             <Text>{item.name} {Math.round(item.quantity  * 100) / 100} x {Math.round(item.sprice * 100) / 100}</Text>
             <Text>{formatMoney(item.quantity*item.sprice, { symbol: "₱", precision: 1 })}</Text>
+            
         </View>
       )
 
@@ -189,20 +191,46 @@ const BillDetails = ({navigation, route}) => {
             
             <Divider style={{margin: 10}}/>
             <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15}}>
-                <Text>Total</Text>
+                <Text>Subtotal</Text>
                 <Text>{formatMoney(calculateTotal(), { symbol: "₱", precision: 1 })}</Text>
             </View>
             <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15}}>
+                <Text style={{color: colors.red}}>Discount</Text>
+                <Text style={{color: colors.red}}> - {formatMoney(transactions.discount, { symbol: "₱", precision: 1 })}</Text>
+            </View>
+            <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15}}>
+                <Text style={{color: colors.green, fontSize: 18, fontWeight:'bold'}}>Total</Text>
+                <Text style={{color: colors.green, fontSize: 18, fontWeight:'bold'}}>{formatMoney(calculateTotal()-transactions.discount, { symbol: "₱", precision: 1 })}</Text>
+            </View>
+            <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15, marginTop: 10}}>
+                <Text>Received</Text>
+                <Text>{formatMoney(transactions.received, { symbol: "₱", precision: 1 })}</Text>
+            </View>
+            <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15, marginTop: 10}}>
+                <Text>Change</Text>
+                <Text>{formatMoney(transactions.received -( calculateTotal()-transactions.discount), { symbol: "₱", precision: 1 })}</Text>
+            </View>
+            <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15, marginTop: 10}}>
+                <Text>VAT Sales</Text>
+                <Text>{formatMoney(calculateTotal()-(calculateTotal()*0.12), { symbol: "₱", precision: 1 })}</Text>
+            </View>
+          
+            <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15}}>
+                <Text>VAT Amount</Text>
+                <Text>{formatMoney(calculateTotal()*0.12, { symbol: "₱", precision: 1 })}</Text>
+            </View>
+            {/* <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15}}>
                 <Text>Cash</Text>
                 <Text>{formatMoney(transactions.received, { symbol: "₱", precision: 2 })}</Text>
             </View>
             <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15}}>
                 <Text>Change.</Text>
-                <Text>{formatMoney(transactions.change, { symbol: "₱", precision: 2 })}</Text>
-            </View>
+                <Text>{formatMoney(transactions.received+transactions.change, { symbol: "₱", precision: 2 })}</Text>
+            </View> */}
             <View style={{justifyContent:'center', alignItems: 'center', marginVertical: 15}}>
                 <Text style={{fontSize: 15, fontWeight:'600'}}>Attendant: {transactions.attendant_name}</Text>
             </View>
+          
         </ZigzagView>
         </View>
         

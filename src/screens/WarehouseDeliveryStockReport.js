@@ -11,12 +11,27 @@ import { ModalInputForm } from "../components/ModalInputForm";
 import moment from 'moment'
 import formatMoney from 'accounting-js/lib/formatMoney.js'
 import {DatePicker} from "react-native-common-date-picker";
-
+import SearchInput, { createFilter } from 'react-native-search-filter';
+const KEYS_TO_FILTERS = ['date'];
+const KEYS_TO_FILTERS2 = ['supplier_id'];
 const WarehouseDeliveryStockReport = ({navigation}) => {
-  const {warehouse_delivery_report, warehouse_delivery_report_summary,getWarehouseSummary} = useStore();
+  const {warehouse_delivery_report, warehouse_delivery_report_summary,getWarehouseSummary, warehouse_supplier} = useStore();
   const [filter, setFilter] = useState('Today')
   const [specificDate, setSpecificDatePicker] = useState(false)
   const [specific_date, setSpecificDate] = useState('');
+  const [selectedSupplier, setSelectedSupplier] = useState([]);
+  const date = moment().unix()
+    const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
+  const filteredProducts = warehouse_delivery_report_summary.filter(createFilter(today, KEYS_TO_FILTERS))
+
+
+  const [deliveries, setDeliveries] = useState(filteredProducts)
+
+  const onSelectSupplier = () => {
+    const filteredSuppliers = warehouse_delivery_report_summary.filter(createFilter(selectedSupplier._id, KEYS_TO_FILTERS2))
+
+    setDeliveries(filteredSuppliers)
+  }
 
   useEffect(() => {
     let date = moment().unix()
@@ -27,7 +42,7 @@ const WarehouseDeliveryStockReport = ({navigation}) => {
   const calculateTotal = () => {
     let total = 0;
 
-    warehouse_delivery_report_summary.forEach(item => {
+    deliveries.forEach(item => {
       total += item.total
     });
 
@@ -137,6 +152,7 @@ const WarehouseDeliveryStockReport = ({navigation}) => {
               } 
               screen="Warehouse"
          />
+             <View style={{flexDirection:'row', justifyContent:"space-evenly"}}>
            <View style={styles.filter}>
                 <View style={{flex: 1,borderRightWidth: 1,flexDirection:'row', justifyContent:'center', alignSelf:'center'}}>
                 <EvilIcons name={'calendar'} size={40} color={colors.coverDark}/>
@@ -229,9 +245,40 @@ const WarehouseDeliveryStockReport = ({navigation}) => {
           
             </ModalInputForm>
                 </TouchableOpacity>
+             
+              </View>
+              <View style={styles.filter}>
+              <TouchableOpacity style={{flex: 1}}>
+                <ModalInputForm
+              displayComponent={
+                  <>
+                      <Text style={{ color: colors.black,  fontWeight:'700', fontSize: 16, textAlign:'center', marginTop: 5}}>{selectedSupplier.length === 0? 'Select Supplier' : selectedSupplier.name}</Text>
+                  </>
+              }
+              title="Select Supplier" 
+              onSave={()=> onSelectSupplier()}
+            >
+             <TouchableOpacity 
+                  onPress={()=> setSelectedSupplier({_id: 'Warehouse', name:'Warehouse'})}
+                  style={'Warehouse' === selectedSupplier._id ? [styles.s_select,{ borderWidth: 1, borderColor: colors.accent}]: styles.s_select}>
+                <Text style={{textAlign:'center'}}>Warehouse</Text>
+              </TouchableOpacity>
+            {
+              warehouse_supplier.map(item => 
+                <TouchableOpacity 
+                  onPress={()=> setSelectedSupplier(item)}
+                  style={item._id === selectedSupplier._id ? [styles.s_select,{ borderWidth: 1, borderColor: colors.accent}]: styles.s_select}>
+                <Text style={{textAlign:'center'}}>{item.name}</Text>
+              </TouchableOpacity>
+              )
+            }
+               
+            </ModalInputForm>
+                </TouchableOpacity>
+              </View>
               </View>
         <FlatList
-          data={warehouse_delivery_report_summary}
+          data={deliveries}
           renderItem={renderItem}
           keyExtractor={item => item.id}
           />
@@ -317,8 +364,9 @@ const styles = StyleSheet.create({
   paddingHorizontal: 10, 
   borderRadius: 10},
   filter: {
+    flex:1,
     backgroundColor: colors.white,
-    marginHorizontal: 30 ,
+    marginHorizontal: 10 ,
     marginVertical: 10,
     padding: 15,
     borderRadius: 10,
@@ -333,7 +381,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.89,
     shadowRadius: 2,
     elevation: 5,
-  }
+  },
+    s_select:{
+      marginBottom:5,
+      padding: 10,
+      borderRadius: 10,
+      backgroundColor: colors.white,
+      shadowColor: "#EBECF0",
+      shadowOffset: {
+        width: 0,
+        height: 5,
+       
+      },
+      shadowOpacity: 0.89,
+      shadowRadius: 2,
+      elevation: 5,
+    }
 
 });
 

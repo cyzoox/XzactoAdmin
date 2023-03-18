@@ -9,7 +9,7 @@ import { useStore } from "../context/StoreContext";
 import { Row, Col, Grid } from 'react-native-easy-grid';
 import SearchInput, { createFilter } from 'react-native-search-filter';
 import formatMoney from 'accounting-js/lib/formatMoney.js'
-import Realm from "realm";
+import {Picker} from '@react-native-picker/picker';
 const KEYS_TO_FILTERS = ['name', 'category'];
 
 const BatchEditScreen = ({navigation, route}) => {
@@ -102,6 +102,7 @@ const BatchEditScreen = ({navigation, route}) => {
                 />
            
           </Col>
+      
         </Row> : null
     )
   return (

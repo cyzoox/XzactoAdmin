@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Overlay,  Button, CheckBox } from "react-native-elements";
-import {TouchableOpacity, StyleSheet, View, TextInput as TextInput2, Image, Text} from 'react-native';
+import {TouchableOpacity, StyleSheet, View, TextInput as TextInput2, Image, Text, Dimensions} from 'react-native';
 import uuid from 'react-native-uuid';
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -16,6 +16,7 @@ import { useStore } from "../context/StoreContext";
 import Scanner from "./BarcodeScanner";
 import AlertwithChild from "./AlertwithChild";
 import AddVariants from "./AddVariants";
+import * as ImagePicker from "react-native-image-picker"
 
 // The AddTask is a button for adding tasks. When the button is pressed, an
 // overlay shows up to request user input for the new task name. When the
@@ -23,7 +24,7 @@ import AddVariants from "./AddVariants";
 // task is created in the realm.
 export function AddProduct({ createProducts, store, categories, children }) {
   const { user,  } = useAuth();
-  const {createDeliveryReport, createStoreDeliverySummary, createInventory, inventory, createAddon, createOption} = useStore();
+  const {createDeliveryReport, createStoreDeliverySummary, createInventory, inventory, createAddon, createOption, suppliers} = useStore();
   const [overlayVisible, setOverlayVisible] = useState(false);
   
   const [name, setName] = useState("");
@@ -37,6 +38,7 @@ export function AddProduct({ createProducts, store, categories, children }) {
   const [deliveredby, setDeliveredBy] = useState("");
   const [deliveryno, setDeliveryNo] = useState("");
   const [supplier, setSupplier] = useState("");
+  const [selected_supplier,setSelectedSupplier]=useState([])
   const [sku, setSKU] = useState('')
   const [selectedLanguage, setSelectedLanguage] = useState();
   const units = ["Kilo", "Gram", "Piece", "Liter","Bundle", "Dozen", "Whole", "Half-Dozen","Ounce", "Milliliter", "Milligrams", "Pack","Ream","Box","Sack","Serving","Gallon","Container"]
@@ -49,7 +51,13 @@ export function AddProduct({ createProducts, store, categories, children }) {
   const [optionsVisible, setOptionVisible]  = useState(false)
   const [variantVisible, setVariantVisible]  = useState(false)
   const [addonsVisible, setAddonsVisible]  = useState(false)
-
+  const [img,setImg] = useState('')
+  const [nameError, setNameError] = useState('')
+  const [opriceError, setOpriceError] = useState('')
+  const [spriceError, setSpriceError] = useState('')
+  const [supplierError, setSupplierError] = useState('')
+  const [unitError, setUnitError] = useState('')
+  const [categoryError, setCategoryError] = useState('')
   const onAddOptions = () => {
     const items =  options.concat([{"no": uuid.v4(), option:'custom option'}])
    setOptions(items)
@@ -86,6 +94,32 @@ setAddons(addons.filter(item => item.no !== no))
  }
  const  onSaveProducts = () => {
   const date = moment().unix();
+if(name.length === 0){
+  setNameError('Name is required')
+  return
+}
+if(oprice.length === 0){
+  setOpriceError('Original price is required')
+  return
+}
+if(sprice.length === 0){
+  setSpriceError('Selling price is required')
+  return
+}
+if(unit.length === 0){
+  setUnitError('Unit is required')
+  return
+}
+
+if(selected_supplier.length === 0){
+  setSupplierError('Supplier  is required')
+  return
+}
+
+if(category.length === 0){
+  setCategoryError('Category is required')
+  return
+}
 
 
   let products = {
@@ -101,7 +135,7 @@ setAddons(addons.filter(item => item.no !== no))
     store: store.name,
     stock: parseFloat(stock),
     sku:sku,
-    img : 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png',
+    img : img,
     withAddons: withAddons,
     withVariants: withVariants,
     withOptions: withOptions
@@ -119,8 +153,8 @@ setAddons(addons.filter(item => item.no !== no))
     quantity: parseFloat(stock),
     oprice: parseFloat(oprice),
     sprice: parseFloat(sprice),
-    supplier: supplier,
-    supplier_id: 'no_id',
+    supplier: selected_supplier.name,
+    supplier_id: selected_supplier._id,
     delivered_by: deliveredby,
     received_by: receivedby,
     delivery_receipt: deliveryno,
@@ -136,8 +170,8 @@ setAddons(addons.filter(item => item.no !== no))
     year_month :moment.unix(date).format('MMMM-YYYY'),
     year_week :moment.unix(date).format('WW-YYYY'),
     date: moment.unix(date).format('MMMM DD, YYYY'),
-    supplier: supplier,
-    supplier_id: 'no_id',
+    supplier: selected_supplier.name,
+    supplier_id: selected_supplier._id,
     delivered_by: deliveredby,
     received_by: receivedby,
     delivery_receipt: deliveryno,
@@ -158,6 +192,50 @@ setAddons(addons.filter(item => item.no !== no))
   createDeliveryReport(delivery)
   createStoreDeliverySummary(drs)
   createProducts(products);
+  setOverlayVisible(false);
+  }
+
+  const openGallery = () => {
+   
+
+    ImagePicker.launchImageLibrary({
+        maxWidth:500,
+        maxHeight: 500,
+        mediaType: 'photo',
+        includeBase64: true
+    },
+     image => {
+      if (image.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (image.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        
+        let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/sbpcmedia/upload'
+        let base64Img = `data:image/jpg;base64,${image.assets[0].base64}`
+        let data = {
+            "file" : base64Img,
+            "upload_preset" : "ancbewi9"
+        }
+        fetch(CLOUDINARY_URL, {
+            body: JSON.stringify(data),
+            headers: {
+                'content-type': 'application/json'
+            },
+            method: 'POST',
+        }).then(async r => {
+            let data = await r.json()
+            let photo = 'https'+data.url.slice(4)
+            setImg('https'+data.url.slice(4))
+         
+  
+        }).catch(error =>{
+            console.log('error : ', error)
+        })
+      }
+    })
+  
+  
   }
 
   return (
@@ -359,12 +437,16 @@ setAddons(addons.filter(item => item.no !== no))
         />
         <>
         <ScrollView style={{marginHorizontal: 20}}>
+        <TouchableOpacity onPress={()=> openGallery()} style={styles.imageContainer}>
+                    <Image resizeMode="contain" source={img.length === 0?{uri:'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'}:{ uri: img }} style={styles.backgroundImage}/>
+        </TouchableOpacity>
           <TextInput
             mode="outlined"
             placeholder="Name"
             onChangeText={(text) => setName(text)}
 
           />
+         {nameError.length ===0 ?null: <Text style={{color: colors.red}}>**{nameError}</Text>}
           <View style={{flexDirection:'row', justifyContent:'space-evenly'}}>
           <TextInput
            style={{flex: 1}}
@@ -383,7 +465,7 @@ setAddons(addons.filter(item => item.no !== no))
           />
           </View>
           <View style={{flexDirection:'row', justifyContent:'space-evenly'}}>
-          
+          <View style={{flex: 1}}>
           <TextInput
             style={{flex: 1}}
           mode="outlined"
@@ -392,7 +474,10 @@ setAddons(addons.filter(item => item.no !== no))
             onChangeText={(text) => setOPrice(text)}
     
           />
-          <TextInput
+          {opriceError.length ===0 ?null: <Text style={{color: colors.red}}>**{opriceError}</Text>}
+          </View>
+        <View style={{flex: 1}}>
+        <TextInput
           style={{flex: 1, marginLeft: 5}}
           mode="outlined"
             placeholder="Selling Price"
@@ -400,6 +485,9 @@ setAddons(addons.filter(item => item.no !== no))
             onChangeText={(text) => setSPrice(text)}
      
           />
+            {spriceError.length ===0 ?null: <Text style={{color: colors.red}}>**{spriceError}</Text>}
+        </View>
+       
           </View>
           <View style={{flexDirection:'row', justifyContent:'space-evenly'}}>
           <SelectDropdown
@@ -455,8 +543,62 @@ setAddons(addons.filter(item => item.no !== no))
                         borderColor: "#444",}}
                         buttonTextStyle={{textAlign: 'left', color: 'grey', fontSize: 15}}
                   />
+                  
+          </View>
+          {unitError.length ===0 ?null: <Text style={{color: colors.red}}>**{unitError}</Text>}
+          {categoryError.length ===0 ?null: <Text style={{color: colors.red}}>**{categoryError}</Text>}
+          <View style={{flexDirection:'row', justifyContent:'space-evenly'}}>
+          <SelectDropdown
+                    data={suppliers}
+                    defaultButtonText="Supplier"
+                    onSelect={(selectedItem, index) => {
+                      setSelectedSupplier(selectedItem)
+                    }}
+                    buttonTextAfterSelection={(selectedItem, index) => {
+                      // text represented after item is selected
+                      // if data array is an array of objects then return selectedItem.property to render after item is selected
+                      return selectedItem.name
+                    }}
+                    rowTextForSelection={(item, index) => {
+                      // text represented for each item in dropdown
+                      // if data array is an array of objects then return item.property to represent item in dropdown
+                      return item.name
+                    }}
+                    buttonStyle={{
+                        marginTop: 5,
+                        flex: 1, 
+                        height: 60,
+                        backgroundColor: "#FFF",
+                        borderRadius: 5,
+                        borderWidth: 1,
+                        borderColor: "#444",}}
+                        buttonTextStyle={{textAlign: 'left', color: 'grey', fontSize: 15}}
+                  />
+              
+
+            
+          </View>
+          {supplierError.length ===0 ?null: <Text style={{color: colors.red}}>**{supplierError}</Text>}
+          <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+          
+                 <TextInput
+                  style={{flex: 1}}
+                  mode="outlined"
+                    placeholder="Delivery No."
+                    onChangeText={(text) => setDeliveryNo(text)}
+            
+                  />
+                <TextInput
+                  style={{flex: 1, marginLeft: 5}}
+                  mode="outlined"
+                    placeholder="Received by"
+                    onChangeText={(text) => setReceivedBy(text)}
+            
+                  />
+                  
           </View>
           <View style={{flexDirection:'row', justifyContent:'space-between', borderWidth: 1, marginTop: 10, borderRadius: 5, alignItems:'center'}}>
+            
             <TextInput2
               style={{flex: 3, paddingVertical:13}}
               value={sku}
@@ -490,7 +632,7 @@ setAddons(addons.filter(item => item.no !== no))
           buttonStyle={{marginHorizontal: 20, marginBottom: 10, backgroundColor: colors.primary, marginTop: 20, paddingVertical: 15}}
             title="Save"
             onPress={() => {
-              setOverlayVisible(false);
+             
               onSaveProducts()
             }}
           />
@@ -545,5 +687,61 @@ flexStyle: {
   alignItems: 'center',
   marginHorizontal: 15,
   flexDirection:'column'
+},
+imageContainer: {
+  backgroundColor: colors.grey,
+  height: Dimensions.get('window').height /4,
+  marginHorizontal: 50,
+  borderRadius: 20
+},
+backgroundImage: {
+ flex: 1,
+},
+uploadContainer: {
+  backgroundColor: '#f6f5f8',
+  borderTopLeftRadius: 45,
+  borderTopRightRadius: 45,
+  position: 'absolute',
+  bottom: 1,
+  width: Dimensions.get('window').width,
+  height: 200,
+},
+uploadContainerTitle: {
+  alignSelf: 'center',
+  fontSize: 25,
+  margin: 20,
+  fontFamily: 'Roboto'
+},
+shadow: {
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 5,
+    height: 5,
+  },
+  shadowOpacity: 1.58,
+  shadowRadius: 10,
+  elevation: 3,
+},
+uploadButton: {
+  borderRadius: 16,
+  alignSelf: 'center',
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 7,
+    height: 5,
+  },
+  shadowOpacity: 1.58,
+  shadowRadius: 9,
+  elevation: 4,
+  margin: 10,
+  padding: 10,
+  backgroundColor: '#fe5b29',
+  width: Dimensions.get('window').width - 60,
+  alignItems: 'center'
+},
+uploadButtonText: {
+  color: '#f6f5f8',
+  fontSize: 20,
+  fontFamily: 'Roboto'
 }
 });

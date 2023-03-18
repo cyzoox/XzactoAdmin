@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, StyleSheet, View, TextInput, ScrollView ,TouchableOpacity} from "react-native";
+import { Text, StyleSheet, View, TextInput, ScrollView ,TouchableOpacity, Image} from "react-native";
 import colors from "../themes/colors";
 import AppHeader from "./AppHeader";
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
@@ -16,15 +16,17 @@ import AddVariants from "./AddVariants";
 import { set } from "react-native-reanimated";
 import { CheckBox } from "react-native-elements";
 import { Container, Header, Content, Accordion } from "native-base";
+import * as ImagePicker from "react-native-image-picker"
+
 const units = ["Kilo", "Gram", "Piece", "Liter","Bundle", "Dozen", "Whole", "Half-Dozen","Ounce", "Milliliter", "Milligrams", "Pack","Ream","Box","Sack","Serving","Gallon","Container","Bottle"]
 
 const AddBatchStoreProducts = ({navigation,route}) => {
     const store = route.params.store;
     const {user} = useAuth();
-    const {createProducts,products, category,createDeliveryReport, createStoreDeliverySummary} = useStore();
+    const {createProducts,products, category,createDeliveryReport, createStoreDeliverySummary, suppliers} = useStore();
     const [product_holder, setProductHolder] = useState([
-        {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4(), pr_id:uuid.v4(), addons:[], variants:[], options:[], withAddons: false, withOptions: false, withVariants: false},
-        {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4(), pr_id:uuid.v4(), addons:[], variants:[],  options:[], withAddons: false, withOptions: false, withVariants: false}
+        {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4(), pr_id:uuid.v4(), addons:[], variants:[], options:[], withAddons: false, withOptions: false, withVariants: false,img: 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'},
+        {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4(), pr_id:uuid.v4(), addons:[], variants:[],  options:[], withAddons: false, withOptions: false, withVariants: false, img: 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'}
     ])
     const [sku, setSKU] = useState('')
     const [date, setDate] = useState(new Date())
@@ -32,7 +34,7 @@ const AddBatchStoreProducts = ({navigation,route}) => {
     const [query,setQuery] = useState('')
     const [delivery_no, setDeliveryNo] = useState('')
     const [delivered_by, setDeliveredBy] = useState('')
-    const [supplier, setSupplier] = useState('')
+    const [supplier, setSupplier] = useState([])
     const [errorMsg, setErrorMsg] = useState('')
     const [alert_visible,alertVisible] = useState(false)
     const [optionsVisible, setOptionVisible]  = useState(false)
@@ -48,11 +50,11 @@ const AddBatchStoreProducts = ({navigation,route}) => {
     const [withOptions, setWithOptions] = useState(false)
     const [withVariants, setWithVariants] = useState(false)
     const [expended,setExpanded] = useState(false)
-
-  
+    const [selected_supplier, setSelectedSupplier] = useState('')
+    const [img,setImg] = useState('')
 
     const onAddItem = () => {
-        const items =  product_holder.concat([{"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, id: uuid.v4(), pr_id:uuid.v4(), addons:[{'name': 'test', 'price': 10}]}])
+        const items =  product_holder.concat([{"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, id: uuid.v4(), pr_id:uuid.v4(), addons:[{'name': 'test', 'price': 10} ],img: 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'}])
        setProductHolder(items)
      }
 
@@ -122,7 +124,7 @@ const AddBatchStoreProducts = ({navigation,route}) => {
      const onSaveProducts = () => {
       const dates = moment().unix();
         if(supplier.length === 0){
-            setErrorMsg('Please fill in supplier.')
+            setErrorMsg('Please select supplier.')
             return;
         }
         if(delivered_by.length === 0){
@@ -148,7 +150,7 @@ const AddBatchStoreProducts = ({navigation,route}) => {
             store: store.name,
             stock: parseFloat(items.qty),
             sku:sku,
-            img : 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'
+            img : items.img
           }
           let delivery = {
             partition: `project=${user.id}`,
@@ -162,10 +164,10 @@ const AddBatchStoreProducts = ({navigation,route}) => {
             quantity: parseFloat(items.qty),
             oprice: parseFloat(items.oprice),
             sprice: parseFloat(items.sprice),
-            supplier: supplier,
-            supplier_id: 'no_id',
-            delivered_by: delivered_by,
-            received_by: '',
+            supplier: supplier.name,
+            supplier_id: supplier._id,
+            delivered_by: '',
+            received_by: delivered_by,
             delivery_receipt: delivery_no,
             store_id: store._id,
             store_name: store.name,
@@ -183,10 +185,10 @@ const AddBatchStoreProducts = ({navigation,route}) => {
           year_month :moment.unix(dates).format('MMMM-YYYY'),
           year_week :moment.unix(dates).format('WW-YYYY'),
           date: moment.unix(dates).format('MMMM DD, YYYY'),
-          supplier: supplier,
-          supplier_id: 'no_id',
-          delivered_by: delivered_by,
-          received_by: '',
+          supplier: supplier.name,
+          supplier_id: supplier._id,
+          delivered_by: '',
+          received_by: delivered_by,
           delivery_receipt: delivery_no,
           total: 0,
           store_id: store._id,
@@ -429,23 +431,31 @@ const onCreateAddons = (item) => {
          {errorMsg.length !== 0 ? <Text style={{textAlign:'center', color: colors.red, fontWeight: '700'}}>{errorMsg}</Text>: null}
          <View>
              <View style={{flexDirection:'row'}}>
-                <View style={{borderWidth: 1,flex: 1, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
-                    <TextInput
-                        style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
-                        underlineColorAndroid = 'transparent'
-                                onChangeText={(text)=> setSupplier(text)}
-                                disableFullscreenUI={true}
-                                placeholder="Supplier"
-                                defaultValue={supplier}
-                    />
-                </View>
+    
+                <View style={{borderWidth: 1, width: 190, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center"}}>
+        
+                <Picker
+                  selectedValue={supplier}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setSupplier(itemValue)
+                  }>
+                    <Picker.Item label="Supplier" value="default" />
+                 {
+                                suppliers.map(item => 
+                                  
+                                <Picker.Item label={item.name} value={item} />
+                                )
+                            } 
+                </Picker>
+     
+          </View>
                 <View style={{borderWidth: 1,flex: 1, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
                     <TextInput
                         style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                         underlineColorAndroid = 'transparent'
                         onChangeText={(text)=> setDeliveredBy(text)}
                         disableFullscreenUI={true}
-                        placeholder="Delivered By"
+                        placeholder="Received By"
                         value={delivered_by}
                     />
                 </View>
@@ -471,7 +481,8 @@ const onCreateAddons = (item) => {
          <ScrollView>
           <ScrollView showsHorizontalScrollIndicator horizontal contentContainerStyle={{flexDirection:'column', marginTop: 20}}>
           <View style={{flexDirection:'row'}}>
-      
+          <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}></Text>
+          <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Image</Text>
                <Text style={{width: 150, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Product Name</Text>
                <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Qty</Text>
                <Text style={{width: 150, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Unit</Text>
@@ -482,12 +493,68 @@ const onCreateAddons = (item) => {
                <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Addons</Text>
                <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Options</Text> */}
            </View>
+         
            {
                 product_holder.map((element, index) => 
                 <View style={{flexDirection:'column'}}>
             <View style={{flexDirection:'row', marginVertical: 3}}>
+            <View style={{flexDirection: 'row'}}>
+          <TouchableOpacity onPress={()=> handleRemoveItem(element.no)} style={{backgroundColor:colors.red, justifyContent:'center', marginHorizontal: 10, padding:5, borderRadius:25}}>
+            <EvilIcons name={'trash'} size={26} color={colors.white}/>
            
-            <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, flexDirection:'row'}}>
+            </TouchableOpacity>
+          </View>
+            <View>
+              <TouchableOpacity onPress={()=> {
+                
+   
+
+                  ImagePicker.launchImageLibrary({
+                      maxWidth:500,
+                      maxHeight: 500,
+                      mediaType: 'photo',
+                      includeBase64: true
+                  },
+                   image => {
+                    if (image.didCancel) {
+                      console.log('User cancelled image picker');
+                    } else if (image.error) {
+                      console.log('ImagePicker Error: ', response.error);
+                    } else {
+                      
+                      let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/sbpcmedia/upload'
+                      let base64Img = `data:image/jpg;base64,${image.assets[0].base64}`
+                      let data = {
+                          "file" : base64Img,
+                          "upload_preset" : "ancbewi9"
+                      }
+                      fetch(CLOUDINARY_URL, {
+                          body: JSON.stringify(data),
+                          headers: {
+                              'content-type': 'application/json'
+                          },
+                          method: 'POST',
+                      }).then(async r => {
+                          let data = await r.json()
+                          let photo = 'https'+data.url.slice(4)
+                          
+                          element.img = photo
+                          setProductHolder([...product_holder]);
+                
+                      }).catch(error =>{
+                          console.log('error : ', error)
+                      })
+                    }
+                  })
+                
+              }}>
+                <Image 
+                  source={{uri: element.img}}
+                  style={{height:50, width: 50}}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={{borderWidth: 1, width: 150, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, flexDirection:'row'}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -512,6 +579,7 @@ const onCreateAddons = (item) => {
                                         element.unit = itemValue.unit,
                                         element.oprice = itemValue.oprice,
                                         element.sprice = itemValue.sprice,
+                                        element.img = itemValue.img,
                                         element.qty = 1,
                                         setProductHolder([...product_holder])
                                 }
@@ -526,7 +594,7 @@ const onCreateAddons = (item) => {
                                 </Picker>
           </View>
    
-          <View style={{borderWidth: 1, width: 50, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <View style={{borderWidth: 1, width: 50, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -542,7 +610,7 @@ const onCreateAddons = (item) => {
                  }}
               />
           </View>
-          <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center"}}>
+          <View style={{borderWidth: 1, width: 150, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center"}}>
           <Picker
                             selectedValue={element.unit}
                             onValueChange={(itemValue, itemIndex) =>
@@ -558,7 +626,7 @@ const onCreateAddons = (item) => {
                             
                             </Picker>
           </View>
-          <View style={{borderWidth: 1, width: 50, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <View style={{borderWidth: 1, width: 50, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -574,7 +642,7 @@ const onCreateAddons = (item) => {
                  }}
               />
           </View>
-          <View style={{borderWidth: 1, width: 50, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+          <View style={{borderWidth: 1, width: 50, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -590,7 +658,7 @@ const onCreateAddons = (item) => {
                  }}
               />
           </View>
-          <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center"}}>
+          <View style={{borderWidth: 1, width: 150, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, justifyContent:"center"}}>
           <Picker
                             selectedValue={element.category}
                             onValueChange={(itemValue, itemIndex) =>
@@ -629,12 +697,7 @@ const onCreateAddons = (item) => {
                 />          
           </View> */}
         
-          <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity onPress={()=> handleRemoveItem(element.no)} style={{backgroundColor:colors.red, justifyContent:'center', marginHorizontal: 10, padding:5, borderRadius:25}}>
-            <EvilIcons name={'trash'} size={26} color={colors.white}/>
-           
-            </TouchableOpacity>
-          </View>
+      
        
             </View>
           {/* {element.addons.length === 0 ? null :  <View style={{ flex: 1, flexDirection:'column',marginLeft: 20}}>

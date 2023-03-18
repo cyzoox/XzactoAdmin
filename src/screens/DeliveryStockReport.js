@@ -10,6 +10,7 @@ import { useStore } from "../context/StoreContext";
 import { ModalInputForm } from "../components/ModalInputForm";
 import SearchInput, { createFilter } from 'react-native-search-filter';
 const KEYS_TO_FILTERS = ['store_id'];
+const KEYS_TO_FILTERS2 = ['supplier_id'];
 import {DatePicker} from "react-native-common-date-picker";
 import { useRoute } from "@react-navigation/native";
 
@@ -17,11 +18,12 @@ const DeliveryStockReport = ({navigation}) => {
   const route = useRoute();
   const store_data =  route.params.store
   const { store_delivery_summary,
-    getStoreDeliverySummary} = useStore();
+    getStoreDeliverySummary,
+    suppliers} = useStore();
   const [filter, setFilter] = useState('Today')
   const [specificDate, setSpecificDatePicker] = useState(false)
   const [specific_date, setSpecificDate] = useState('');
-
+  const [selectedSupplier, setSelectedSupplier] = useState([]);
   useEffect(() => {
     const date = moment().unix()
     const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
@@ -30,7 +32,13 @@ const DeliveryStockReport = ({navigation}) => {
 
 
   const filteredProducts = store_delivery_summary.filter(createFilter(store_data._id, KEYS_TO_FILTERS))
-  
+  const [deliveries, setDeliveries] = useState(filteredProducts)
+
+  const onSelectSupplier = () => {
+    const filteredSuppliers = store_delivery_summary.filter(createFilter(selectedSupplier._id, KEYS_TO_FILTERS2))
+
+    setDeliveries(filteredSuppliers)
+  }
   const onSelectFilter = () => {
   
     let date = moment().unix()
@@ -107,7 +115,8 @@ const DeliveryStockReport = ({navigation}) => {
             {`${item.delivery_receipt}`.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3")}
           </Text>
           <Text style={{color: colors.boldGrey, fontSize: 13, fontFamily: ''}}>
-            {moment.unix(item.timeStamp).format('DD MMM YYYY hh:mmA')}
+            {/* {moment.unix(item.timeStamp).format('DD MMM YYYY hh:mmA')} */}
+           { item.date}
           </Text>
         </View>
       </View>
@@ -130,7 +139,8 @@ const DeliveryStockReport = ({navigation}) => {
                 </TouchableOpacity>
               } 
          />
-            <View style={styles.filter}>
+         <View style={{flexDirection:'row', justifyContent:"space-evenly"}}>
+         <View style={styles.filter}>
                 <View style={{flex: 1,borderRightWidth: 1,flexDirection:'row', justifyContent:'center', alignSelf:'center'}}>
                 <EvilIcons name={'calendar'} size={40} color={colors.coverDark}/>
                 </View>
@@ -222,8 +232,42 @@ const DeliveryStockReport = ({navigation}) => {
             </ModalInputForm>
                 </TouchableOpacity>
               </View>
+              <View style={styles.filter}>
+                <View style={{flex: 1,borderRightWidth: 1,flexDirection:'row', justifyContent:'center', alignSelf:'center'}}>
+                <EvilIcons name={'calendar'} size={40} color={colors.coverDark}/>
+                </View>
+                <TouchableOpacity style={{flex: 3}}>
+                <ModalInputForm
+              displayComponent={
+                  <>
+                      <Text style={{ color: colors.black,  fontWeight:'700', fontSize: 16, textAlign:'center', marginTop: 5}}>{selectedSupplier.length === 0? 'Select Supplier' : selectedSupplier.name}</Text>
+                  </>
+              }
+              title="Select Supplier" 
+              onSave={()=> onSelectSupplier()}
+            >
+             <TouchableOpacity 
+                  onPress={()=> setSelectedSupplier({_id: 'Warehouse', name:'Warehouse'})}
+                  style={'Warehouse' === selectedSupplier._id ? [styles.s_select,{ borderWidth: 1, borderColor: colors.accent}]: styles.s_select}>
+                <Text style={{textAlign:'center'}}>Warehouse</Text>
+              </TouchableOpacity>
+            {
+              suppliers.map(item => 
+                <TouchableOpacity 
+                  onPress={()=> setSelectedSupplier(item)}
+                  style={item._id === selectedSupplier._id ? [styles.s_select,{ borderWidth: 1, borderColor: colors.accent}]: styles.s_select}>
+                <Text style={{textAlign:'center'}}>{item.name}</Text>
+              </TouchableOpacity>
+              )
+            }
+               
+            </ModalInputForm>
+                </TouchableOpacity>
+              </View>
+         </View>
+           
         <FlatList
-          data={filteredProducts}
+          data={deliveries}
           renderItem={renderItem}
           keyExtractor={item => item._id}
           />
@@ -351,13 +395,29 @@ const styles = StyleSheet.create({
     borderColor: colors.accent,
   backgroundColor: colors.accent},
     filter: {
+      flex:1,
       backgroundColor: colors.white,
-      marginHorizontal: 30 ,
+      marginHorizontal: 10 ,
       marginVertical: 10,
-      padding: 15,
+      padding: 10,
       borderRadius: 10,
       flexDirection:'row', 
       justifyContent:'space-around', 
+      shadowColor: "#EBECF0",
+      shadowOffset: {
+        width: 0,
+        height: 5,
+       
+      },
+      shadowOpacity: 0.89,
+      shadowRadius: 2,
+      elevation: 5,
+    },
+    s_select:{
+      marginBottom:5,
+      padding: 10,
+      borderRadius: 10,
+      backgroundColor: colors.white,
       shadowColor: "#EBECF0",
       shadowOffset: {
         width: 0,

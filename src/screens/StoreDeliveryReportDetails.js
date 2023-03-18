@@ -17,13 +17,14 @@ const StoreDeliveryReportDetails = ({navigation, route}) => {
   useEffect(() => {
     const date = moment().unix()
     const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
-    getStoreDelivery(today, 1)
+    getStoreDelivery(delivery.date, 1)
   },[]);
 
   const filterProducts = () => {
     let product = [];
     store_delivery.forEach(item => {
-      if(delivery.timeStamp === item.timeStamp){
+      console.log(delivery._id, item.tr_id)
+      if(delivery._id === item.tr_id){
         product.push(item)
       }
     });
@@ -76,7 +77,7 @@ const StoreDeliveryReportDetails = ({navigation, route}) => {
             </View>
             <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15}}>
                 <Text style={{fontSize: 16, fontWeight:'600'}}>{delivery.delivery_receipt}</Text>
-                <Text style={{fontSize: 13}}>{moment.unix(delivery.timeStamp).format('DD MMM YYYY hh:mmA')}</Text>
+                <Text style={{fontSize: 13}}>{delivery.date}</Text>
             </View>
             <Divider style={{margin: 10}}/>
             <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 30, marginBottom: 15}}>

@@ -18,10 +18,22 @@ export function AddCustomer({ createCustomer, store }) {
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [credit_balance, setBalance] = useState("");
+  const [credit_balance, setBalance] = useState(0);
   const [mobile, setMobile] = useState("");
+  const [errors, setError] = useState("");
+  const [name_errors, setNameError] = useState("");
 
   const onSave = () => {
+    if(isNaN(credit_balance)){
+      setError('Credit balance must be a number.')
+      return
+    }
+    if(name.length === 0){
+      setNameError('Name is required.')
+      return
+    }
+
+    
     let customer = {
       id: uuid.v4(),
       partition: `project=${user.id}`,
@@ -34,13 +46,14 @@ export function AddCustomer({ createCustomer, store }) {
       
     }
     createCustomer(customer)
+    setOverlayVisible(false);
   }
 
   return (
     <>
       <Overlay
         isVisible={overlayVisible}
-        overlayStyle={{ width: "90%" }}
+        overlayStyle={{ width: "80%", padding: 20 }}
         onBackdropPress={() => setOverlayVisible(false)}
       >
         <>
@@ -52,6 +65,7 @@ export function AddCustomer({ createCustomer, store }) {
           autoFocus={true}
             theme={{ colors: { primary: colors.accent,underlineColor:'transparent',}}}
           />
+           {name_errors.length !== 0 ? <Text style={{textAlign:"center", color: colors.red, marginVertical: 5}}>{name_errors}</Text>: null}
           <TextInput
             placeholder="Address"
             mode="outlined"
@@ -73,6 +87,7 @@ export function AddCustomer({ createCustomer, store }) {
        
             theme={{ colors: { primary: colors.accent,underlineColor:'transparent',}}}
           />
+          {errors.length !== 0 ? <Text style={{textAlign:"center", color: colors.red, marginVertical: 5}}>{errors}</Text>: null}
           <View style={{flexDirection:'row', justifyContent:'space-evenly', marginVertical: 15}}>
             <View  style={{flex: 1, marginHorizontal: 15}} >
                 <Button buttonStyle={{backgroundColor: colors.red, paddingVertical: 15}} title="Cancel" onPress={()=> {
@@ -82,7 +97,6 @@ export function AddCustomer({ createCustomer, store }) {
             </View>
             <View  style={{flex: 1, marginHorizontal: 15}} >
              <Button buttonStyle={{backgroundColor: colors.green, paddingVertical: 15}}  title="Save" onPress={()=> {
-              setOverlayVisible(false);
               onSave()
             }}/>
             </View>

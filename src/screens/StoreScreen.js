@@ -9,7 +9,8 @@ import formatMoney from 'accounting-js/lib/formatMoney.js'
 import moment from 'moment'
 import {DatePicker} from "react-native-common-date-picker";
 
-
+import SearchInput, { createFilter } from 'react-native-search-filter';
+const KEYS_TO_FILTERS = ['date'];
 import {
   LineChart,
   BarChart,
@@ -44,8 +45,10 @@ const StoreScreens = ({ navigation, route }) => {
   const [selected_year,setYear] = useState('')
 
   const year = moment().year();
-
-
+  const date = moment().unix()
+  const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
+  const filteredTransaction = transactions.filter(createFilter(today, KEYS_TO_FILTERS))
+  const filteredExpenses= expenses.filter(createFilter(today, KEYS_TO_FILTERS))
 
   const calculateActualTotal = () => {
     let total = 0;
@@ -60,7 +63,7 @@ const StoreScreens = ({ navigation, route }) => {
   const calculateStoreSale = () => {
     let total = 0;
 
-    transactions.forEach(item => {
+    filteredTransaction.forEach(item => {
       if(item.store_id === STORE._id && item.status === 'Completed'){
         total += item.total
       }
@@ -75,7 +78,7 @@ const StoreScreens = ({ navigation, route }) => {
   const calculateStoreExpenses = () => {
     let total = 0;
 
-    expenses.forEach(item => {
+    filteredExpenses.forEach(item => {
       if(item.store_id === STORE._id){
       total += item.amount
       }
@@ -87,7 +90,7 @@ const StoreScreens = ({ navigation, route }) => {
   const calculateSoldProducts = () => {
     let total = 0;
 
-    transactions.forEach(item => {
+    filteredTransaction.forEach(item => {
       if(item.store_id === STORE._id && item.status === 'Completed'){
         total += item.total_items
       }
@@ -174,44 +177,49 @@ const StoreScreens = ({ navigation, route }) => {
       </TouchableOpacity>
       }*/}
       <View style={{flexDirection: 'row', justifyContent:'space-between', marginHorizontal: 10}}>
-      <TouchableOpacity onPress={()=> navigation.navigate('StoreSales', {store: STORE})} style={{flex: 1,backgroundColor: colors.charcoalGrey, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
-            <Text style={{fontSize: 15, fontWeight:'400', color: colors.white}}>Sales</Text>
-            <Text style={{fontSize: 18, fontWeight:'700', color: colors.white}}>{formatMoney(calculateStoreSale(), { symbol: "₱", precision: 2 })}</Text>
+      <TouchableOpacity onPress={()=> navigation.navigate('StoreSales', {store: STORE})} style={styles.scard}>
+            <Text style={{fontSize: 15, fontWeight:'400', color: colors.coverDark}}>Sales</Text>
+            <Text style={{fontSize: 18, fontWeight:'700', color: colors.coverDark}}>{formatMoney(calculateStoreSale(), { symbol: "₱", precision: 2 })}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=> navigation.navigate('Expenses', {store: STORE})} style={{flex: 1,backgroundColor: colors.charcoalGrey, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
-            <Text style={{fontSize: 15, fontWeight:'400', color: colors.white}}>Expenses</Text>
-            <Text style={{fontSize: 18, fontWeight:'700', color: colors.white}}>{formatMoney(calculateStoreExpenses(), { symbol: "₱", precision: 2 })}</Text>
+        <TouchableOpacity onPress={()=> navigation.navigate('Expenses', {store: STORE})} style={styles.scard}>
+            <Text style={{fontSize: 15, fontWeight:'400', color: colors.coverDark}}>Expenses</Text>
+            <Text style={{fontSize: 18, fontWeight:'700', color: colors.coverDark}}>{formatMoney(calculateStoreExpenses(), { symbol: "₱", precision: 2 })}</Text>
         </TouchableOpacity>
       </View>
       <View style={{flexDirection: 'row', justifyContent:'space-between', marginHorizontal: 10}}>
-      <View style={{flex: 1,backgroundColor: colors.charcoalGrey, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
-            <Text style={{fontSize: 15, fontWeight:'400', color: colors.white}}>Products Sold</Text>
-            <Text style={{fontSize: 18, fontWeight:'700', color: colors.white}}>{calculateSoldProducts()}</Text>
+      <View style={styles.scard}>
+            <Text style={{fontSize: 15, fontWeight:'400', color: colors.coverDark}}>Products Sold</Text>
+            <Text style={{fontSize: 18, fontWeight:'700', color: colors.coverDark}}>{calculateSoldProducts()}</Text>
         </View>
-        <View style={{flex: 1,backgroundColor: colors.charcoalGrey, paddingVertical: 10, margin: 5, padding: 15, borderRadius: 10}}>
-            <Text style={{fontSize: 15, fontWeight:'400', color: colors.white}}>Returns/Refunds</Text>
-            <Text style={{fontSize: 18, fontWeight:'700', color: colors.white}}>0.00</Text>
+        <View style={styles.scard}>
+            <Text style={{fontSize: 15, fontWeight:'400', color: colors.coverDark}}>Returns/Refunds</Text>
+            <Text style={{fontSize: 18, fontWeight:'700', color: colors.coverDark}}>0.00</Text>
         </View>
       </View>
       <ScrollView style={{marginTop: 15}}>
-      {/* <View>
+      <View>
         <View style={styles.actualCapital}>
-          <View>
-              <Text style={{color: colors.white, fontWeight:'900', fontSize: 17, color: colors.accent, fontWeight:'700'}}>Remaining Stocks Capital</Text>
+          <View style={{flexDirection:"row",  alignItems:"center"}}>
+
+          <Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/warehouseicons/stockscap.png')} />
+              <Text style={{color: colors.white, fontWeight:'900', fontSize: 17, color: colors.coverDark, fontWeight:'700'}}>Remaining Stocks Capital</Text>
           </View>
           <View style={{flexDirection:'row', justifyContent:'flex-end'}}>
-              <Text style={{color: colors.white, fontSize: 17, color: colors.accent, fontWeight:'700'}}>{formatMoney(calculateActualTotal(), { symbol: "₱", precision: 2 })}</Text>
+              <Text style={{color: colors.white, fontSize: 17, color: colors.coverDark, fontWeight:'700'}}>{formatMoney(calculateActualTotal(), { symbol: "₱", precision: 2 })}</Text>
           </View>
         </View>
         <View style={styles.capitalStocks}>
-          <View>
-              <Text style={{color: colors.white, fontWeight:'900', fontSize: 17, color: colors.accent, fontWeight:'700'}}>Remaining Stocks SRP</Text>
-          </View>
+        <View style={{flexDirection:"row",  alignItems:"center"}}>
+
+<Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/warehouseicons/stockssrp.png')} />
+    <Text style={{color: colors.white, fontWeight:'900', fontSize: 17, color: colors.coverDark, fontWeight:'700'}}>Remaining Stocks SRP</Text>
+</View>
+        
           <View style={{flexDirection:'row', justifyContent:'flex-end'}}>
-              <Text style={{color: colors.white, fontSize: 17, color: colors.accent, fontWeight:'700'}}>{formatMoney(calculateStocksTotal(), { symbol: "₱", precision: 2 })}</Text>
+              <Text style={{color: colors.white, fontSize: 17, color: colors.coverDark, fontWeight:'700'}}>{formatMoney(calculateStocksTotal(), { symbol: "₱", precision: 2 })}</Text>
           </View>
         </View>       
-      </View> */}
+      </View>
       <View>
         <View style={styles.chartContainer}>
           {/* <View style={{flexDirection:'row', justifyContent:'space-between', paddingVertical: 10, marginHorizontal: 10}}>
@@ -249,7 +257,7 @@ const StoreScreens = ({ navigation, route }) => {
               rightTileText="Products"
               leftTileText="Reports"
               iconRightName='md-barcode-outline'
-              iconLeftName='md-podium-outline'
+              iconLeftName='../../assets/xzacto_icons/warehouseicons/report.png'
               leftRouteName="Reports"
               rightRouteName="Products"
               centerTileText="Expenses"
@@ -261,7 +269,7 @@ const StoreScreens = ({ navigation, route }) => {
               rightTileText="Attendants"
               leftTileText="Bills"
               iconRightName='md-people-circle-outline'
-              iconLeftName='ios-receipt-outline'
+              iconLeftName='../../assets/xzacto_icons/warehouseicons/report.png'
               leftRouteName="BillsAndReceipt"
               rightRouteName="Staffs"
               centerTileText="Customers"
@@ -269,7 +277,18 @@ const StoreScreens = ({ navigation, route }) => {
               iconCenterName="md-people-circle-outline"
               extraProps={STORE}
           />
-      
+       <CardTiles
+              leftTileText="Suppliers"
+              iconLeftName='../../assets/xzacto_icons/warehouseicons/report.png'
+              leftRouteName="Suppliers"
+              centerTileText="Settings"
+              centerRouteName="StoreSettings"
+              iconCenterName="settings-outline"
+              // rightTileText="Delivery"
+              // iconRightName='md-people-circle-outline'
+              // rightRouteName="DeliveryRequest"
+              extraProps={STORE}
+          />
         </ScrollView>
         <Modal animationType={'slide'} visible={custompick2} transparent>
                    <View style={{ flex: 1 ,flexDirection: 'column', justifyContent: 'flex-end'}}>
@@ -339,10 +358,10 @@ const styles = StyleSheet.create({
   },
   actualCapital: {
     flexDirection:'column', 
-    marginHorizontal: 10,
+    marginHorizontal: 15,
     marginBottom: 5,
     padding: 10, 
-    backgroundColor: colors.charcoalGrey, 
+    backgroundColor: colors.white, 
     borderRadius: 10,
     shadowColor: "#EBECF0",
     shadowOffset: {
@@ -357,10 +376,27 @@ const styles = StyleSheet.create({
   capitalStocks: {
     flex: 1,
     flexDirection:'column', 
-    marginHorizontal: 10,
+    marginHorizontal: 15,
     marginVertical: 5, 
     padding: 10, 
-    backgroundColor: colors.charcoalGrey, 
+    backgroundColor: colors.white, 
+    borderRadius: 10,
+    shadowColor: "#EBECF0",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    
+    },
+    shadowOpacity: 0.89,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  scard: {
+    flex: 1,
+    backgroundColor: colors.white, 
+    paddingVertical: 10, 
+    margin: 5, 
+    padding: 15, 
     borderRadius: 10,
     shadowColor: "#EBECF0",
     shadowOffset: {

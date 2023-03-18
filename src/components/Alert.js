@@ -56,10 +56,10 @@ const styles = StyleSheet.create({
     marginTop: 22
   },
   modalView: {
-    width : width /1.3,
+    width : width /1.4,
     paddingHorizontal: 15,
     backgroundColor: "white",
-    borderRadius: 5,
+    borderRadius: 15,
     paddingBottom: 15,
     paddingTop: 5,
     shadowColor: "#000",
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   openButton: {
     backgroundColor: "#F194FF",
-    borderRadius: 5,
+    borderRadius: 20,
     padding: 10,
     elevation: 2
   },
