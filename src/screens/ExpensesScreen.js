@@ -15,6 +15,7 @@ import moment from 'moment'
 import uuid from 'react-native-uuid';
 import {DatePicker} from "react-native-common-date-picker";
 import formatMoney from 'accounting-js/lib/formatMoney.js'
+import SelectDropdown from 'react-native-select-dropdown'
 
 const ExpensesScreen = ({navigation, route}) => {
   const STORE =  route.params.store
@@ -28,8 +29,9 @@ const ExpensesScreen = ({navigation, route}) => {
     getCustomExpenses3,
     custom_expenses3
   } = useStore();
-  const [description, setExpense] = useState('')
+  const [description, setDescription] = useState('Description')
   const [amount, setAmount] = useState('')
+  const [other, setOthers] = useState('')
   const [selectedStore, setSelectedStore] = useState('');
   const [selectedStoreInfo, setSelectedStoreInfo]= useState([]);
   const [custompick1, setCustomPicker1] = useState(false)
@@ -42,7 +44,15 @@ const ExpensesScreen = ({navigation, route}) => {
   const [overlayVisible, setOverlayVisible] = useState(false)
   const today = moment().unix()
 
-
+  const descriptions = [
+    "Rental Expense",
+    "Fuel Expense",
+    "Salary",
+    "Electic Bill",
+    "Water Bill",
+    "Internet / Telephone Bill",
+    'Others please specify'
+  ]
   
 const onSelectFilter = () => {
   
@@ -124,7 +134,7 @@ const onSelectFilter = () => {
     let expense = {
       id: uuid.v4(),
       partition: `project=${user.id}`,
-      description: description,
+      description: description === 'Others please specify' ? other : description,
       amount: parseFloat(amount),
       category: '',
       store_id: STORE._id,
@@ -138,6 +148,7 @@ const onSelectFilter = () => {
     }
 
     createExpenses(expense)
+    setDescription('Description')
   }
 
   const calculateTotal = () => {
@@ -183,12 +194,39 @@ const onSelectFilter = () => {
                 }
                 title="Add Expenses" 
                 onSave={onSave}>
-              <TextInput
+                
+                <SelectDropdown
+                    data={descriptions}
+                    defaultButtonText={description}
+                    onSelect={(selectedItem, index) => {
+                      setDescription(selectedItem)
+                    }}
+                    buttonTextAfterSelection={(selectedItem, index) => {
+                      // text represented after item is selected
+                      // if data array is an array of objects then return selectedItem.property to render after item is selected
+                      return selectedItem
+                    }}
+                    rowTextForSelection={(item, index) => {
+                      // text represented for each item in dropdown
+                      // if data array is an array of objects then return item.property to represent item in dropdown
+                      return item
+                    }}
+                    buttonStyle={{
+                        marginTop: 5,
+                       width: '100%',
+                        height: 56,
+                        backgroundColor: "#FFF",
+                        borderRadius: 5,
+                        borderWidth: 1,
+                        borderColor: "#444",}}
+                        buttonTextStyle={{textAlign: 'left', color: 'grey', fontSize: 15}}
+                  />
+                {description === 'Others please specify' ? <TextInput
                     mode="outlined"
-                    label="Description"
-                    placeholder="Description"
-                    onChangeText={(text)=> setExpense(text)}
-                    />
+                    label="Please specify"
+                    placeholder="Please specify"
+                    onChangeText={(text)=> setOthers(text)}
+                    />: null}
               <TextInput
                     mode="outlined"
                     label="Amount"

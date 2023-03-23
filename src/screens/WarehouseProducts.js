@@ -180,7 +180,7 @@ console.log(selected_store)
     store: selected_store.name,
     stock: tr_qty,
     sku:'',
-    img:'',
+    img:product_name.img,
     pr_id: product_name._id
   }
 

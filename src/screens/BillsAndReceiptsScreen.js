@@ -113,6 +113,7 @@ const BillsAndReceiptsScreen = ({navigation, route}) => {
     if(selected===0){
       return(
         <FlatList
+        style={{marginBottom: 50}}
         data={filteredProducts}
         renderItem={renderItem}
         keyExtractor={item => item.id}
@@ -122,6 +123,7 @@ const BillsAndReceiptsScreen = ({navigation, route}) => {
     if(selected===1){
      return(
       <FlatList
+      style={{marginBottom: 50}}
           data={filteredVoidedProducts}
           renderItem={renderItem}
           keyExtractor={item => item.id}
@@ -151,20 +153,20 @@ const BillsAndReceiptsScreen = ({navigation, route}) => {
     <TouchableOpacity style={styles.listStyle} onPress={()=> navigation.navigate('BillDetails', {transactions: item, store: store_data})}>
       <View style={{flexDirection: 'row'}}>
         <View style={{paddingRight: 10}}>
-          <Avatar containerStyle={styles.avatarStyle} size={45} icon={{ name: 'receipt-outline', type: 'ionicon', color: colors.accent }}/>
+          <Avatar containerStyle={styles.avatarStyle} size={45} source={require('../../assets/xzacto_icons/iconsstore/bills1.png')}/>
         </View>
         <View>
           <Text style={{color: colors.coverDark, marginBottom: 3, fontWeight:'700', fontSize: 15}}>
             {item.timeStamp}
           </Text>
-          <Text style={{color: colors.red, fontSize: 13}}>
+          <Text style={{color: colors.charcoalGrey, fontSize: 13}}>
             {moment.unix(item.timeStamp).format('DD MMM YYYY hh:mmA')}
           </Text>
         </View>
       </View>
       <View style={{justifyContent:'center', alignItems:'center'}}>
           
-          <Text style={{fontSize: 17, color: colors.green, fontWeight: '700'}}>{formatMoney(item.total, { symbol: "₱", precision: 1 })}</Text>
+          <Text style={{fontSize: 17, color: colors.primary, fontWeight: '700'}}>{formatMoney(item.total, { symbol: "₱", precision: 1 })}</Text>
           <Text style={{fontSize: 10, color: colors.boldGrey, textDecorationLine:'underline'}}>Tap to view >></Text>
       </View>
     </TouchableOpacity>
@@ -368,18 +370,14 @@ BillsAndReceiptsScreen.navigationOptions = () => {
 const styles = StyleSheet.create({
   
   avatarStyle: {
-    borderColor: colors.accent,
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderRadius: 20,
+
     backgroundColor:colors.white
   },
   listStyle: {
     flexDirection:'row',
     justifyContent:'space-between', 
     backgroundColor: colors.white,
-    borderColor: colors.accent,
-    borderWidth: 1,
+   
     shadowColor: "#EBECF0",
   shadowOffset: {
     width: 0,

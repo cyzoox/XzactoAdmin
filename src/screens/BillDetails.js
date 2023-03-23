@@ -10,6 +10,7 @@ import { useStore } from "../context/StoreContext";
 import formatMoney from 'accounting-js/lib/formatMoney.js'
 import moment from 'moment'
 import {BluetoothEscposPrinter, BluetoothManager, BluetoothTscPrinter} from "react-native-bluetooth-escpos-printer";
+import { ScrollView } from "react-native";
 
 const BillDetails = ({navigation, route}) => {
     const { transactions } = route.params;
@@ -32,10 +33,13 @@ const BillDetails = ({navigation, route}) => {
     }
 
     const renderItem = ({ item }) => (
-        <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 20, marginVertical: 3}}>
-            <Text>{item.name} {Math.round(item.quantity  * 100) / 100} x {Math.round(item.sprice * 100) / 100}</Text>
-            <Text>{formatMoney(item.quantity*item.sprice, { symbol: "₱", precision: 1 })}</Text>
-            
+        <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 20, marginVertical: 3, height: 40,alignItems:"center"}}>
+            <Text style={{flex: 3}}>{item.name} {Math.round(item.quantity  * 100) / 100} x {Math.round(item.sprice * 100) / 100}</Text>
+            <Text style={{flex:1, fontWeight:'bold', justifyContent:'center', alignItems:'center'}}>{formatMoney(item.quantity*item.sprice, { symbol: "₱", precision: 1 })}</Text>
+            <TouchableOpacity style={{flex:.7,backgroundColor: colors.red, justifyContent:'center', alignItems:'center', paddingHorizontal:5, borderRadius: 15, height: 30}}>
+              <Text style={{fontSize:10, color: colors.white}}>Refund</Text>
+            </TouchableOpacity>
+            <Divider/>
         </View>
       )
 
@@ -162,9 +166,8 @@ const BillDetails = ({navigation, route}) => {
               } 
         />
         <View style={{marginHorizontal: 10}}>
-        <ZigzagView
-            backgroundColor="#f1f1f1"
-            surfaceColor="#FFF"
+        <ScrollView
+            
             contentContainerStyle={{
             justifyContent: "space-between"
             }}
@@ -180,8 +183,10 @@ const BillDetails = ({navigation, route}) => {
             </View>
             <Divider style={{margin: 10}}/>
             <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 30, marginBottom: 15}}>
-                <Text>Item</Text>
-                <Text>Total</Text>
+                <Text style={{flex: 3, fontSize: 15, fontWeight:"bold"}}>ITEM</Text>
+                <Text style={{flex:1, fontSize: 15, fontWeight:"bold"}}>TOTAL</Text>
+                <Text style={{flex:.7, textAlign:'center', fontSize: 12, fontWeight:"bold", alignItems:"center"}}>REFUND</Text>
+
             </View>
             <FlatList
                 keyExtractor={(key) => key.name}
@@ -231,7 +236,7 @@ const BillDetails = ({navigation, route}) => {
                 <Text style={{fontSize: 15, fontWeight:'600'}}>Attendant: {transactions.attendant_name}</Text>
             </View>
           
-        </ZigzagView>
+        </ScrollView>
         </View>
         
     </View>
