@@ -73,6 +73,7 @@ import ForgotPassword from "./src/screens/ForgotPassword";
 import Supplier from "./src/screens/Supplier";
 import StoreSettings from "./src/screens/StoreSettings";
 import DeliveryRequest from "./src/screens/DeliveryRequest";
+import WarehouseRemainingStock from "./src/screens/WarehouseRemainingStocks";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -377,6 +378,12 @@ function WarehouseStackScreens() {
      <WarehouseStack.Screen
       name="BatchTransfer"
       component={BatchTransferScreen}
+      options={{headerShown:false, tabBarVisible:false}}
+      
+    />
+     <WarehouseStack.Screen
+      name="WarehouseRemainingStocks"
+      component={WarehouseRemainingStock}
       options={{headerShown:false, tabBarVisible:false}}
       
     />
