@@ -32,7 +32,9 @@ import {
   Addon,
   Option,
   UserInfo,
-  Suppliers
+  Suppliers,
+  DeliveryRequest,
+  DeliveryRequestDetails
 } from '../../schemas';
 import { useAuth } from './AuthContext';
 import moment from 'moment'
@@ -87,7 +89,9 @@ const StoreProvider = ({ children, projectPartition }) => {
     const [option, setOption] = useState([]);
     const [addon, setAddon] = useState([]);
     const [user_info, setUserInfo] = useState([]);
-    const [suppliers, setSupplier] = useState([])
+    const [suppliers, setSupplier] = useState([]);
+    const [delivery_request, setDeliveryRequests] = useState([])
+    const [delivery_req_details, setDeliveryRequestDetails] = useState([])
 
     const date = moment().unix()
     const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
@@ -130,7 +134,9 @@ const StoreProvider = ({ children, projectPartition }) => {
         Addon.schema,
         Option.schema,
         UserInfo.schema,
-        Suppliers.schema],
+        Suppliers.schema,
+      DeliveryRequest.schema,
+    DeliveryRequestDetails.schema],
         
       sync: {
     
@@ -295,6 +301,24 @@ const StoreProvider = ({ children, projectPartition }) => {
      
       });
 
+      const syncDeliveryRequests = projectPOS.objects("DeliveryRequest");
+      const filteredDeliveryRequest = syncDeliveryRequests.filtered("status == $0","Pending");
+      let sortDeliveryRequests= filteredDeliveryRequest.sorted("timeStamp");
+      setDeliveryRequests([...sortDeliveryRequests]);
+      sortDeliveryRequests.addListener(() => {
+        setDeliveryRequests([...sortDeliveryRequests]);
+     
+      });
+
+      const syncDeliveryRequestDetails = projectPOS.objects("DeliveryRequestDetails");
+      const filteredDeliveryRequestDetails = syncDeliveryRequestDetails.filtered("status == $0","Pending");
+      let sortDeliveryRequestDetails= filteredDeliveryRequestDetails.sorted("pr_name");
+      setDeliveryRequestDetails([...sortDeliveryRequestDetails]);
+      sortDeliveryRequestDetails.addListener(() => {
+        setDeliveryRequestDetails([...sortDeliveryRequestDetails]);
+     
+      });
+
       const syncAllTRDetails = projectPOS.objects("TR_Details");
       let sortedAllTRDetails = syncAllTRDetails.sorted("timeStamp");
       setAllTRDetails([...sortedAllTRDetails]);
@@ -423,6 +447,29 @@ const StoreProvider = ({ children, projectPartition }) => {
     });
   };
   
+  const createDeliveryRequest = ( request ) => {
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+      // Create a new task in the same partition -- that is, in the same project.
+      projectPOS.create(
+        "DeliveryRequest",
+        new DeliveryRequest(request)
+      );
+    
+    });
+  };
+
+  const createDeliveryRequestDetails = ( details ) => {
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+      // Create a new task in the same partition -- that is, in the same project.
+      projectPOS.create(
+        "DeliveryRequestDetails",
+        new DeliveryRequestDetails(details)
+      );
+      
+    });
+  };
 
   const createWarehousePullout = ( pullout, product ) => {
     const projectPOS = realmRef.current;
@@ -558,7 +605,7 @@ const StoreProvider = ({ children, projectPartition }) => {
     });
   };
 
-  const onSendProducts = ( productss, w_products ) => {
+  const onSendProducts = ( productss, items ) => {
     
     const projectPOS = realmRef.current;
     projectPOS.write(() => {
@@ -572,11 +619,13 @@ const StoreProvider = ({ children, projectPartition }) => {
 
       if(filteredProducts3.length == 0){
         filteredProducts4[0].stock -= productss.stock;
+        items.status = "Accepted"
         projectPOS.create(
           "Products",
           new Products(productss)
         );
       }else{
+        items.status = "Accepted"
         filteredProducts4[0].stock -= productss.stock;
         filteredProducts3[0].stock += productss.stock;
       }
@@ -1745,7 +1794,11 @@ const StoreProvider = ({ children, projectPartition }) => {
             suppliers,
             createSupplier,
             updateStore,
-            updateCustomer
+            updateCustomer,
+            createDeliveryRequest,
+            createDeliveryRequestDetails,
+            delivery_request,
+            delivery_req_details
           }}
         >
             {children}

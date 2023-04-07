@@ -20,6 +20,7 @@ import {
   StackedBarChart
 } from "react-native-chart-kit";
 import { useStore } from "../context/StoreContext";
+import { Badge } from "react-native-elements";
 
 const chartConfig = {
   backgroundGradientFrom: "#FFFFFF",
@@ -168,14 +169,14 @@ const StoreScreens = ({ navigation, route }) => {
             <EvilIcons name={'arrow-left'} size={30} color={colors.white}/>
           </TouchableOpacity>
       }
-   
-        />
-          {/* rightComponent={
-        <TouchableOpacity style={{flexDirection:'row'}} onPress={()=> navigation.goBack()}>
+      rightComponent={
+        <TouchableOpacity style={{flexDirection:'row'}} onPress={()=> navigation.navigate("DeliveryRequest", {store:STORE})}>
         <EvilIcons name={'bell'} size={30} color={colors.white}/>
-        <Badge containerStyle={{marginTop:-5}} value="3" status="success" />
+        <Badge containerStyle={{marginTop:-6}} value=" 3 " status="error" />
       </TouchableOpacity>
-      }*/}
+      }
+        />
+       
       <View style={{flexDirection: 'row', justifyContent:'space-between', marginHorizontal: 10}}>
       <TouchableOpacity onPress={()=> navigation.navigate('StoreSales', {store: STORE})} style={styles.scard}>
             <Text style={{fontSize: 15, fontWeight:'400', color: colors.coverDark}}>Sales</Text>

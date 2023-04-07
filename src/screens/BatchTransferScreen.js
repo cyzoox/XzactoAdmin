@@ -18,8 +18,19 @@ import Alert from "../components/Alert";
 const BatchTransferScreen = ({navigation,route}) => {
 
     const {user} = useAuth();
-    const {stores,warehouse_category,createWarehouseProducts,  warehouse_products,createWarehouseDeliveryReport, 
-        createDeliveryReport, createStoreDeliverySummary,onSendProducts,createtransferLogs} = useStore();
+    const {
+      stores,
+      warehouse_category,
+      createWarehouseProducts,  
+      warehouse_products,
+      createWarehouseDeliveryReport, 
+      createDeliveryReport, 
+      createStoreDeliverySummary,
+      onSendProducts,
+      createtransferLogs,
+      createDeliveryRequest,
+      createDeliveryRequestDetails
+    } = useStore();
 
     const [product_holder, setProductHolder] = useState([])
     const [sku, setSKU] = useState('')
@@ -48,34 +59,72 @@ const BatchTransferScreen = ({navigation,route}) => {
   }
     
  const onSaveItems = () => {
+  let dates = moment().unix()
           if(selected_store.length===0){
             return setVisible(true)
           }
+          let req = {
+            partition: `project=${user.id}`,
+            id: uuid.v4(),
+            timeStamp: moment().unix(),
+            year :moment.unix(dates).format('YYYY'),
+            year_month :moment.unix(dates).format('MMMM-YYYY'),
+            year_week :moment.unix(dates).format('WW-YYYY'),
+            date: moment.unix(dates).format('MMMM DD, YYYY'),
+            store_id: selected_store._id,
+            store: selected_store.name,
+            status: "Pending",
+            total : calculateTotal(),
+          }
+          createDeliveryRequest(req)
          product_holder.forEach(items => {
-       
-             let wproducts = {
+          let details = {
                 partition: `project=${user.id}`,
                 id: uuid.v4(),
-                name: items.name,
-                brand: items.brand,
-                oprice: parseFloat(items.oprice),
-                sprice: parseFloat(items.sprice),
-                unit: items.unit,
-                category: items.category,
-                store_id: selected_store._id,
-                store: selected_store.name,
+                pr_id:items.id,
+                request_id: req.id,
+                pr_name: items.name,
+                pr_category:items.category,
                 stock: parseFloat(items.qty),
-                sku:'',
+                store_id: selected_store._id,
+                status: "Pending",
+                pr_oprice: parseFloat(items.oprice),
+                pr_sprice:parseFloat(items.sprice),
+                brand: items.brand,
+                unit: items.unit,
+                store: selected_store.name,
                 img:items.img,
                 pr_id: items.id,
                 withAddons: false,
                 withVariants: false,
-                withOptions: false
-              }
-              onSendProducts(wproducts, items);
+                withOptions: false,
+                sku:'',
+          }
+       
+            //  let wproducts = {
+            //     partition: `project=${user.id}`,
+            //     id: uuid.v4(),
+            //     name: items.name,
+            //     brand: items.brand,
+            //     oprice: parseFloat(items.oprice),
+            //     sprice: parseFloat(items.sprice),
+            //     unit: items.unit,
+            //     category: items.category,
+            //     store_id: selected_store._id,
+            //     store: selected_store.name,
+            //     stock: parseFloat(items.qty),
+            //     sku:'',
+            //     img:items.img,
+            //     pr_id: items.id,
+            //     withAddons: false,
+            //     withVariants: false,
+            //     withOptions: false
+            //   }
+            createDeliveryRequestDetails(details)
+              // onSendProducts(wproducts, items);
          });
-         saveToDeliveryReports()
-     
+        //  saveToDeliveryReports()
+        navigation.goBack()
  }
 
  const calculateTotal = () => {

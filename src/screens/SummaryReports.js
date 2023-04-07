@@ -528,6 +528,24 @@ const calculateTotalExpenses = () => {
                         <Text style={[styles.textTitle,{width: 100, textAlign:'center'}]}>{formatMoney(calculateTotalPayments()-calculateTotalExpenses(), { symbol: "₱", precision: 2 })}</Text>
                       </View>
                   </View>
+           
+                
+                  <View style={{flexDirection:'row',justifyContent:'center', paddingVertical: 10}}>
+                      <View >
+                        <Text style={styles.textTitle}>NET PROFIT</Text>
+                      </View>
+                  </View>
+                  <View style={{flexDirection:'row',justifyContent:'space-between', paddingVertical: 10}}>
+                      <View >
+                        <Text style={{width: 150}}>Total Net Sales</Text>
+                      </View>
+                      <View>
+                        <Text style={{textAlign:'center'}}></Text>             
+                      </View>
+                      <View style={{width: 100}}>
+                        <Text style={{textAlign:'center'}}>{formatMoney(calculateTotalPayments(), { symbol: "₱", precision: 2 })}</Text>
+                      </View>
+                  </View>
                   <View style={{flexDirection:'row',justifyContent:'center', paddingVertical: 10}}>
                       <View >
                         <Text style={styles.textTitle}>SALES CATEGORIES</Text>

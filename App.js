@@ -74,6 +74,7 @@ import Supplier from "./src/screens/Supplier";
 import StoreSettings from "./src/screens/StoreSettings";
 import DeliveryRequest from "./src/screens/DeliveryRequest";
 import WarehouseRemainingStock from "./src/screens/WarehouseRemainingStocks";
+import DeliveryRequestDetails from "./src/screens/DeliveryRequestDetails";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -288,7 +289,11 @@ function StoreStackScreen() {
         component={DeliveryRequest}
         options={{headerShown:false}}
       />
-
+ <StoreStack.Screen
+        name="DeliveryRequestDetails"
+        component={DeliveryRequestDetails}
+        options={{headerShown:false}}
+      />
     </StoreStack.Navigator>
   )
 }
