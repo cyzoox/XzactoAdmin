@@ -285,9 +285,9 @@ const StoreScreens = ({ navigation, route }) => {
               centerTileText="Settings"
               centerRouteName="StoreSettings"
               iconCenterName="settings-outline"
-              // rightTileText="Delivery"
-              // iconRightName='md-people-circle-outline'
-              // rightRouteName="DeliveryRequest"
+              rightTileText="Delivery"
+              iconRightName='md-people-circle-outline'
+              rightRouteName="DeliveryRequest"
               extraProps={STORE}
           />
         </ScrollView>
