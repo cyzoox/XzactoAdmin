@@ -294,7 +294,8 @@ const filterByPaymentMethod = () => {
         if(o.status == 'Completed' && o.store_id === store_info._id){
             item.total += o.total;
             item.pm = o.payment_method;
-            item.items_sold += o.total_items
+            item.items_sold += o.total_items;
+            item.profit += o.profit
         }
         
 
@@ -326,12 +327,17 @@ const calculateTotalDiscount = () => {
 const calculateTotalPayments = () => {
     let total = 0;
     filterByPaymentMethod().forEach(item => {
-       
-            total += item.total
-        
-     
+            total += item.total  
     });
     return total;
+}
+
+const calculateTotalProfit = () => {
+  let total = 0;
+  filterByPaymentMethod().forEach(item => {
+          total += item.profit  
+  });
+  return total;
 }
 
 const calculateSoldItems = () => {
@@ -350,10 +356,7 @@ const calculateTotalVoided = () => {
     let total = 0;
     custom_transactions.forEach(item => {
         if(item.status === "Voided"){
-  
-                total += 1
-          
-          
+                total += 1 
         }
        
     });
@@ -544,6 +547,29 @@ const calculateTotalExpenses = () => {
                       </View>
                       <View style={{width: 100}}>
                         <Text style={{textAlign:'center'}}>{formatMoney(calculateTotalPayments(), { symbol: "₱", precision: 2 })}</Text>
+                      </View>
+                  </View>
+                  <View style={{flexDirection:'row',justifyContent:'space-between', paddingVertical: 10}}>
+                      <View >
+                        <Text style={{width: 150}}>Total Capital</Text>
+                      </View>
+                      <View>
+                        <Text style={{textAlign:'center'}}></Text>             
+                      </View>
+                      <View style={{width: 100}}>
+                        <Text style={{textAlign:'center'}}>{formatMoney(calculateTotalPayments()-calculateTotalProfit(), { symbol: "₱", precision: 2 })}</Text>
+                      </View>
+                  </View>
+                  <Divider/>
+                  <View style={{flexDirection:'row',justifyContent:'space-between', paddingVertical: 10}}>
+                      <View >
+                        <Text style={styles.textTitle}>Total Net Profit</Text>
+                      </View>
+                      <View>
+                        <Text style={styles.textTitle}></Text>
+                      </View>
+                      <View>
+                        <Text style={[styles.textTitle,{width: 100, textAlign:'center'}]}>{formatMoney(calculateTotalProfit(), { symbol: "₱", precision: 2 })}</Text>
                       </View>
                   </View>
                   <View style={{flexDirection:'row',justifyContent:'center', paddingVertical: 10}}>

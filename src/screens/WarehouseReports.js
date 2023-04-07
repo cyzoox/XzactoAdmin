@@ -148,6 +148,17 @@ const WarehouseReports = ({navigation}) => {
                   
                 </View>
       </TouchableOpacity>
+      <TouchableOpacity  onPress={()=> navigation.navigate('WarehouseRemainingStocks')} style={styles.cardStyle}>
+      <View>
+                <Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/warehouseicons/warehouse1.png')} />
+                </View>
+                <View>
+                    <Text style={{color:'gray', fontSize: 19, fontWeight:'900'}}>Remaining Stocks</Text>
+                </View>
+                <View>
+                  
+                </View>
+      </TouchableOpacity>
       <TouchableOpacity  onPress={()=> navigation.navigate('WarehouseDeliveryStockReport')} style={styles.cardStyle}>
       <View >
                 <Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/warehouseicons/transfer.png')} />

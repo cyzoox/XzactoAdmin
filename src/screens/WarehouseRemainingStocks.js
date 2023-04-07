@@ -11,6 +11,7 @@ import DataTable from "../components/DataTable";
 import { Row, Col, Grid } from 'react-native-easy-grid';
 import SearchInput, { createFilter } from 'react-native-search-filter';
 import formatMoney from 'accounting-js/lib/formatMoney.js'
+import { useAuth } from "../context/AuthContext";
 
 const KEYS_TO_FILTERS = ['name', 'category'];
 
@@ -37,12 +38,12 @@ const WarehouseRemainingStock = ({navigation}) => {
 
     const onTabChange = (sterm) => {
       setTerm(sterm)
-      const filteredProductss = products.filter(createFilter(sterm, KEYS_TO_FILTERS))
+      const filteredProductss = warehouse_products.filter(createFilter(sterm, KEYS_TO_FILTERS))
         setStocks(filteredProductss.sort((a, b) => { return a.stock - b.stock; }))
     }
 
 const renderItem = ({ item }) => (
-    item.store_id === store_data._id &&
+    
     <Row style={{marginVertical: 5}}>     
       <Col  style={[styles.ColStyle,{alignItems: 'center'}]}>
             <Text  style={styles.textColor}>{item.name}</Text>
@@ -70,9 +71,9 @@ const renderItem = ({ item }) => (
     const calculateTotalStocks = () => {
         let total = 0;
         stocks.forEach(item => {
-       if( item.store_id === store_data._id ){
+
         total += item.stock*item.sprice
-       }
+    
        
         });
         return total;
@@ -81,9 +82,9 @@ const renderItem = ({ item }) => (
     const calculateTotalCapital = () => {
         let total = 0;
         stocks.forEach(item => {
-          if( item.store_id === store_data._id ){
+  
             total += item.stock*item.oprice
-           }
+           
            
         });
         return total;
