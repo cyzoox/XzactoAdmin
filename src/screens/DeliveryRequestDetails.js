@@ -3,24 +3,39 @@ import { Text, StyleSheet, View , FlatList, TouchableOpacity} from "react-native
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
 import Feather from 'react-native-vector-icons/Feather'
 import colors from "../themes/colors";
-import { Divider } from "react-native-paper";
+import { Divider, TextInput } from "react-native-paper";
 import ZigzagView from "react-native-zigzag-view"
 import AppHeader from "../components/AppHeader";
 import { useStore } from "../context/StoreContext";
 import formatMoney from 'accounting-js/lib/formatMoney.js'
 import moment from 'moment'
-
+import {Input, Overlay, Button} from 'react-native-elements';
 import { ScrollView } from "react-native";
 import uuid from 'react-native-uuid';
 import { useAuth } from "../context/AuthContext";
 import SearchInput, { createFilter } from 'react-native-search-filter';
-
+import PinCodeInput from "../components/PinCodeInput";
+import { useState } from "react";
+import { ModalInputForm } from "../components/ModalInputForm";
+import { ModalInputForm1 } from "../components/ModalInputForm1";
 const KEYS_TO_FILTERS = ['request_id'];
+const KEYS_TO_FILTERS1 = ['status'];
 
 const DeliveryRequestDetails = ({navigation, route}) => {
     const { request, store } = route.params;
     console.log(request)
     const {user} = useAuth();
+    const [visible2, setVisible] = useState(false);
+    const [visible3, setVisible3] = useState(false);
+    const [item, setItem] = useState([])
+    const [qty, setQty] = useState('')
+    const [errorText, setErrorText] = useState('')
+    const [errorText1, setErrorText1] = useState('')
+    const [errorText2, setErrorText2] = useState('')
+    const [overlayVisible, setOverlayVisible] = useState(false);
+    const [overlayVisible2, setOverlayVisible2] = useState(false);
+    const [reason, setReason] = useState('')
+    const [reason1, setReason1] = useState('')
     const {  delivery_request,
         delivery_req_details,
       
@@ -28,35 +43,52 @@ const DeliveryRequestDetails = ({navigation, route}) => {
         createStoreDeliverySummary,
         onSendProducts,
         createtransferLogs,
+        ReturnDelivery,
+        ReturnSingleItem
        } = useStore();
 
        const filteredDetails = delivery_req_details.filter(createFilter(request._id, KEYS_TO_FILTERS))
+
+       const filteredReturnDetails = filteredDetails.filter(createFilter("Returned", KEYS_TO_FILTERS1))
     
     const onAcceptRequest = () => {
-        delivery_req_details.forEach(items => {
+        filteredDetails.forEach(items => {
+          if(items.status === "Pending"){
             let wproducts = {
-                partition: `project=${user.id}`,
-                id: uuid.v4(),
-                name: items.pr_name,
-                brand: items.brand,
-                oprice: items.pr_oprice,
-                sprice: items.pr_sprice,
-                unit: items.unit,
-                category: items.pr_category,
-                store_id: items.store_id,
-                store: items.store,
-                stock: items.stock,
-                sku:'',
-                img:items.img,
-                pr_id: items.pr_id,
-                withAddons: false,
-                withVariants: false,
-                withOptions: false
-              }
+              partition: `project=${user.id}`,
+              id: uuid.v4(),
+              name: items.pr_name,
+              brand: items.brand,
+              oprice: items.pr_oprice,
+              sprice: items.pr_sprice,
+              unit: items.unit,
+              category: items.pr_category,
+              store_id: items.store_id,
+              store: items.store,
+              stock: items.stock,
+              sku:'',
+              img:items.img,
+              pr_id: items.pr_id,
+              withAddons: false,
+              withVariants: false,
+              withOptions: false
+            }
 
-           onSendProducts(wproducts, items);
+         onSendProducts(wproducts, items);
+          }
+  
         });
         saveToDeliveryReports()
+    }
+
+    const onReturnDelivery = () => {
+      // if(errorText.length === 0){
+      //   setErrorText('Please fill in return reason.')
+      //   return;
+      // }
+      ReturnDelivery(request, reason)
+      setOverlayVisible(false)
+      navigation.goBack()
     }
 
     const saveToDeliveryReports = () => {
@@ -85,49 +117,52 @@ const DeliveryRequestDetails = ({navigation, route}) => {
          }
          createStoreDeliverySummary(drs)
        
-         delivery_req_details.forEach(items => {
-             let delivery = {
-                 partition: `project=${user.id}`,
-                 id: uuid.v4(),
-                 timeStamp: moment().unix(),
-                 year :moment.unix(dates).format('YYYY'),
-                 year_month :moment.unix(dates).format('MMMM-YYYY'),
-                 year_week :moment.unix(dates).format('WW-YYYY'),
-                 date: moment.unix(dates).format('MMMM DD, YYYY'),
-                 product: items.pr_name,
-                 quantity: items.stock,
-                 oprice: items.pr_oprice,
-                 sprice: items.pr_sprice,
-                 supplier: 'Warehouse',
-                 supplier_id: 'Warehouse',
-                 delivered_by: 'C/o Warehouse',
-                 received_by: 'C/o Warehouse',
-                 delivery_receipt: 'C/o Warehouse',
-                 store_id: store._id,
-                 store_name: store.name,
-                 tr_id: drs.id
-               }
-             
-               let trproducts = {
-                 partition: `project=${user.id}`,
-                 id:uuid.v4(),
-                 timeStamp: moment().unix(),
-                 year :moment.unix(dates).format('YYYY'),
-                 year_month :moment.unix(dates).format('MMMM-YYYY'),
-                 year_week :moment.unix(dates).format('WW-YYYY'),
-                 date: moment.unix(dates).format('MMMM DD, YYYY'),
-                 product: items.pr_name,
-                 quantity: items.stock,
-                 oprice: items.pr_oprice,
-                 sprice: items.pr_sprice,
-                 store_id: store._id,
-                 store_name: store.name,
-                 transferred_by :'Admin',
-                 unit: items.unit,
-                 category: items.pr_category
-               }
-               createDeliveryReport(delivery)
-               createtransferLogs(trproducts)
+         filteredDetails.forEach(items => {
+          if(items.status === "Pending"){
+            let delivery = {
+              partition: `project=${user.id}`,
+              id: uuid.v4(),
+              timeStamp: moment().unix(),
+              year :moment.unix(dates).format('YYYY'),
+              year_month :moment.unix(dates).format('MMMM-YYYY'),
+              year_week :moment.unix(dates).format('WW-YYYY'),
+              date: moment.unix(dates).format('MMMM DD, YYYY'),
+              product: items.pr_name,
+              quantity: items.stock,
+              oprice: items.pr_oprice,
+              sprice: items.pr_sprice,
+              supplier: 'Warehouse',
+              supplier_id: 'Warehouse',
+              delivered_by: 'C/o Warehouse',
+              received_by: 'C/o Warehouse',
+              delivery_receipt: 'C/o Warehouse',
+              store_id: store._id,
+              store_name: store.name,
+              tr_id: drs.id
+            }
+          
+            let trproducts = {
+              partition: `project=${user.id}`,
+              id:uuid.v4(),
+              timeStamp: moment().unix(),
+              year :moment.unix(dates).format('YYYY'),
+              year_month :moment.unix(dates).format('MMMM-YYYY'),
+              year_week :moment.unix(dates).format('WW-YYYY'),
+              date: moment.unix(dates).format('MMMM DD, YYYY'),
+              product: items.pr_name,
+              quantity: items.stock,
+              oprice: items.pr_oprice,
+              sprice: items.pr_sprice,
+              store_id: store._id,
+              store_name: store.name,
+              transferred_by :'Admin',
+              unit: items.unit,
+              category: items.pr_category
+            }
+            createDeliveryReport(delivery)
+            createtransferLogs(trproducts)
+          }
+            
          });
        
          
@@ -138,20 +173,81 @@ const DeliveryRequestDetails = ({navigation, route}) => {
      
       const calculateTotal = () => {
         let total = 0;
-        delivery_req_details.forEach(list => {
-                total += list.stock * list.pr_sprice
+        filteredDetails.forEach(list => {
+          if(list .status === "Pending"){
+            total += list.stock * list.pr_sprice
+          }
+               
         });
        return total;
     }
 
-    const renderItem = ({ item }) => (
-        <View style={{flex:1,flexDirection:'row', justifyContent:'space-between', marginHorizontal: 20, marginVertical: 3, height: 40,alignItems:"center"}}>
-            <Text>{item.pr_name} {Math.round(item.stock  * 100) / 100} x {Math.round(item.pr_sprice * 100) / 100}</Text>
-            <Text style={{fontWeight:'bold', justifyContent:'center', alignItems:'center'}}>{formatMoney(item.stock*item.pr_sprice, { symbol: "₱", precision: 1 })}</Text>
-         
-        </View>
-      )
+    const onReturnSingleItem = () => {
+      if(reason1.length === 0){
+        setErrorText1('Please fill in return reason.')
+        return;
+      }else{
+        setErrorText1('')
+      }
+      if(qty.length === 0){
+        setErrorText2('Please fill in quantity.')
+        return;
+      }else{
+        setErrorText2('')
+      }
+      ReturnSingleItem(item, reason1, qty, request)
+      navigation.goBack()
+     
+      }
+      
 
+    const renderItem = ({ item }) => 
+      {
+      return(
+        item.status == "Pending" &&
+        <View style={{flex:1,flexDirection:'row', justifyContent:'space-between', marginHorizontal: 20, marginVertical: 3, height: 40,alignItems:"center"}}>
+        <View style={{flexDirection:'column',flex: 2}}>
+        <Text>{item.pr_name} </Text>
+        <Text>{Math.round(item.stock  * 100) / 100} x {formatMoney(item.pr_sprice, { symbol: "₱", precision: 1 })}</Text>
+        </View>
+       
+        <Text style={{flex: 1,fontWeight:'bold', justifyContent:'center', alignItems:'center'}}>{formatMoney(item.stock*item.pr_sprice, { symbol: "₱", precision: 1 })}</Text>
+        <TouchableOpacity onPress={()=> {setItem(item), setVisible3(true)}}  style={{backgroundColor: colors.red, justifyContent:'center', alignItems:'center', paddingHorizontal:5, borderRadius: 15, height: 30}}>
+          <Text style={{fontSize:10, color: colors.white, paddingHorizontal: 10}}>Return</Text>
+        </TouchableOpacity>
+        {/* <ModalInputForm1
+         displayComponent={
+             <>
+         <TouchableOpacity onPress={()=> setOverlayVisible2(true)}  style={{backgroundColor: colors.red, justifyContent:'center', alignItems:'center', paddingHorizontal:5, borderRadius: 15, height: 30}}>
+          <Text style={{fontSize:10, color: colors.white, paddingHorizontal: 10}}>Return</Text>
+        </TouchableOpacity>
+             </>
+         }
+         overlays ={overlayVisible2}
+         title="Return Product" 
+      >
+         
+        
+       </ModalInputForm1> */}
+    </View>
+      )
+    }
+        
+      
+      const renderItem1 = ({ item }) => (
+      
+          <View style={{flex:1,flexDirection:'row', justifyContent:'space-between', marginHorizontal: 20, marginVertical: 3, height: 40,alignItems:"center"}}>
+              <View style={{flexDirection:'column',flex: 2}}>
+              <Text>{item.pr_name} </Text>
+              <Text>{Math.round(item.stock  * 100) / 100} x {formatMoney(item.pr_sprice, { symbol: "₱", precision: 1 })}</Text>
+              </View>
+             
+              <Text style={{ justifyContent:'center', alignItems:'center',textAlign:'center'}}>{item.return_reason}</Text>
+             
+           
+          </View>
+        )
+  
 //  const printReceipt = async () => {
 //                 try {
 //                     await BluetoothEscposPrinter.printerInit();
@@ -274,10 +370,11 @@ const DeliveryRequestDetails = ({navigation, route}) => {
                 </TouchableOpacity>
               } 
         />
-        <View style={{marginHorizontal: 10}}>
+        <View style={{marginHorizontal: 10,  marginBottom:100}}>
         <ScrollView
             
             contentContainerStyle={{
+             
             justifyContent: "space-between"
             }}
         >
@@ -292,9 +389,9 @@ const DeliveryRequestDetails = ({navigation, route}) => {
             </View>
             <Divider style={{margin: 10}}/>
             <View style={{flex: 1,flexDirection:'row', justifyContent:'space-between', marginHorizontal: 30, marginBottom: 15}}>
-                <Text style={{ fontSize: 15, fontWeight:"bold"}}>ITEM</Text>
-                <Text style={{ fontSize: 15, fontWeight:"bold"}}>TOTAL</Text>
-              
+                <Text style={{flex:2, fontSize: 15, fontWeight:"bold"}}>ITEM</Text>
+                <Text style={{flex:1, fontSize: 15, fontWeight:"bold"}}>TOTAL</Text>
+                <Text style={{ fontSize: 15, fontWeight:"bold"}}>Action</Text>
 
             </View> 
             <FlatList
@@ -309,6 +406,22 @@ const DeliveryRequestDetails = ({navigation, route}) => {
                 <Text>Total</Text>
                 <Text>{formatMoney(calculateTotal(), { symbol: "₱", precision: 1 })}</Text>
             </View>
+           { 
+           filteredReturnDetails.length !== 0 ?
+           <>
+           <Divider style={{margin: 10}}/>
+            <Text style={{flex:2, fontSize: 15, fontWeight:"bold", textAlign:'center', marginTop: 10, marginBottom: 5}}>RETURNED ITEMS</Text>
+            <View style={{flex: 1,flexDirection:'row', justifyContent:'space-between', marginHorizontal: 30, marginBottom: 15}}>
+                <Text style={{flex:2, fontSize: 15, fontWeight:"bold"}}>ITEM</Text>
+                <Text style={{ fontSize: 15, fontWeight:"bold"}}>REASON</Text>
+
+            </View> 
+            <FlatList
+              keyExtractor={(key) => key.name}
+              data={filteredReturnDetails}
+              renderItem={renderItem1}
+              />
+              </> : null}
             {/* <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15}}>
                 <Text style={{color: colors.red}}>Discount</Text>
                 <Text style={{color: colors.red}}> - {formatMoney(transactions.discount, { symbol: "₱", precision: 1 })}</Text>
@@ -345,13 +458,105 @@ const DeliveryRequestDetails = ({navigation, route}) => {
             {/* <View style={{justifyContent:'center', alignItems: 'center', marginVertical: 15}}>
                 {/* <Text style={{fontSize: 15, fontWeight:'600'}}>Attendant: {transactions.attendant_name}</Text>
             </View> */}
-            <TouchableOpacity onPress={()=> onAcceptRequest()} style={styles.btn}>
+            <TouchableOpacity onPress={()=> setVisible(true)} style={styles.btn}>
                 <Text style={{textAlign:"center", fontSize: 18,color: colors.white, fontWeight:'bold'}}>Accept</Text>
             </TouchableOpacity>
-          
+            <ModalInputForm1
+             displayComponent={
+                 <>
+             <TouchableOpacity onPress={()=> setOverlayVisible(true)} style={[styles.btn, {backgroundColor: colors.red, width:'93%'}]}>
+                <Text style={{textAlign:"center", fontSize: 18,color: colors.white, fontWeight:'bold'}}>Return</Text>
+            </TouchableOpacity>
+                 </>
+             }
+             overlays ={overlayVisible}
+             title="Return Product" 
+          >
+              <Text style={{textAlign:'center'}}>
+                Are you sure you want to return this delivery request?
+              </Text>
+              <View style={{justifyContent:'center', alignItems:'center'}}>
+              <TextInput
+                style={{width: '80%', height: 45, marginTop: 10}}
+                 mode="outlined"
+                 label="Reason"
+                 placeholder="Reason"
+                 onChangeText={(text)=> setReason(text)}
+                 />
+                 {
+                  errorText.length === 0 ? null : 
+                  <Text style={{color: colors.red, textAlign: 'center'}}>{errorText}</Text>
+                 }
+                   <View style={{flexDirection:'row', justifyContent:'space-evenly', marginVertical: 15}}>
+            <View  style={{flex: 1, marginHorizontal: 15}} >
+                <Button buttonStyle={{backgroundColor: colors.red}} title="Cancel" onPress={()=> setOverlayVisible(false)}/>
+            </View>
+            <View  style={{flex: 1, marginHorizontal: 15}} >
+             <Button buttonStyle={{backgroundColor: colors.green}}  title="Save" onPress={()=>  reason.length !== 0 ?  onReturnDelivery() : setErrorText('Please fill in return reason.')}/>
+            </View>
+        </View>
+              </View>
+            
+           </ModalInputForm1>
+           
         </ScrollView>
         </View>
-        
+        <Overlay isVisible={visible2} onBackdropPress={setVisible}>
+           
+           <View style={{padding: 20}}>
+           {/* <SmoothPinCodeInput password mask="﹡"
+             cellStyle={{
+               borderWidth: 1,
+               borderColor: 'gray',
+               borderRadius: 15
+             }}
+             cellSize={45}
+           codeLength={4}
+           value={code}
+           onTextChange={code => setCode(code)}/> */}
+             <PinCodeInput pinCode={store.password} onCheckPassword={onAcceptRequest}/>
+           </View>
+       </Overlay>
+       <Overlay overlayStyle={{width: '70%', borderRadius: 10}} isVisible={visible3} onBackdropPress={setVisible3}>
+       <Text style={{textAlign:'center', fontSize:18, marginBottom: 10}}>
+           Return Product?
+          </Text>
+       <Text style={{textAlign:'center'}}>
+            Are you sure you want to return <Text style={{fontWeight:'bold'}}>{item.pr_name}</Text>?
+          </Text>
+          <View style={{justifyContent:'center', alignItems:'center'}}>
+          <TextInput
+            style={{width: '80%', height: 45, marginTop: 10}}
+             mode="outlined"
+             label="Reason"
+             placeholder="Reason"
+             onChangeText={(text)=> setReason1(text)}
+             />
+             {
+              errorText1.length === 0 ? null : 
+              <Text style={{color: colors.red, textAlign: 'center'}}>{errorText1}</Text>
+             }
+              <TextInput
+            style={{width: '80%', height: 45, marginTop: 10}}
+             mode="outlined"
+             label="Quantity"
+             placeholder="Quantity"
+             onChangeText={(text)=> setQty(text)}
+             />
+             {
+              errorText2.length === 0 ? null : 
+              <Text style={{color: colors.red, textAlign: 'center'}}>{errorText2}</Text>
+             }
+               <View style={{flexDirection:'row', justifyContent:'space-evenly', marginVertical: 15}}>
+        <View  style={{flex: 1, marginHorizontal: 15}} >
+            <Button buttonStyle={{backgroundColor: colors.red}} title="Cancel" onPress={()=> setOverlayVisible2(false)}/>
+        </View>
+        <View  style={{flex: 1, marginHorizontal: 15}} >
+         <Button buttonStyle={{backgroundColor: colors.green}}  title="Save" onPress={()=> onReturnSingleItem()}/>
+        </View>
+    </View>
+          </View>
+       </Overlay>
     </View>
     
   );

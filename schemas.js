@@ -75,8 +75,9 @@ class DeliveryRequest {
     store,
     store_id,
     status,
-    total
-
+    total,
+    return_reason,
+    processed_by
   }) {
     this._partition = partition;
     this._id = id;
@@ -89,6 +90,8 @@ class DeliveryRequest {
     this.store_id = store_id;
     this.status = status;
     this.total = total;
+    this.return_reason = return_reason;
+    this.processed_by = processed_by;
   }
 
   
@@ -105,7 +108,10 @@ class DeliveryRequest {
       store: "string?",
       store_id: "string?",
       status: "string?",
-      total : "float?"
+      total : "float?",
+      return_reason: "string?",
+      processed_by: "string?",
+
     },
     primaryKey: "_id",
   };
@@ -138,7 +144,9 @@ class DeliveryRequestDetails {
     withAddons,
     withVariants,
     withOptions,
-    sku
+    sku,
+    return_reason,
+    processed_by
 
   }) {
     this._partition = partition;
@@ -160,6 +168,8 @@ class DeliveryRequestDetails {
     this.withVariants = withVariants;
     this.withOptions = withOptions;
     this.sku = sku;
+    this.return_reason = return_reason;
+    this.processed_by = processed_by;
   }
 
   
@@ -184,7 +194,9 @@ class DeliveryRequestDetails {
       withAddons: "bool?",
       withVariants: "bool?",
       withOptions: "bool?",
-      sku: "string?"
+      sku: "string?",
+      return_reason: "string?",
+      processed_by: "string?",
     },
     primaryKey: "_id",
   };
@@ -378,6 +390,8 @@ class WarehouseProducts {
     primaryKey: "_id",
   };
 }
+
+
 
 class Products {
   /**
@@ -2078,5 +2092,7 @@ export {
          Option,
          UserInfo,
          DeliveryRequest,
-         DeliveryRequestDetails
+         DeliveryRequestDetails,
+    
+         
         };

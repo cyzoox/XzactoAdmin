@@ -75,6 +75,8 @@ const BatchTransferScreen = ({navigation,route}) => {
             store: selected_store.name,
             status: "Pending",
             total : calculateTotal(),
+            processed_by: "",
+            return_reason: ""
           }
           createDeliveryRequest(req)
          product_holder.forEach(items => {
@@ -99,6 +101,8 @@ const BatchTransferScreen = ({navigation,route}) => {
                 withVariants: false,
                 withOptions: false,
                 sku:'',
+                processed_by: "",
+                return_reason: ""
           }
        
             //  let wproducts = {
@@ -131,7 +135,7 @@ const BatchTransferScreen = ({navigation,route}) => {
     let total = 0;
 
     product_holder.forEach(items => {
-        total += items.qty*items.oprice
+        total += items.qty*items.sprice
     });
     return total;
  }

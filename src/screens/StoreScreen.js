@@ -169,12 +169,12 @@ const StoreScreens = ({ navigation, route }) => {
             <EvilIcons name={'arrow-left'} size={30} color={colors.white}/>
           </TouchableOpacity>
       }
-      rightComponent={
-        <TouchableOpacity style={{flexDirection:'row'}} onPress={()=> navigation.navigate("DeliveryRequest", {store:STORE})}>
-        <EvilIcons name={'bell'} size={30} color={colors.white}/>
-        <Badge containerStyle={{marginTop:-6}} value=" 3 " status="error" />
-      </TouchableOpacity>
-      }
+      // rightComponent={
+      //   <TouchableOpacity style={{flexDirection:'row'}} onPress={()=> navigation.navigate("DeliveryRequest", {store:STORE})}>
+      //   <EvilIcons name={'bell'} size={30} color={colors.white}/>
+      //   <Badge containerStyle={{marginTop:-6}} value=" 3 " status="error" />
+      // </TouchableOpacity>
+      // }
         />
        
       <View style={{flexDirection: 'row', justifyContent:'space-between', marginHorizontal: 10}}>

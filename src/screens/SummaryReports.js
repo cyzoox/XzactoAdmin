@@ -14,7 +14,7 @@ import moment from 'moment'
 import formatMoney from 'accounting-js/lib/formatMoney.js'
 import { theme } from "../constants";
 import SearchInput, { createFilter } from 'react-native-search-filter';
-
+import PinCodeInput from "../components/PinCodeInput";
 
 const KEYS_TO_FILTERS = ['status'];
 const KEYS_TO_FILTERS2 = ['date'];
@@ -41,6 +41,7 @@ const SummaryReport = ({navigation, route}) => {
         const [overlayVisible, setOverlayVisible] = useState(false);
         const [selectedValue, setselectedValue] = useState('Today');
         const [visible, setVisible] = useState(false);
+        const [visible2, setVisible2] = useState(false);
         const [selectedstaff, setSelectedStaff] = useState('');
         const [p_Visible, setPVisible] = useState(false);
         const [active, setActive] = useState('');
@@ -49,6 +50,7 @@ const SummaryReport = ({navigation, route}) => {
         const [attendant,setAttendant ] = useState('');
         const [id, setAttendantID] = useState(store_info._id);
         const [attendant_info, setAttendantInfo] = useState([]);
+        const [isProfitVisible, setProfitVisible] = useState(false);
         const date = moment().unix()
         const filteredProducts = alltrdetails.filter(createFilter(store_info._id, KEYS_TO_FILTERS3))
         const filteredProducts2 = filteredProducts.filter(createFilter('Completed', KEYS_TO_FILTERS))
@@ -289,7 +291,8 @@ const filterByPaymentMethod = () => {
         const item = r.get(key) || Object.assign({}, o, {
           total: 0,
           pm: '',
-          items_sold:0
+          items_sold:0,
+          profit: 0
         });
         if(o.status == 'Completed' && o.store_id === store_info._id){
             item.total += o.total;
@@ -338,6 +341,11 @@ const calculateTotalProfit = () => {
           total += item.profit  
   });
   return total;
+}
+
+const onUnhideProfit = () => {
+  setProfitVisible(true)
+  setVisible2(false)
 }
 
 const calculateSoldItems = () => {
@@ -534,44 +542,70 @@ const calculateTotalExpenses = () => {
            
                 
                   <View style={{flexDirection:'row',justifyContent:'center', paddingVertical: 10}}>
-                      <View >
+                      <View>
+                       
                         <Text style={styles.textTitle}>NET PROFIT</Text>
+                       
                       </View>
                   </View>
-                  <View style={{flexDirection:'row',justifyContent:'space-between', paddingVertical: 10}}>
-                      <View >
-                        <Text style={{width: 150}}>Total Net Sales</Text>
-                      </View>
-                      <View>
-                        <Text style={{textAlign:'center'}}></Text>             
-                      </View>
-                      <View style={{width: 100}}>
-                        <Text style={{textAlign:'center'}}>{formatMoney(calculateTotalPayments(), { symbol: "₱", precision: 2 })}</Text>
-                      </View>
-                  </View>
-                  <View style={{flexDirection:'row',justifyContent:'space-between', paddingVertical: 10}}>
-                      <View >
-                        <Text style={{width: 150}}>Total Capital</Text>
-                      </View>
-                      <View>
-                        <Text style={{textAlign:'center'}}></Text>             
-                      </View>
-                      <View style={{width: 100}}>
-                        <Text style={{textAlign:'center'}}>{formatMoney(calculateTotalPayments()-calculateTotalProfit(), { symbol: "₱", precision: 2 })}</Text>
-                      </View>
-                  </View>
-                  <Divider/>
-                  <View style={{flexDirection:'row',justifyContent:'space-between', paddingVertical: 10}}>
-                      <View >
-                        <Text style={styles.textTitle}>Total Net Profit</Text>
-                      </View>
-                      <View>
-                        <Text style={styles.textTitle}></Text>
-                      </View>
-                      <View>
-                        <Text style={[styles.textTitle,{width: 100, textAlign:'center'}]}>{formatMoney(calculateTotalProfit(), { symbol: "₱", precision: 2 })}</Text>
-                      </View>
-                  </View>
+                  {
+                    isProfitVisible == true ? 
+                    <View>
+                    <View style={{flexDirection:'row',justifyContent:'space-between', paddingVertical: 10}}>
+                    <View >
+                      <Text style={{width: 150}}>Total Net Sales</Text>
+                    </View>
+                    <View>
+                      <Text style={{textAlign:'center'}}></Text>             
+                    </View>
+                    <View style={{width: 100}}>
+                      <Text style={{textAlign:'center'}}>{formatMoney(calculateTotalPayments(), { symbol: "₱", precision: 2 })}</Text>
+                    </View>
+                </View>
+                <View style={{flexDirection:'row',justifyContent:'space-between', paddingVertical: 10}}>
+                    <View >
+                      <Text style={{width: 150}}>Less Total Capital</Text>
+                    </View>
+                    <View>
+                      <Text style={{textAlign:'center'}}></Text>             
+                    </View>
+                    <View style={{width: 100}}>
+                      <Text style={{textAlign:'center'}}>{formatMoney(calculateTotalPayments()-calculateTotalProfit(), { symbol: "₱", precision: 2 })}</Text>
+                    </View>
+                </View>
+                <View style={{flexDirection:'row',justifyContent:'space-between', paddingVertical: 10}}>
+                    <View >
+                      <Text style={{width: 150}}>Less Total Expenses</Text>
+                    </View>
+                    <View>
+                      <Text style={{textAlign:'center'}}></Text>             
+                    </View>
+                    <View style={{width: 100}}>
+                      <Text style={{textAlign:'center'}}>{formatMoney(calculateTotalExpenses(), { symbol: "₱", precision: 2 })}</Text>
+                    </View>
+                </View>
+                <Divider/>
+                <View style={{flexDirection:'row',justifyContent:'space-between', paddingVertical: 10}}>
+                  
+                    <View>
+                    <Text style={styles.textTitle}>Total Net Profit</Text>
+                    </View>
+                    <View>
+                      <Text style={styles.textTitle}></Text>
+                    </View>
+                    <View>
+                      <Text style={[styles.textTitle,{width: 100, textAlign:'center'}]}>{formatMoney(calculateTotalProfit()-calculateTotalExpenses(), { symbol: "₱", precision: 2 })}</Text>
+                    </View>
+                </View> 
+                </View>:
+
+                    <TouchableOpacity onPress={()=> setVisible2(true)} style={{flexDirection:"column", justifyContent:"center", alignItems:"center", marginBottom: 20}}>
+                      <Text style={{fontStyle:'italic', fontWeight:'bold', color: colors.red}}>----Report hidden----</Text>
+                      <Text style={{fontStyle:'italic'}}>----Tap to unhide----</Text>
+                    </TouchableOpacity>
+
+                  }
+                 
                   <View style={{flexDirection:'row',justifyContent:'center', paddingVertical: 10}}>
                       <View >
                         <Text style={styles.textTitle}>SALES CATEGORIES</Text>
@@ -769,6 +803,22 @@ const calculateTotalExpenses = () => {
                 
               </View>
               </ScrollView>
+              <Overlay isVisible={visible2} onBackdropPress={setVisible2}>
+           
+           <View style={{padding: 20}}>
+           {/* <SmoothPinCodeInput password mask="﹡"
+             cellStyle={{
+               borderWidth: 1,
+               borderColor: 'gray',
+               borderRadius: 15
+             }}
+             cellSize={45}
+           codeLength={4}
+           value={code}
+           onTextChange={code => setCode(code)}/> */}
+             <PinCodeInput pinCode={store_info.password} onCheckPassword={onUnhideProfit}/>
+           </View>
+       </Overlay>
     </View>
   );
 };

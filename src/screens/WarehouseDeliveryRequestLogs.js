@@ -5,19 +5,15 @@ import colors from "../themes/colors";
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
 import moment from 'moment'
 import formatMoney from 'accounting-js/lib/formatMoney.js'
+
 import {  ListItem, Avatar} from "react-native-elements";
 import { useStore } from "../context/StoreContext";
-
-import SearchInput, { createFilter } from 'react-native-search-filter';
-const KEYS_TO_FILTERS = ['status'];
-
-const DeliveryRequest = ({navigation, route}) => {
-  const {  store } = route.params;
+const WarehouseDeliveryRequestLogs = ({navigation, route}) => {
+ 
   const {  delivery_request,
     delivery_req_details} = useStore();
-    const filteredRequest = delivery_request.filter(createFilter("Pending", KEYS_TO_FILTERS))
+
   const renderItem = ({ item }) => (
-    item.store_id === store._id &&
     <TouchableOpacity style={styles.listStyle} onPress={()=> navigation.navigate('DeliveryRequestDetails', {request : item, store:store})}>
       <View style={{flexDirection: 'row'}}>
         <View style={{paddingRight: 10}}>
@@ -34,7 +30,7 @@ const DeliveryRequest = ({navigation, route}) => {
       </View>
       <View style={{justifyContent:'center', alignItems:'center'}}>
           
-          <Text style={{fontSize: 17, color: colors.red, fontWeight: '700'}}>{item.status}</Text>
+          <Text style={item.status === "Pending" ? {fontSize: 17, color: colors.red, fontWeight: '700'}:  {fontSize: 17, color: colors.green, fontWeight: '700'}}>{item.status}</Text>
           <Text style={{fontSize: 10, color: colors.boldGrey, textDecorationLine:'underline'}}>Tap to view `{">>"}`</Text>
       </View>
     </TouchableOpacity>
@@ -42,7 +38,7 @@ const DeliveryRequest = ({navigation, route}) => {
   return (
   <View style={{flex:1}}>
      <AppHeader 
-          centerText="Delivery Request" 
+          centerText="Delivery Request Logs" 
           leftComponent={
             <TouchableOpacity onPress={()=> navigation.goBack()}>
               <EvilIcons name={'arrow-left'} size={30} color={colors.white}/>
@@ -52,7 +48,7 @@ const DeliveryRequest = ({navigation, route}) => {
         />
      <FlatList
         style={{marginBottom: 50}}
-        data={filteredRequest}
+        data={delivery_request}
         renderItem={renderItem}
         keyExtractor={item => item.id}
         />
@@ -150,4 +146,4 @@ const styles = StyleSheet.create({
   borderRadius: 5}
 });
 
-export default DeliveryRequest;
+export default WarehouseDeliveryRequestLogs;

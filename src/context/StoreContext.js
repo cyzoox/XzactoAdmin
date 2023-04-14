@@ -302,8 +302,7 @@ const StoreProvider = ({ children, projectPartition }) => {
       });
 
       const syncDeliveryRequests = projectPOS.objects("DeliveryRequest");
-      const filteredDeliveryRequest = syncDeliveryRequests.filtered("status == $0","Pending");
-      let sortDeliveryRequests= filteredDeliveryRequest.sorted("timeStamp");
+      let sortDeliveryRequests= syncDeliveryRequests.sorted("timeStamp");
       setDeliveryRequests([...sortDeliveryRequests]);
       sortDeliveryRequests.addListener(() => {
         setDeliveryRequests([...sortDeliveryRequests]);
@@ -311,8 +310,8 @@ const StoreProvider = ({ children, projectPartition }) => {
       });
 
       const syncDeliveryRequestDetails = projectPOS.objects("DeliveryRequestDetails");
-      const filteredDeliveryRequestDetails = syncDeliveryRequestDetails.filtered("status == $0","Pending");
-      let sortDeliveryRequestDetails= filteredDeliveryRequestDetails.sorted("pr_name");
+      // const filteredDeliveryRequestDetails = syncDeliveryRequestDetails.filtered("status == $0","Pending");
+      let sortDeliveryRequestDetails= syncDeliveryRequestDetails.sorted("pr_name");
       setDeliveryRequestDetails([...sortDeliveryRequestDetails]);
       sortDeliveryRequestDetails.addListener(() => {
         setDeliveryRequestDetails([...sortDeliveryRequestDetails]);
@@ -605,20 +604,87 @@ const StoreProvider = ({ children, projectPartition }) => {
     });
   };
 
+  const ReturnSingleItem = (items, reason, qty, req) => {
+    const projectPOS = realmRef.current;
+    const request = projectPOS.objects("DeliveryRequest"); 
+    const request2 = projectPOS.objects("DeliveryRequestDetails"); 
+
+    const filteredRequest = request.filtered("_id == $0", req._id);
+    const filteredRequest2 = request2.filtered("_id == $0", items._id);
+   
+   
+    
+ 
+    let req_details = {
+      partition: `project=${user.id}`,
+      id: uuid.v4(),
+      pr_id:items.pr_id,
+      request_id: req._id,
+      pr_name: items.pr_name,
+      pr_category:items.pr_category,
+      stock: parseFloat(qty),
+      store_id: items.store_id,
+      status: "Returned",
+      pr_oprice: items.pr_oprice,
+      pr_sprice:items.pr_sprice,
+      brand: items.brand,
+      unit: items.unit,
+      store: items.store,
+      img:items.img,
+      withAddons: false,
+      withVariants: false,
+      withOptions: false,
+      sku:'',
+      return_reason: reason,
+      processed_by: "Admin"
+    }
+    projectPOS.write(() => {
+      filteredRequest[0].total -= items.pr_sprice * parseFloat(qty)
+      filteredRequest2[0].stock -=  parseFloat(qty)
+
+      // Create a new task in the same partition -- that is, in the same project.
+      projectPOS.create(
+        "DeliveryRequestDetails",
+        new DeliveryRequestDetails(req_details)
+      );
+      
+    });
+  };
+
+
+  const ReturnDelivery = ( req, reason ) => {
+    
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+     
+      const request = projectPOS.objects("DeliveryRequest"); 
+      const filteredRequest = request.filtered("_id == $0", req._id);
+
+        filteredRequest[0].processed_by = "Admin"
+        filteredRequest[0].return_reason = reason
+        filteredRequest[0].status = "Returned"
+      
+    });
+  };
+
   const onSendProducts = ( productss, items ) => {
     
     const projectPOS = realmRef.current;
     projectPOS.write(() => {
       const products = projectPOS.objects("Products");
       const products2 = projectPOS.objects("WarehouseProducts"); 
+      const request = projectPOS.objects("DeliveryRequest"); 
 
       const filteredProducts2 = products.filtered("pr_id == $0", productss.pr_id);
       const filteredProducts3 = filteredProducts2.filtered("store_id == $0", productss.store_id);
+      const filteredRequest = request.filtered("_id == $0", items.request_id);
 
       const filteredProducts4 = products2.filtered("_id == $0", productss.pr_id);
 
       if(filteredProducts3.length == 0){
         filteredProducts4[0].stock -= productss.stock;
+        filteredRequest[0].status = "Accepted"
+        filteredRequest[0].processed_by = "Admin"
         items.status = "Accepted"
         projectPOS.create(
           "Products",
@@ -626,6 +692,8 @@ const StoreProvider = ({ children, projectPartition }) => {
         );
       }else{
         items.status = "Accepted"
+        filteredRequest[0].status = "Accepted"
+        filteredRequest[0].processed_by = "Admin"
         filteredProducts4[0].stock -= productss.stock;
         filteredProducts3[0].stock += productss.stock;
       }
@@ -1798,7 +1866,9 @@ const StoreProvider = ({ children, projectPartition }) => {
             createDeliveryRequest,
             createDeliveryRequestDetails,
             delivery_request,
-            delivery_req_details
+            delivery_req_details,
+            ReturnDelivery,
+            ReturnSingleItem
           }}
         >
             {children}

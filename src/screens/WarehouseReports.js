@@ -182,7 +182,17 @@ const WarehouseReports = ({navigation}) => {
                   
                 </View>
       </TouchableOpacity>
-      
+      <TouchableOpacity  onPress={()=> navigation.navigate('WarehouseDeliveryRequestLogs')} style={styles.cardStyle}>
+      <View >
+                <Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/warehouseicons/report.png')} />
+                </View>
+                <View>
+                    <Text style={{color:'gray', fontSize: 19, fontWeight:'900'}}>Delivery Request Logs</Text>
+                </View>
+                <View>
+                  
+                </View>
+      </TouchableOpacity>
             </ScrollView>
         
     </View>

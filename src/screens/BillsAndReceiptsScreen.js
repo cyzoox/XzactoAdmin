@@ -167,7 +167,7 @@ const BillsAndReceiptsScreen = ({navigation, route}) => {
       <View style={{justifyContent:'center', alignItems:'center'}}>
           
           <Text style={{fontSize: 17, color: colors.primary, fontWeight: '700'}}>{formatMoney(item.total, { symbol: "₱", precision: 1 })}</Text>
-          <Text style={{fontSize: 10, color: colors.boldGrey, textDecorationLine:'underline'}}>Tap to view >></Text>
+          <Text style={{fontSize: 10, color: colors.boldGrey, textDecorationLine:'underline'}}>Tap to view `{'>>'}`</Text>
       </View>
     </TouchableOpacity>
   );

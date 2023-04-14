@@ -75,6 +75,7 @@ import StoreSettings from "./src/screens/StoreSettings";
 import DeliveryRequest from "./src/screens/DeliveryRequest";
 import WarehouseRemainingStock from "./src/screens/WarehouseRemainingStocks";
 import DeliveryRequestDetails from "./src/screens/DeliveryRequestDetails";
+import WarehouseDeliveryRequestLogs from "./src/screens/WarehouseDeliveryRequestLogs";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -389,6 +390,12 @@ function WarehouseStackScreens() {
      <WarehouseStack.Screen
       name="WarehouseRemainingStocks"
       component={WarehouseRemainingStock}
+      options={{headerShown:false, tabBarVisible:false}}
+      
+    />
+       <WarehouseStack.Screen
+      name="WarehouseDeliveryRequestLogs"
+      component={WarehouseDeliveryRequestLogs}
       options={{headerShown:false, tabBarVisible:false}}
       
     />
