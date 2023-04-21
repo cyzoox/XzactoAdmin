@@ -36,9 +36,9 @@ const BillDetails = ({navigation, route}) => {
         <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 20, marginVertical: 3, height: 40,alignItems:"center"}}>
             <Text style={{flex: 3}}>{item.name} {Math.round(item.quantity  * 100) / 100} x {Math.round(item.sprice * 100) / 100}</Text>
             <Text style={{flex:1, fontWeight:'bold', justifyContent:'center', alignItems:'center'}}>{formatMoney(item.quantity*item.sprice, { symbol: "₱", precision: 1 })}</Text>
-            <TouchableOpacity style={{flex:.7,backgroundColor: colors.red, justifyContent:'center', alignItems:'center', paddingHorizontal:5, borderRadius: 15, height: 30}}>
+            {/* <TouchableOpacity style={{flex:.7,backgroundColor: colors.red, justifyContent:'center', alignItems:'center', paddingHorizontal:5, borderRadius: 15, height: 30}}>
               <Text style={{fontSize:10, color: colors.white}}>Refund</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <Divider/>
         </View>
       )

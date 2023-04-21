@@ -21,8 +21,8 @@ import { ModalInputForm1 } from "../components/ModalInputForm1";
 const KEYS_TO_FILTERS = ['request_id'];
 const KEYS_TO_FILTERS1 = ['status'];
 
-const DeliveryRequestDetails = ({navigation, route}) => {
-    const { request, store } = route.params;
+const WarehouseDeliveryRequestDetails = ({navigation, route}) => {
+    const { request } = route.params;
     console.log(request)
     const {user} = useAuth();
     const [visible2, setVisible] = useState(false);
@@ -51,132 +51,132 @@ const DeliveryRequestDetails = ({navigation, route}) => {
 
        const filteredReturnDetails = filteredDetails.filter(createFilter("Returned", KEYS_TO_FILTERS1))
     
-    const onAcceptRequest = () => {
-        filteredDetails.forEach(items => {
-          if(items.status === "Pending"){
-            let wproducts = {
-              partition: `project=${user.id}`,
-              id: uuid.v4(),
-              name: items.pr_name,
-              brand: items.brand,
-              oprice: items.pr_oprice,
-              sprice: items.pr_sprice,
-              unit: items.unit,
-              category: items.pr_category,
-              store_id: items.store_id,
-              store: items.store,
-              stock: items.stock,
-              sku:'',
-              img:items.img,
-              pr_id: items.pr_id,
-              withAddons: false,
-              withVariants: false,
-              withOptions: false
-            }
+    // const onAcceptRequest = () => {
+    //     filteredDetails.forEach(items => {
+    //       if(items.status === "Pending"){
+    //         let wproducts = {
+    //           partition: `project=${user.id}`,
+    //           id: uuid.v4(),
+    //           name: items.pr_name,
+    //           brand: items.brand,
+    //           oprice: items.pr_oprice,
+    //           sprice: items.pr_sprice,
+    //           unit: items.unit,
+    //           category: items.pr_category,
+    //           store_id: items.store_id,
+    //           store: items.store,
+    //           stock: items.stock,
+    //           sku:'',
+    //           img:items.img,
+    //           pr_id: items.pr_id,
+    //           withAddons: false,
+    //           withVariants: false,
+    //           withOptions: false
+    //         }
 
-         onSendProducts(wproducts, items);
-          }
+    //      onSendProducts(wproducts, items);
+    //       }
   
-        });
-        saveToDeliveryReports()
-    }
+    //     });
+    //     saveToDeliveryReports()
+    // }
 
-    const onReturnDelivery = () => {
-      // if(errorText.length === 0){
-      //   setErrorText('Please fill in return reason.')
-      //   return;
-      // }
-      ReturnDelivery(request, reason)
-      setOverlayVisible(false)
-      navigation.goBack()
-    }
+    // const onReturnDelivery = () => {
+    //   // if(errorText.length === 0){
+    //   //   setErrorText('Please fill in return reason.')
+    //   //   return;
+    //   // }
+    //   ReturnDelivery(request, reason)
+    //   setOverlayVisible(false)
+    //   navigation.goBack()
+    // }
 
-    const saveToDeliveryReports = () => {
-        let dates = moment().unix()
-         // let year = moment(date, "MMMM DD, YYYY").format('YYYY');
-         // let month = moment(date, "MMMM DD, YYYY").format('MMMM');
-         // let week = moment(date, "MMMM DD, YYYY").format('WW');
+    // const saveToDeliveryReports = () => {
+    //     let dates = moment().unix()
+    //      // let year = moment(date, "MMMM DD, YYYY").format('YYYY');
+    //      // let month = moment(date, "MMMM DD, YYYY").format('MMMM');
+    //      // let week = moment(date, "MMMM DD, YYYY").format('WW');
      
          
-         let drs = {
-           partition: `project=${user.id}`,
-           id: uuid.v4(),
-           timeStamp: moment().unix(),
-           year :moment.unix(dates).format('YYYY'),
-           year_month :moment.unix(dates).format('MMMM-YYYY'),
-           year_week :moment.unix(dates).format('WW-YYYY'),
-           date: moment.unix(dates).format('MMMM DD, YYYY'),
-           supplier: 'Warehouse',
-           supplier_id: 'Warehouse',
-           delivered_by: 'C/o Warehouse',
-           received_by: 'C/o Warehouse',
-           delivery_receipt: 'C/o Warehouse',
-           total: calculateTotal(),
-           store_id: store._id,
-           store_name: store.name,
-         }
-         createStoreDeliverySummary(drs)
+    //      let drs = {
+    //        partition: `project=${user.id}`,
+    //        id: uuid.v4(),
+    //        timeStamp: moment().unix(),
+    //        year :moment.unix(dates).format('YYYY'),
+    //        year_month :moment.unix(dates).format('MMMM-YYYY'),
+    //        year_week :moment.unix(dates).format('WW-YYYY'),
+    //        date: moment.unix(dates).format('MMMM DD, YYYY'),
+    //        supplier: 'Warehouse',
+    //        supplier_id: 'Warehouse',
+    //        delivered_by: 'C/o Warehouse',
+    //        received_by: 'C/o Warehouse',
+    //        delivery_receipt: 'C/o Warehouse',
+    //        total: calculateTotal(),
+    //        store_id: store._id,
+    //        store_name: store.name,
+    //      }
+    //      createStoreDeliverySummary(drs)
        
-         filteredDetails.forEach(items => {
-          if(items.status === "Pending"){
-            let delivery = {
-              partition: `project=${user.id}`,
-              id: uuid.v4(),
-              timeStamp: moment().unix(),
-              year :moment.unix(dates).format('YYYY'),
-              year_month :moment.unix(dates).format('MMMM-YYYY'),
-              year_week :moment.unix(dates).format('WW-YYYY'),
-              date: moment.unix(dates).format('MMMM DD, YYYY'),
-              product: items.pr_name,
-              quantity: items.stock,
-              oprice: items.pr_oprice,
-              sprice: items.pr_sprice,
-              supplier: 'Warehouse',
-              supplier_id: 'Warehouse',
-              delivered_by: 'C/o Warehouse',
-              received_by: 'C/o Warehouse',
-              delivery_receipt: 'C/o Warehouse',
-              store_id: store._id,
-              store_name: store.name,
-              tr_id: drs.id
-            }
+    //      filteredDetails.forEach(items => {
+    //       if(items.status === "Pending"){
+    //         let delivery = {
+    //           partition: `project=${user.id}`,
+    //           id: uuid.v4(),
+    //           timeStamp: moment().unix(),
+    //           year :moment.unix(dates).format('YYYY'),
+    //           year_month :moment.unix(dates).format('MMMM-YYYY'),
+    //           year_week :moment.unix(dates).format('WW-YYYY'),
+    //           date: moment.unix(dates).format('MMMM DD, YYYY'),
+    //           product: items.pr_name,
+    //           quantity: items.stock,
+    //           oprice: items.pr_oprice,
+    //           sprice: items.pr_sprice,
+    //           supplier: 'Warehouse',
+    //           supplier_id: 'Warehouse',
+    //           delivered_by: 'C/o Warehouse',
+    //           received_by: 'C/o Warehouse',
+    //           delivery_receipt: 'C/o Warehouse',
+    //           store_id: store._id,
+    //           store_name: store.name,
+    //           tr_id: drs.id
+    //         }
           
-            let trproducts = {
-              partition: `project=${user.id}`,
-              id:uuid.v4(),
-              timeStamp: moment().unix(),
-              year :moment.unix(dates).format('YYYY'),
-              year_month :moment.unix(dates).format('MMMM-YYYY'),
-              year_week :moment.unix(dates).format('WW-YYYY'),
-              date: moment.unix(dates).format('MMMM DD, YYYY'),
-              product: items.pr_name,
-              quantity: items.stock,
-              oprice: items.pr_oprice,
-              sprice: items.pr_sprice,
-              store_id: store._id,
-              store_name: store.name,
-              transferred_by :'Admin',
-              unit: items.unit,
-              category: items.pr_category
-            }
-            createDeliveryReport(delivery)
-            createtransferLogs(trproducts)
-          }
+    //         let trproducts = {
+    //           partition: `project=${user.id}`,
+    //           id:uuid.v4(),
+    //           timeStamp: moment().unix(),
+    //           year :moment.unix(dates).format('YYYY'),
+    //           year_month :moment.unix(dates).format('MMMM-YYYY'),
+    //           year_week :moment.unix(dates).format('WW-YYYY'),
+    //           date: moment.unix(dates).format('MMMM DD, YYYY'),
+    //           product: items.pr_name,
+    //           quantity: items.stock,
+    //           oprice: items.pr_oprice,
+    //           sprice: items.pr_sprice,
+    //           store_id: store._id,
+    //           store_name: store.name,
+    //           transferred_by :'Admin',
+    //           unit: items.unit,
+    //           category: items.pr_category
+    //         }
+    //         createDeliveryReport(delivery)
+    //         createtransferLogs(trproducts)
+    //       }
             
-         });
+    //      });
        
          
-             navigation.goBack()
+    //          navigation.goBack()
      
-     }
+    //  }
      
      
       const calculateTotal = () => {
         let total = 0;
         filteredDetails.forEach(list => {
-          if(list .status === "Pending"){
+       
             total += list.stock * list.pr_sprice
-          }
+          
                
         });
        return total;
@@ -204,7 +204,7 @@ const DeliveryRequestDetails = ({navigation, route}) => {
     const renderItem = ({ item }) => 
       {
       return(
-        item.status == "Pending" && item.stock !== 0 ?
+     
         <View style={{flex:1,flexDirection:'row', justifyContent:'space-between', marginHorizontal: 20, marginVertical: 3, height: 40,alignItems:"center"}}>
         <View style={{flexDirection:'column',flex: 2}}>
         <Text>{item.pr_name} </Text>
@@ -212,12 +212,9 @@ const DeliveryRequestDetails = ({navigation, route}) => {
         </View>
        
         <Text style={{flex: 1,fontWeight:'bold', justifyContent:'center', alignItems:'center'}}>{formatMoney(item.stock*item.pr_sprice, { symbol: "₱", precision: 1 })}</Text>
-      { 
-      filteredDetails.length === 1 && item.stock === 1 ?
-       <TouchableOpacity onPress={()=> {setItem(item), setVisible3(true)}}  style={{backgroundColor: colors.red, justifyContent:'center', alignItems:'center', paddingHorizontal:5, borderRadius: 15, height: 30}}>
+        {/* <TouchableOpacity onPress={()=> {setItem(item), setVisible3(true)}}  style={{backgroundColor: colors.red, justifyContent:'center', alignItems:'center', paddingHorizontal:5, borderRadius: 15, height: 30}}>
           <Text style={{fontSize:10, color: colors.white, paddingHorizontal: 10}}>Return</Text>
-        </TouchableOpacity> : null
-        }
+        </TouchableOpacity> */}
         {/* <ModalInputForm1
          displayComponent={
              <>
@@ -232,7 +229,7 @@ const DeliveryRequestDetails = ({navigation, route}) => {
          
         
        </ModalInputForm1> */}
-    </View>: null
+    </View>
       )
     }
         
@@ -406,10 +403,10 @@ const DeliveryRequestDetails = ({navigation, route}) => {
             
             <Divider style={{margin: 10}}/>
             <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15}}>
-                <Text>Total</Text>
-                <Text>{formatMoney(calculateTotal(), { symbol: "₱", precision: 1 })}</Text>
+                <Text style={{fontSize: 16, fontWeight:'bold'}}>Total</Text>
+                <Text  style={{fontSize: 16, fontWeight:'bold'}}>{formatMoney(calculateTotal(), { symbol: "₱", precision: 1 })}</Text>
             </View>
-           { 
+           {/* { 
            filteredReturnDetails.length !== 0 ?
            <>
            <Divider style={{margin: 10}}/>
@@ -424,7 +421,7 @@ const DeliveryRequestDetails = ({navigation, route}) => {
               data={filteredReturnDetails}
               renderItem={renderItem1}
               />
-              </> : null}
+              </> : null} */}
             {/* <View style={{flexDirection:'row', justifyContent:'space-between', marginHorizontal: 15}}>
                 <Text style={{color: colors.red}}>Discount</Text>
                 <Text style={{color: colors.red}}> - {formatMoney(transactions.discount, { symbol: "₱", precision: 1 })}</Text>
@@ -461,10 +458,10 @@ const DeliveryRequestDetails = ({navigation, route}) => {
             {/* <View style={{justifyContent:'center', alignItems: 'center', marginVertical: 15}}>
                 {/* <Text style={{fontSize: 15, fontWeight:'600'}}>Attendant: {transactions.attendant_name}</Text>
             </View> */}
-            <TouchableOpacity onPress={()=> setVisible(true)} style={styles.btn}>
+            {/* <TouchableOpacity onPress={()=> setVisible(true)} style={styles.btn}>
                 <Text style={{textAlign:"center", fontSize: 18,color: colors.white, fontWeight:'bold'}}>Accept</Text>
-            </TouchableOpacity>
-            <ModalInputForm1
+            </TouchableOpacity> */}
+            {/* <ModalInputForm1
              displayComponent={
                  <>
              <TouchableOpacity onPress={()=> setOverlayVisible(true)} style={[styles.btn, {backgroundColor: colors.red, width:'93%'}]}>
@@ -500,7 +497,7 @@ const DeliveryRequestDetails = ({navigation, route}) => {
         </View>
               </View>
             
-           </ModalInputForm1>
+           </ModalInputForm1> */}
            
         </ScrollView>
         </View>
@@ -517,7 +514,7 @@ const DeliveryRequestDetails = ({navigation, route}) => {
            codeLength={4}
            value={code}
            onTextChange={code => setCode(code)}/> */}
-             <PinCodeInput pinCode={store.password} onCheckPassword={onAcceptRequest}/>
+             {/* <PinCodeInput pinCode={store.password} onCheckPassword={onAcceptRequest}/> */}
            </View>
        </Overlay>
        <Overlay overlayStyle={{width: '70%', borderRadius: 10}} isVisible={visible3} onBackdropPress={setVisible3}>
@@ -582,4 +579,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default DeliveryRequestDetails;
+export default WarehouseDeliveryRequestDetails;

@@ -14,7 +14,7 @@ const WarehouseDeliveryRequestLogs = ({navigation, route}) => {
     delivery_req_details} = useStore();
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.listStyle} onPress={()=> navigation.navigate('DeliveryRequestDetails', {request : item, store:store})}>
+    <TouchableOpacity style={styles.listStyle} onPress={()=> navigation.navigate('WarehouseDeliveryRequestDetails', {request : item})}>
       <View style={{flexDirection: 'row'}}>
         <View style={{paddingRight: 10}}>
           <Avatar containerStyle={styles.avatarStyle} size={45} source={require('../../assets/xzacto_icons/iconsstore/bills1.png')}/>

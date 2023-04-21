@@ -58,7 +58,8 @@ const CardTiles = ({ leftTileText, rightTileText, leftIconName, rightIconName, i
                   <Card wrapperStyle={{alignItems:'center'}} containerStyle={{borderRadius: 15, margin: 2, flex: 1}}>
                     <LinearGradient colors={[colors.white, colors.white]} style={{height: 50, width: 50, borderRadius: 40,justifyContent:'center', alignItems:'center'}}>
                     {rightTileText == "Products" ? <Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/iconsstore/products2.png')} />
-                    :  <Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/iconsstore/cashier.png')}  />
+                    :rightTileText == "Attendants" ?  <Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/warehouseicons/cashier.png')}  />
+                    :  <Image style={{height: 60, width: 60}} source={require('../../assets/xzacto_icons/warehouseicons/warehouse3.png')}  />
                     
                   }
                     </LinearGradient>

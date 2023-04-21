@@ -98,12 +98,12 @@ const MyFlatListInList = ({filteredProducts, totalPrice, setCustomModal2,setCust
                         style={{width: 40, height: 40}}
                       />
                   </TouchableOpacity>
-                  <TouchableOpacity style={{marginHorizontal: 5, justifyContent:'center'}} onPress={()=>{ setCustomModal4(true), setProduct(item), setProductQty(item.stock)}}>
+                  {/* <TouchableOpacity style={{marginHorizontal: 5, justifyContent:'center'}} onPress={()=>{ setCustomModal4(true), setProduct(item), setProductQty(item.stock)}}>
                       <Image 
                         source={require('../../assets/xzacto_icons/warehouseicons/transfer.png')}
                         style={{width: 40, height: 40}}
                       />
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 {/*  <TouchableOpacity style={{marginHorizontal: 3}} onPress={()=>{ setCustomModal4(true), setProduct(item), setProductQty(item.stock)}}>
                       <Feather name={'edit'} size={25} color={colors.red}/>
               </TouchableOpacity>*/}
@@ -163,94 +163,167 @@ const WarehouseProducts = ({ navigation }) => {
 
   const filteredProducts = warehouse_products.filter(createFilter(term, KEYS_TO_FILTERS));
 console.log(selected_store)
+
+const onSaveItems = () => {
+  let dates = moment().unix()
+          if(selected_store.length===0){
+            return setVisible(true)
+          }
+          let req = {
+            partition: `project=${user.id}`,
+            id: uuid.v4(),
+            timeStamp: moment().unix(),
+            year :moment.unix(dates).format('YYYY'),
+            year_month :moment.unix(dates).format('MMMM-YYYY'),
+            year_week :moment.unix(dates).format('WW-YYYY'),
+            date: moment.unix(dates).format('MMMM DD, YYYY'),
+            store_id: selected_store._id,
+            store: selected_store.name,
+            status: "Pending",
+            total : calculateTotal(),
+            processed_by: "",
+            return_reason: ""
+          }
+          createDeliveryRequest(req)
+         product_holder.forEach(items => {
+          let details = {
+                partition: `project=${user.id}`,
+                id: uuid.v4(),
+                pr_id:items.id,
+                request_id: req.id,
+                pr_name: items.name,
+                pr_category:items.category,
+                stock: parseFloat(items.qty),
+                store_id: selected_store._id,
+                status: "Pending",
+                pr_oprice: parseFloat(items.oprice),
+                pr_sprice:parseFloat(items.sprice),
+                brand: items.brand,
+                unit: items.unit,
+                store: selected_store.name,
+                img:items.img,
+                pr_id: items.id,
+                withAddons: false,
+                withVariants: false,
+                withOptions: false,
+                sku:'',
+                processed_by: "",
+                return_reason: ""
+          }
+       
+            //  let wproducts = {
+            //     partition: `project=${user.id}`,
+            //     id: uuid.v4(),
+            //     name: items.name,
+            //     brand: items.brand,
+            //     oprice: parseFloat(items.oprice),
+            //     sprice: parseFloat(items.sprice),
+            //     unit: items.unit,
+            //     category: items.category,
+            //     store_id: selected_store._id,
+            //     store: selected_store.name,
+            //     stock: parseFloat(items.qty),
+            //     sku:'',
+            //     img:items.img,
+            //     pr_id: items.id,
+            //     withAddons: false,
+            //     withVariants: false,
+            //     withOptions: false
+            //   }
+            createDeliveryRequestDetails(details)
+              // onSendProducts(wproducts, items);
+         });
+        //  saveToDeliveryReports()
+        navigation.goBack()
+ }
   
- const  onTransferProducts = () => {
-  const date = moment().unix();
+//  const  onTransferProducts = () => {
+//   const date = moment().unix();
 
-  let wproducts = {
-    partition: `project=${user.id}`,
-    id: uuid.v4(),
-    name: product_name.name,
-    brand: product_name.brand,
-    oprice: product_name.oprice,
-    sprice: product_name.sprice,
-    unit: product_name.unit,
-    category: product_name.category,
-    store_id: selected_store._id,
-    store: selected_store.name,
-    stock: tr_qty,
-    sku:'',
-    img:product_name.img,
-    pr_id: product_name._id
-  }
+//   let wproducts = {
+//     partition: `project=${user.id}`,
+//     id: uuid.v4(),
+//     name: product_name.name,
+//     brand: product_name.brand,
+//     oprice: product_name.oprice,
+//     sprice: product_name.sprice,
+//     unit: product_name.unit,
+//     category: product_name.category,
+//     store_id: selected_store._id,
+//     store: selected_store.name,
+//     stock: tr_qty,
+//     sku:'',
+//     img:product_name.img,
+//     pr_id: product_name._id
+//   }
 
-  let trproducts = {
-    partition: `project=${user.id}`,
-    id:uuid.v4(),
-    timeStamp: moment().unix(),
-    year :moment.unix(date).format('YYYY'),
-    year_month :moment.unix(date).format('MMMM-YYYY'),
-    year_week :moment.unix(date).format('WW-YYYY'),
-    date: moment.unix(date).format('MMMM DD, YYYY'),
-    product: product_name.name,
-    quantity: tr_qty,
-    oprice: product_name.oprice,
-    sprice: product_name.sprice,
-    store_id: selected_store._id,
-    store_name: selected_store.name,
-    transferred_by :'Admin',
-    unit: product_name.unit,
-    category: product_name.category
-  }
+//   let trproducts = {
+//     partition: `project=${user.id}`,
+//     id:uuid.v4(),
+//     timeStamp: moment().unix(),
+//     year :moment.unix(date).format('YYYY'),
+//     year_month :moment.unix(date).format('MMMM-YYYY'),
+//     year_week :moment.unix(date).format('WW-YYYY'),
+//     date: moment.unix(date).format('MMMM DD, YYYY'),
+//     product: product_name.name,
+//     quantity: tr_qty,
+//     oprice: product_name.oprice,
+//     sprice: product_name.sprice,
+//     store_id: selected_store._id,
+//     store_name: selected_store.name,
+//     transferred_by :'Admin',
+//     unit: product_name.unit,
+//     category: product_name.category
+//   }
 
-  let delivery = {
-    partition: `project=${user.id}`,
-    id: uuid.v4(),
-    timeStamp: moment().unix(),
-    year :moment.unix(date).format('YYYY'),
-    year_month :moment.unix(date).format('MMMM-YYYY'),
-    year_week :moment.unix(date).format('WW-YYYY'),
-    date: moment.unix(date).format('MMMM DD, YYYY'),
-    product: product_name.name,
-    quantity: tr_qty,
-    oprice: product_name.oprice,
-    sprice: product_name.sprice,
-    supplier: 'Warehouse',
-    supplier_id: 'Warehouse',
-    delivered_by: 'C/o Warehouse',
-    received_by: 'C/o Warehouse',
-    delivery_receipt: 'C/o Warehouse',
-    store_id: selected_store._id,
-    store_name: selected_store.name,
-  }
+//   let delivery = {
+//     partition: `project=${user.id}`,
+//     id: uuid.v4(),
+//     timeStamp: moment().unix(),
+//     year :moment.unix(date).format('YYYY'),
+//     year_month :moment.unix(date).format('MMMM-YYYY'),
+//     year_week :moment.unix(date).format('WW-YYYY'),
+//     date: moment.unix(date).format('MMMM DD, YYYY'),
+//     product: product_name.name,
+//     quantity: tr_qty,
+//     oprice: product_name.oprice,
+//     sprice: product_name.sprice,
+//     supplier: 'Warehouse',
+//     supplier_id: 'Warehouse',
+//     delivered_by: 'C/o Warehouse',
+//     received_by: 'C/o Warehouse',
+//     delivery_receipt: 'C/o Warehouse',
+//     store_id: selected_store._id,
+//     store_name: selected_store.name,
+//   }
 
-  let drs = {
-    partition: `project=${user.id}`,
-    id: uuid.v4(),
-    timeStamp: moment().unix(),
-    year :moment.unix(date).format('YYYY'),
-    year_month :moment.unix(date).format('MMMM-YYYY'),
-    year_week :moment.unix(date).format('WW-YYYY'),
-    date: moment.unix(date).format('MMMM DD, YYYY'),
-    supplier: 'Warehouse',
-    supplier_id: 'Warehouse',
-    delivered_by: 'C/o Warehouse',
-    received_by: 'C/o Warehouse',
-    delivery_receipt: 'C/o Warehouse',
-    total: tr_qty*product_name.oprice,
-    store_id: selected_store._id,
-    store_name: selected_store.name,
-  }
+//   let drs = {
+//     partition: `project=${user.id}`,
+//     id: uuid.v4(),
+//     timeStamp: moment().unix(),
+//     year :moment.unix(date).format('YYYY'),
+//     year_month :moment.unix(date).format('MMMM-YYYY'),
+//     year_week :moment.unix(date).format('WW-YYYY'),
+//     date: moment.unix(date).format('MMMM DD, YYYY'),
+//     supplier: 'Warehouse',
+//     supplier_id: 'Warehouse',
+//     delivered_by: 'C/o Warehouse',
+//     received_by: 'C/o Warehouse',
+//     delivery_receipt: 'C/o Warehouse',
+//     total: tr_qty*product_name.oprice,
+//     store_id: selected_store._id,
+//     store_name: selected_store.name,
+//   }
 
 
-  onSendProducts(wproducts, product_name);
-  createStoreDeliverySummary(drs)
-  createtransferLogs(trproducts)
-  createDeliveryReport(delivery)
-  setCustomModal4(false)
-  setTrQty(1)
-  setSelectedStore([])
-  }
+//   onSendProducts(wproducts, product_name);
+//   createStoreDeliverySummary(drs)
+//   createtransferLogs(trproducts)
+//   createDeliveryReport(delivery)
+//   setCustomModal4(false)
+//   setTrQty(1)
+//   setSelectedStore([])
+//   }
 
   const onSaveExpired = () => {
     let date = moment().unix()
@@ -439,7 +512,7 @@ const onCancelAlert = () => {
               
             </View>
           </CustomModal>
-          <CustomModal
+          {/* <CustomModal
            title={`Transfer ${product_name.name}`}
            visible={custom_modal4}
            confirmTitle="Proceed"
@@ -485,7 +558,7 @@ const onCancelAlert = () => {
                 </View>
               
             </View>
-          </CustomModal>
+          </CustomModal> */}
           <CustomModal
            title={`Number of expired ${product_name.name}`}
            visible={custom_modal2}
