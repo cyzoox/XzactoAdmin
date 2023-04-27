@@ -5181,7 +5181,7 @@ lodash.throttle@^4.1.1:
   resolved "https://registry.yarnpkg.com/lodash.throttle/-/lodash.throttle-4.1.1.tgz#c23e91b710242ac70c37f1e1cda9274cc39bf2f4"
   integrity sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ==
 
-lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.21:
+lodash@*, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -6575,6 +6575,13 @@ react-native-search-filter@^0.1.5:
   dependencies:
     diacritics "^1.3.0"
     fuse.js "^3.4.5"
+
+react-native-searchable-dropdown-kj@^1.8.12:
+  version "1.8.12"
+  resolved "https://registry.yarnpkg.com/react-native-searchable-dropdown-kj/-/react-native-searchable-dropdown-kj-1.8.12.tgz#6534a4572bea9fe2135372cc10a5c723059b8628"
+  integrity sha512-+jWA49uwMq5+l3DUJLDvo6Pf4KX4pP7auSlJ7tXqiAx/kUFqvs65uJsow6iHJDtqdairLFR9MLVmxd7PTyVbzg==
+  dependencies:
+    lodash "*"
 
 react-native-select-dropdown@^3.1.0:
   version "3.1.0"

@@ -14,6 +14,20 @@ import AppHeader from "../components/AppHeader";
 const units = ["Kilo", "Gram", "Piece", "Liter","Bundle", "Dozen", "Whole", "Half-Dozen","Ounce", "Milliliter", "Milligrams", "Pack","Ream","Box","Sack","Serving","Gallon","Container","Bottle"]
 import {Picker} from '@react-native-picker/picker';
 import Alert from "../components/Alert";
+import { Dropdown } from 'react-native-searchable-dropdown-kj';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+
+const data = [
+  { label: 'Item 1', value: '1' },
+  { label: 'Item 2', value: '2' },
+  { label: 'Item 3', value: '3' },
+  { label: 'Item 4', value: '4' },
+  { label: 'Item 5', value: '5' },
+  { label: 'Item 6', value: '6' },
+  { label: 'Item 7', value: '7' },
+  { label: 'Item 8', value: '8' },
+];
+
 
 const BatchTransferScreen = ({navigation,route}) => {
 
@@ -44,6 +58,8 @@ const BatchTransferScreen = ({navigation,route}) => {
     const [alert_visible,alertVisible] = useState(false)
     const [selected_store, setSelectedStore] = useState([])
     const [visible, setVisible] = useState(false);
+    const [value, setValue] = useState(null);
+    const [isFocus, setIsFocus] = useState(false);
     const onAddItem = () => {
         const items =  product_holder.concat([{"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, id: uuid.v4(),    img:'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png', }])
        setProductHolder(items)
@@ -262,9 +278,9 @@ const BatchTransferScreen = ({navigation,route}) => {
           <ScrollView horizontal contentContainerStyle={{flexDirection:'column', marginTop: 20}}>
           <View style={{flexDirection:'row'}}>
           <Text style={{ marginHorizontal: 10, padding:5, borderRadius:25}}>       </Text>
-               <Text style={{width: 150, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Product Name</Text>
+               <Text style={{width: 200, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Product Name</Text>
    
-               <Text style={{width: 150, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Qty</Text>
+               <Text style={{width: 100, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Qty</Text>
        
            </View>
            {
@@ -273,7 +289,7 @@ const BatchTransferScreen = ({navigation,route}) => {
             <TouchableOpacity onPress={()=> handleRemoveItem(element.no)} style={{backgroundColor:colors.red, justifyContent:'center', marginHorizontal: 10, padding:5, borderRadius:25}}>
             <EvilIcons name={'trash'} size={26} color={colors.white}/>
             </TouchableOpacity>
-            <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, flexDirection:'row'}}>
+            {/* <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2, flexDirection:'row'}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -311,9 +327,41 @@ const BatchTransferScreen = ({navigation,route}) => {
                                 }
                                 
                                 </Picker>
-          </View>
-        
-          <View style={{borderWidth: 1, width: 150, height: 35, borderRadius: 10, borderColor: colors.boldGrey, marginHorizontal:2}}>
+       
+          </View> */}
+          <Dropdown
+          style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={warehouse_products}
+          search
+          maxHeight={300}
+          labelField="name"
+          valueField="value"
+          placeholder={!isFocus ? 'Select product' : '...'}
+          searchPlaceholder="Search..."
+          value={value}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
+          onChange={itemValue => {
+            { element.id = itemValue._id,
+              element.category = itemValue.category,
+              element.name = itemValue.name,
+              element.brand = itemValue.brand,
+              element.unit = itemValue.unit,
+              element.oprice = itemValue.oprice,
+              element.sprice = itemValue.sprice,
+              element.qty = 1,
+              element.img = itemValue.img
+              setProductHolder([...product_holder])
+      }
+            setIsFocus(false);
+          }}
+       
+        />
+          <View style={{borderWidth: 1, width: 100, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginLeft:10}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -363,6 +411,45 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
+  },
+  container: {
+    backgroundColor: 'white',
+    padding: 16,
+  },
+  dropdown: {
+    width: 200,
+    height: 50,
+    borderColor: colors.boldGrey,
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+  },
+  icon: {
+    marginRight: 5,
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: 14,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+
+    height: 40,
+    fontSize: 16,
   },
 });
 

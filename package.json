@@ -43,6 +43,7 @@
     "react-native-scan-barcode": "^3.1.7",
     "react-native-screens": "^3.15.0",
     "react-native-search-filter": "^0.1.5",
+    "react-native-searchable-dropdown-kj": "^1.8.12",
     "react-native-select-dropdown": "^3.1.0",
     "react-native-simple-pin": "^0.0.3",
     "react-native-subscribe-card": "^0.1.3",

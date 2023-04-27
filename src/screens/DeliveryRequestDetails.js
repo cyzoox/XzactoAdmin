@@ -48,6 +48,7 @@ const DeliveryRequestDetails = ({navigation, route}) => {
        } = useStore();
 
        const filteredDetails = delivery_req_details.filter(createFilter(request._id, KEYS_TO_FILTERS))
+       const filteredDetails2 = filteredDetails.filter(createFilter("Pending", KEYS_TO_FILTERS1))
 
        const filteredReturnDetails = filteredDetails.filter(createFilter("Returned", KEYS_TO_FILTERS1))
     
@@ -80,16 +81,29 @@ const DeliveryRequestDetails = ({navigation, route}) => {
         });
         saveToDeliveryReports()
     }
-
+    console.log(filteredDetails2)
     const onReturnDelivery = () => {
       // if(errorText.length === 0){
       //   setErrorText('Please fill in return reason.')
       //   return;
       // }
       ReturnDelivery(request, reason)
-      setOverlayVisible(false)
+      setVisible3(false)
       navigation.goBack()
     }
+
+    const calculateTotal = () => {
+      let total = 0;
+      filteredDetails.forEach(list => {
+    if(list.status === "Pending"){
+      total += list.stock * list.pr_sprice
+    }
+         
+             
+      });
+     return total;
+  }
+
 
     const saveToDeliveryReports = () => {
         let dates = moment().unix()
@@ -118,70 +132,61 @@ const DeliveryRequestDetails = ({navigation, route}) => {
          createStoreDeliverySummary(drs)
        
          filteredDetails.forEach(items => {
-          if(items.status === "Pending"){
-            let delivery = {
-              partition: `project=${user.id}`,
-              id: uuid.v4(),
-              timeStamp: moment().unix(),
-              year :moment.unix(dates).format('YYYY'),
-              year_month :moment.unix(dates).format('MMMM-YYYY'),
-              year_week :moment.unix(dates).format('WW-YYYY'),
-              date: moment.unix(dates).format('MMMM DD, YYYY'),
-              product: items.pr_name,
-              quantity: items.stock,
-              oprice: items.pr_oprice,
-              sprice: items.pr_sprice,
-              supplier: 'Warehouse',
-              supplier_id: 'Warehouse',
-              delivered_by: 'C/o Warehouse',
-              received_by: 'C/o Warehouse',
-              delivery_receipt: 'C/o Warehouse',
-              store_id: store._id,
-              store_name: store.name,
-              tr_id: drs.id
-            }
-          
-            let trproducts = {
-              partition: `project=${user.id}`,
-              id:uuid.v4(),
-              timeStamp: moment().unix(),
-              year :moment.unix(dates).format('YYYY'),
-              year_month :moment.unix(dates).format('MMMM-YYYY'),
-              year_week :moment.unix(dates).format('WW-YYYY'),
-              date: moment.unix(dates).format('MMMM DD, YYYY'),
-              product: items.pr_name,
-              quantity: items.stock,
-              oprice: items.pr_oprice,
-              sprice: items.pr_sprice,
-              store_id: store._id,
-              store_name: store.name,
-              transferred_by :'Admin',
-              unit: items.unit,
-              category: items.pr_category
-            }
-            createDeliveryReport(delivery)
-            createtransferLogs(trproducts)
+         if(items.status === "Pending"){
+          let delivery = {
+            partition: `project=${user.id}`,
+            id: uuid.v4(),
+            timeStamp: moment().unix(),
+            year :moment.unix(dates).format('YYYY'),
+            year_month :moment.unix(dates).format('MMMM-YYYY'),
+            year_week :moment.unix(dates).format('WW-YYYY'),
+            date: moment.unix(dates).format('MMMM DD, YYYY'),
+            product: items.pr_name,
+            quantity: items.stock,
+            oprice: items.pr_oprice,
+            sprice: items.pr_sprice,
+            supplier: 'Warehouse',
+            supplier_id: 'Warehouse',
+            delivered_by: 'C/o Warehouse',
+            received_by: 'C/o Warehouse',
+            delivery_receipt: 'C/o Warehouse',
+            store_id: store._id,
+            store_name: store.name,
+            tr_id: drs.id
           }
+        
+          let trproducts = {
+            partition: `project=${user.id}`,
+            id:uuid.v4(),
+            timeStamp: moment().unix(),
+            year :moment.unix(dates).format('YYYY'),
+            year_month :moment.unix(dates).format('MMMM-YYYY'),
+            year_week :moment.unix(dates).format('WW-YYYY'),
+            date: moment.unix(dates).format('MMMM DD, YYYY'),
+            product: items.pr_name,
+            quantity: items.stock,
+            oprice: items.pr_oprice,
+            sprice: items.pr_sprice,
+            store_id: store._id,
+            store_name: store.name,
+            transferred_by :'Admin',
+            unit: items.unit,
+            category: items.pr_category
+          }
+          createDeliveryReport(delivery)
+          createtransferLogs(trproducts)
+         }
+           
             
          });
        
-         
+
              navigation.goBack()
      
      }
      
      
-      const calculateTotal = () => {
-        let total = 0;
-        filteredDetails.forEach(list => {
-          if(list .status === "Pending"){
-            total += list.stock * list.pr_sprice
-          }
-               
-        });
-       return total;
-    }
-
+      
     const onReturnSingleItem = () => {
       if(reason1.length === 0){
         setErrorText1('Please fill in return reason.')
@@ -204,7 +209,7 @@ const DeliveryRequestDetails = ({navigation, route}) => {
     const renderItem = ({ item }) => 
       {
       return(
-        item.status == "Pending" && item.stock !== 0 ?
+        item.stock !== 0 ?
         <View style={{flex:1,flexDirection:'row', justifyContent:'space-between', marginHorizontal: 20, marginVertical: 3, height: 40,alignItems:"center"}}>
         <View style={{flexDirection:'column',flex: 2}}>
         <Text>{item.pr_name} </Text>
@@ -213,10 +218,14 @@ const DeliveryRequestDetails = ({navigation, route}) => {
        
         <Text style={{flex: 1,fontWeight:'bold', justifyContent:'center', alignItems:'center'}}>{formatMoney(item.stock*item.pr_sprice, { symbol: "₱", precision: 1 })}</Text>
       { 
-      filteredDetails.length === 1 && item.stock === 1 ?
+      filteredDetails2.length > 1   &&  item.stock > 1 ?
        <TouchableOpacity onPress={()=> {setItem(item), setVisible3(true)}}  style={{backgroundColor: colors.red, justifyContent:'center', alignItems:'center', paddingHorizontal:5, borderRadius: 15, height: 30}}>
           <Text style={{fontSize:10, color: colors.white, paddingHorizontal: 10}}>Return</Text>
-        </TouchableOpacity> : null
+        </TouchableOpacity> : 
+
+         <TouchableOpacity disabled onPress={()=> {setItem(item), setVisible3(true)}}  style={{backgroundColor: colors.boldGrey, justifyContent:'center', alignItems:'center', paddingHorizontal:5, borderRadius: 15, height: 30}}>
+          <Text style={{fontSize:10, color: colors.white, paddingHorizontal: 10}}>Return</Text>
+        </TouchableOpacity>
         }
         {/* <ModalInputForm1
          displayComponent={
@@ -400,7 +409,7 @@ const DeliveryRequestDetails = ({navigation, route}) => {
             <FlatList
       
                 keyExtractor={(key) => key.name}
-                data={filteredDetails}
+                data={filteredDetails2}
                 renderItem={renderItem}
                 />
             
@@ -544,6 +553,7 @@ const DeliveryRequestDetails = ({navigation, route}) => {
              mode="outlined"
              label="Quantity"
              placeholder="Quantity"
+             keyboardType="number-pad"
              onChangeText={(text)=> setQty(text)}
              />
              {
@@ -552,7 +562,7 @@ const DeliveryRequestDetails = ({navigation, route}) => {
              }
                <View style={{flexDirection:'row', justifyContent:'space-evenly', marginVertical: 15}}>
         <View  style={{flex: 1, marginHorizontal: 15}} >
-            <Button buttonStyle={{backgroundColor: colors.red}} title="Cancel" onPress={()=> setOverlayVisible2(false)}/>
+            <Button buttonStyle={{backgroundColor: colors.red}} title="Cancel" onPress={()=> setVisible3(false)}/>
         </View>
         <View  style={{flex: 1, marginHorizontal: 15}} >
          <Button buttonStyle={{backgroundColor: colors.green}}  title="Save" onPress={()=> onReturnSingleItem()}/>
