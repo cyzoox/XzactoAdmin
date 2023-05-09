@@ -361,7 +361,7 @@ const BatchTransferScreen = ({navigation,route}) => {
           }}
        
         />
-          <View style={{borderWidth: 1, width: 100, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginLeft:10}}>
+          <View style={{borderWidth: 1, width: 70, height: 50, borderRadius: 10, borderColor: colors.boldGrey, marginLeft:10}}>
               <TextInput
                 style={{textAlign:'center', flex: 3, paddingBottom:0, paddingTop: 0}}
                 underlineColorAndroid = 'transparent'
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   dropdown: {
-    width: 200,
+    width: 230,
     height: 50,
     borderColor: colors.boldGrey,
     borderWidth: 0.5,

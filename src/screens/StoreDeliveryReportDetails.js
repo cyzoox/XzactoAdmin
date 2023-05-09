@@ -9,16 +9,23 @@ import AppHeader from "../components/AppHeader";
 import { useStore } from "../context/StoreContext";
 import formatMoney from 'accounting-js/lib/formatMoney.js'
 import moment from 'moment'
+import { useFocusEffect } from '@react-navigation/native';
 
 const StoreDeliveryReportDetails = ({navigation, route}) => {
   const { delivery } = route.params;
   const {store_delivery, getStoreDelivery, } = useStore();
 
-  useEffect(() => {
-    const date = moment().unix()
-    const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
-    getStoreDelivery(delivery.date, 1)
-  },[]);
+
+    
+  useFocusEffect(
+    React.useCallback(() => {
+      const date = moment().unix()
+      const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
+      getStoreDelivery(delivery.date, 1)
+    }, [])
+  );
+
+
 
   const filterProducts = () => {
     let product = [];
@@ -32,7 +39,7 @@ const StoreDeliveryReportDetails = ({navigation, route}) => {
     return product;
   }
 
-
+console.log('test',store_delivery)
     const calculateTotal = () => {
       let total = 0;
       filterProducts().forEach(list => {

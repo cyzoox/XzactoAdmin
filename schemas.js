@@ -983,7 +983,7 @@ class DeliveryReport {
     delivery_receipt,
     store_id,
     store_name,
-    // tr_id
+     tr_id
 
   }) {
     this._id = id,
@@ -1004,7 +1004,7 @@ class DeliveryReport {
     this.delivery_receipt = delivery_receipt,
     this.store_id = store_id,
     this.store_name = store_name
-    // this.tr_id = tr_id
+     this.tr_id = tr_id
   }
 
   static schema = {
@@ -1028,7 +1028,7 @@ class DeliveryReport {
       delivery_receipt: "string",
       store_name: "string",
       store_id: "string",
-      // tr_id:"string"
+     tr_id:"string?"
     },
     primaryKey: "_id",
   };
