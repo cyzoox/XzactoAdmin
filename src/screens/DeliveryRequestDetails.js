@@ -53,6 +53,25 @@ const DeliveryRequestDetails = ({navigation, route}) => {
        const filteredReturnDetails = filteredDetails.filter(createFilter("Returned", KEYS_TO_FILTERS1))
     
     const onAcceptRequest = () => {
+      let dates = moment().unix()
+      let drs = {
+        partition: `project=${user.id}`,
+        id: uuid.v4(),
+        timeStamp: moment().unix(),
+        year :moment.unix(dates).format('YYYY'),
+        year_month :moment.unix(dates).format('MMMM-YYYY'),
+        year_week :moment.unix(dates).format('WW-YYYY'),
+        date: moment.unix(dates).format('MMMM DD, YYYY'),
+        supplier: 'Warehouse',
+        supplier_id: 'Warehouse',
+        delivered_by: 'C/o Warehouse',
+        received_by: 'C/o Warehouse',
+        delivery_receipt: 'C/o Warehouse',
+        total: calculateTotal(),
+        store_id: store._id,
+        store_name: store.name,
+      }
+      createStoreDeliverySummary(drs)
         filteredDetails.forEach(items => {
           if(items.status === "Pending"){
             let wproducts = {
@@ -74,14 +93,58 @@ const DeliveryRequestDetails = ({navigation, route}) => {
               withVariants: false,
               withOptions: false
             }
-
+            let trproducts = {
+              partition: `project=${user.id}`,
+              id:uuid.v4(),
+              timeStamp: moment().unix(),
+              year :moment.unix(dates).format('YYYY'),
+              year_month :moment.unix(dates).format('MMMM-YYYY'),
+              year_week :moment.unix(dates).format('WW-YYYY'),
+              date: moment.unix(dates).format('MMMM DD, YYYY'),
+              product: items.pr_name,
+              quantity: items.stock,
+              oprice: items.pr_oprice,
+              sprice: items.pr_sprice,
+              store_id: store._id,
+              store_name: store.name,
+              transferred_by :'Admin',
+              unit: items.unit,
+              category: items.pr_category
+            }
+            let delivery = {
+              partition: `project=${user.id}`,
+              id: uuid.v4(),
+              timeStamp: moment().unix(),
+              year :moment.unix(dates).format('YYYY'),
+              year_month :moment.unix(dates).format('MMMM-YYYY'),
+              year_week :moment.unix(dates).format('WW-YYYY'),
+              date: moment.unix(dates).format('MMMM DD, YYYY'),
+              product: items.pr_name,
+              quantity: items.stock,
+              oprice: items.pr_oprice,
+              sprice: items.pr_sprice,
+              supplier: 'Warehouse',
+              supplier_id: 'Warehouse',
+              delivered_by: 'C/o Warehouse',
+              received_by: 'C/o Warehouse',
+              delivery_receipt: 'C/o Warehouse',
+              store_id: store._id,
+              store_name: store.name,
+              tr_id: drs.id
+            }
+          
+           
+          
          onSendProducts(wproducts, items);
+         createtransferLogs(trproducts)
+         
+         createDeliveryReport(delivery)
           }
   
         });
-        saveToDeliveryReports()
+      navigation.goBack()
     }
-    console.log(filteredDetails2)
+  
     const onReturnDelivery = () => {
       // if(errorText.length === 0){
       //   setErrorText('Please fill in return reason.')
@@ -105,85 +168,6 @@ const DeliveryRequestDetails = ({navigation, route}) => {
   }
 
 
-    const saveToDeliveryReports = () => {
-        let dates = moment().unix()
-         // let year = moment(date, "MMMM DD, YYYY").format('YYYY');
-         // let month = moment(date, "MMMM DD, YYYY").format('MMMM');
-         // let week = moment(date, "MMMM DD, YYYY").format('WW');
-     
-         
-         let drs = {
-           partition: `project=${user.id}`,
-           id: uuid.v4(),
-           timeStamp: moment().unix(),
-           year :moment.unix(dates).format('YYYY'),
-           year_month :moment.unix(dates).format('MMMM-YYYY'),
-           year_week :moment.unix(dates).format('WW-YYYY'),
-           date: moment.unix(dates).format('MMMM DD, YYYY'),
-           supplier: 'Warehouse',
-           supplier_id: 'Warehouse',
-           delivered_by: 'C/o Warehouse',
-           received_by: 'C/o Warehouse',
-           delivery_receipt: 'C/o Warehouse',
-           total: calculateTotal(),
-           store_id: store._id,
-           store_name: store.name,
-         }
-         createStoreDeliverySummary(drs)
-       
-         filteredDetails.forEach(items => {
-         if(items.status === "Pending"){
-          let delivery = {
-            partition: `project=${user.id}`,
-            id: uuid.v4(),
-            timeStamp: moment().unix(),
-            year :moment.unix(dates).format('YYYY'),
-            year_month :moment.unix(dates).format('MMMM-YYYY'),
-            year_week :moment.unix(dates).format('WW-YYYY'),
-            date: moment.unix(dates).format('MMMM DD, YYYY'),
-            product: items.pr_name,
-            quantity: items.stock,
-            oprice: items.pr_oprice,
-            sprice: items.pr_sprice,
-            supplier: 'Warehouse',
-            supplier_id: 'Warehouse',
-            delivered_by: 'C/o Warehouse',
-            received_by: 'C/o Warehouse',
-            delivery_receipt: 'C/o Warehouse',
-            store_id: store._id,
-            store_name: store.name,
-            tr_id: drs.id
-          }
-        
-          let trproducts = {
-            partition: `project=${user.id}`,
-            id:uuid.v4(),
-            timeStamp: moment().unix(),
-            year :moment.unix(dates).format('YYYY'),
-            year_month :moment.unix(dates).format('MMMM-YYYY'),
-            year_week :moment.unix(dates).format('WW-YYYY'),
-            date: moment.unix(dates).format('MMMM DD, YYYY'),
-            product: items.pr_name,
-            quantity: items.stock,
-            oprice: items.pr_oprice,
-            sprice: items.pr_sprice,
-            store_id: store._id,
-            store_name: store.name,
-            transferred_by :'Admin',
-            unit: items.unit,
-            category: items.pr_category
-          }
-          createDeliveryReport(delivery)
-          createtransferLogs(trproducts)
-         }
-           
-            
-         });
-       
-
-             navigation.goBack()
-     
-     }
      
      
       

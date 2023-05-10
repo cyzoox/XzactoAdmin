@@ -274,8 +274,8 @@ const BatchTransferScreen = ({navigation,route}) => {
                     </Picker>
                     </View>
                 </View>
-         <ScrollView contentContainerStyle={{flex: 1}}>
-          <ScrollView horizontal contentContainerStyle={{flexDirection:'column', marginTop: 20}}>
+         <ScrollView style={{flex: 1}}>
+        
           <View style={{flexDirection:'row'}}>
           <Text style={{ marginHorizontal: 10, padding:5, borderRadius:25}}>       </Text>
                <Text style={{width: 200, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Product Name</Text>
@@ -380,7 +380,7 @@ const BatchTransferScreen = ({navigation,route}) => {
             </View>
                 )}
          
-          </ScrollView>
+      
           </ScrollView>
           <FAB
                 icon="plus"
