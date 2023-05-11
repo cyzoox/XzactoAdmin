@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Text, StyleSheet, View, TextInput, ScrollView ,TouchableOpacity} from "react-native";
+import React, { useState, useEffect } from "react";
+import { Text, StyleSheet, View, TextInput, ScrollView ,TouchableOpacity, Alert as Alerts, BackHandler} from "react-native";
 import colors from "../themes/colors";
 
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
@@ -16,7 +16,7 @@ import {Picker} from '@react-native-picker/picker';
 import Alert from "../components/Alert";
 import { Dropdown } from 'react-native-searchable-dropdown-kj';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-
+import { useFocusEffect } from '@react-navigation/native';
 const data = [
   { label: 'Item 1', value: '1' },
   { label: 'Item 2', value: '2' },
@@ -60,6 +60,8 @@ const BatchTransferScreen = ({navigation,route}) => {
     const [visible, setVisible] = useState(false);
     const [value, setValue] = useState(null);
     const [isFocus, setIsFocus] = useState(false);
+    const [hasUnsavedChanges,sethasUnsavedChanges] = useState(false)
+
     const onAddItem = () => {
         const items =  product_holder.concat([{"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, id: uuid.v4(),    img:'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png', }])
        setProductHolder(items)
@@ -239,13 +241,44 @@ const BatchTransferScreen = ({navigation,route}) => {
       setProductHolder(product_holder.filter(item => item.no !== no))
   }
 
+
+ useFocusEffect(
+    React.useCallback(() => {
+      const backAction = () => {
+        Alerts.alert('Hold on!', 'Are you sure you want to go back? You will lose all unsaved data if you go back.', [
+          {
+            text: 'Cancel',
+            onPress: () => null,
+            style: 'cancel',
+          },
+          {text: 'Go back', onPress: () => navigation.goBack()},
+        ]);
+        return true;
+      };
+    
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction,
+      );
+    
+      return () => backHandler.remove();
+    }, [])
+  );
+
   return (
       <View style={{flex: 1}}>
          <Alert visible={visible} onCancel={()=> setVisible(false)} onProceed={()=> setVisible(false)} title="Select Store" content="Please select store." confirmTitle="OK"/>
         <AppHeader 
                 centerText="Batch Transfer" 
                 leftComponent={
-                    <TouchableOpacity onPress={()=> navigation.goBack()}>
+                    <TouchableOpacity onPress={()=>{  Alerts.alert('Hold on!', 'Are you sure you want to go back? You will lose all unsaved data if you go back.', [
+                      {
+                        text: 'Cancel',
+                        onPress: () => null,
+                        style: 'cancel',
+                      },
+                      {text: 'Go back', onPress: () => navigation.goBack()},
+                    ])} }>
                     <EvilIcons name={'arrow-left'} size={30} color={colors.white}/>
                     </TouchableOpacity>
                 }
