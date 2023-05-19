@@ -12,15 +12,12 @@ import EvilIcons from 'react-native-vector-icons/EvilIcons'
 import app from "../../getRealmApp";
 import moment from 'moment'
 import SubscribeCard from "react-native-subscribe-card";
-import { StackActions } from '@react-navigation/native';
-
 import uuid from 'react-native-uuid';
-import { CommonActions } from '@react-navigation/native';
 import { Button, Overlay, Tooltip  } from "react-native-elements";
-import AlertwithChild2 from "../components/AlertwithChild2";
 import AlertwithChild3 from "../components/AlertwithChild3";
 const { width: ScreenWidth } = Dimensions.get("screen");
 import SearchInput, { createFilter } from 'react-native-search-filter';
+
 const KEYS_TO_FILTERS = ['date'];
 const DashboardScreen = ({navigation}) => {
   const {user,signOut, projectData} = useAuth();
@@ -32,7 +29,8 @@ const DashboardScreen = ({navigation}) => {
     transactions,
     user_info,
     onCreateUserPlan,
-    staffs
+    staffs,
+    onUpdatePlan
   } = useStore();
 // Access a logged in user's read-only custom data
 const [sub_alert, setSubsciptionAlert] = useState(false)
@@ -50,17 +48,21 @@ const [username, setUserName] = useState('');
 const [pinCode, setPinCode] = useState('');
 const [cpinCode, setCPinCode] = useState('');
 const [error,setError] = useState('')
+const [no_of_branch,setNoOfBranch] = useState(1)
+const [no_of_cashier,setNoOfCashier] = useState(1)
+const [no_of_products,setNoOfProducts] = useState(1)
 const [open, setOpen] = useState(false);
 const [selectPlanVisible, setselectPlanVisible] = useState(false);
 const [plan_three_selected, setPlanThreeSelected] = useState(false);
 const [e, setEData] = useState([]);
+const [selectedYear, setSelectedYear] = useState('');
 const date = moment().unix()
 const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
 
 const filteredTransaction = transactions.filter(createFilter(today, KEYS_TO_FILTERS))
 const filteredExpenses= expenses.filter(createFilter(today, KEYS_TO_FILTERS))
 
-
+console.log('user',user_info)
 
 useEffect(
     () =>
@@ -112,6 +114,31 @@ useEffect(
   
       
     });
+    return total;
+  }
+
+  const _totalSubscriptionPlan = () => {
+    let branchPrice = 750;
+    let cashierPrice = 35;
+    let productPrice = 0.0200;
+    let total = 0;
+    let subtotal = 0
+
+    if(selectedYear == '6 mos'){
+      subtotal =((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice) + (no_of_products*productPrice)) / 10;
+
+      total = ((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice) + (no_of_products*productPrice)) - subtotal;
+
+    }else if (selectedYear == '1 yr'){
+      subtotal =((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice) + (no_of_products*productPrice)) / 15;
+
+      total = ((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice) + (no_of_products*productPrice)) - subtotal;
+    }else{
+      total = (no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice) + (no_of_products*productPrice);
+    }
+
+   
+
     return total;
   }
 
@@ -179,6 +206,45 @@ const calculateProfit = () => {
 
   return total;
 }
+
+function checkBranchInput(input) {
+
+  if (input < 0) {
+   setNoOfBranch(1)
+  } else if (input > 120) {
+    setNoOfBranch(120)
+  }else if (isNaN(input)){
+    setNoOfBranch(1)
+  } else {
+    setNoOfBranch(input)
+  }
+}
+
+function checkCashierInput(input) {
+
+  if (input < 0) {
+   setNoOfCashier(1)
+  } else if (input > 4) {
+    setNoOfCashier(4)
+  }else if (isNaN(input)){
+    setNoOfCashier(1)
+  } else {
+    setNoOfCashier(input)
+  }
+}
+
+function checkProductInput(input) {
+
+  if (input < 0) {
+   setNoOfProducts(1)
+  } else if (input > 3200) {
+    setNoOfProducts(3200)
+  }else if (isNaN(input)){
+    setNoOfProducts(1)
+  } else {
+    setNoOfProducts(input)
+  }
+}
   const onsignOut = () => {
     alertVisible(true)
     sethasUnsavedChanges(true)
@@ -202,6 +268,58 @@ const calculateProfit = () => {
     onCreateUserPlan(plan)
     setSubscriptionVisible(false)
     setselectPlanVisible(false)
+  }
+
+  const onSelectCustomPlan = () => {
+    if(pinCode !== cpinCode){
+      setError('Pin code does not match!')
+      return;
+    }
+    if(user_info.length <= 1){
+      if(selectedYear == '6 mos'){
+        const date = moment().unix()
+        let plan={
+          privilege: 'Custom Plan',
+          privilege_due:  `${moment.unix(date).add(183, 'day').startOf('day')/ 1000}`
+        }
+        onUpdatePlan(plan, user_info)
+      }else{
+        const date = moment().unix()
+        let plan={
+          privilege: 'Custom Plan',
+          privilege_due:  `${moment.unix(date).add(365, 'day').startOf('day')/ 1000}`
+        }
+        onUpdatePlan(plan, user_info)
+      }
+     
+    }else{
+      if(selectedYear == '6 mos'){
+        const date = moment().unix()
+        let plan={
+          partition: `project=${user.id}`,
+          id: uuid.v4(),
+          name: "Custom User",
+          pin: "1234",
+          privilege: 'Custom Plan',
+          privilege_due:  `${moment.unix(date).add(182, 'day').startOf('day')/ 1000}`
+        }
+        onCreateUserPlan(plan)
+      }else{
+        const date = moment().unix()
+        let plan={
+          partition: `project=${user.id}`,
+          id: uuid.v4(),
+          name: "Custom User",
+          pin: "1234",
+          privilege: 'Custom Plan',
+          privilege_due:  `${moment.unix(date).add(365, 'day').startOf('day')/ 1000}`
+        }
+        onCreateUserPlan(plan)
+      }
+     
+    }
+
+    setPlanThreeSelected(false)
   }
 
   const onSelectPlan = () => {
@@ -265,43 +383,89 @@ const calculateProfit = () => {
         </AlertwithChild3>
         <AlertwithChild3
           visible={plan_three_selected}
-          onProceed={onSelectFreePlan}
-          title="AVAIL FREE PLAN"
+          onProceed={onSelectCustomPlan}
+          title="CUSTOM PLAN"
           confirmTitle="Proceed"
           onCancel={()=> setPlanThreeSelected(false)}
         >
           {error.length > 0 ? <Text style={{color:'red', textAlign:'center'}}>{error}</Text> : null}
-          <Text style={{padding: 10, marginLeft: 10}}>Please fill in additinal information :</Text>
+          <Text style={{padding: 10, marginLeft: 10}}>Customize plan suitable to your needs</Text>
           <View style={{paddingHorizontal: 20}}>
-          <TextInput 
-            onChangeText={(text)=> setUserName(text)}
-            mode="outlined"
-            label="Set your Username"
-            style={{height: 50}}
-          />
-          <View>
-            <TouchableOpacity>
-              
-            </TouchableOpacity>
-          </View>
-           <TextInput 
-            onChangeText={(text)=> setPinCode(text)}
-            mode="outlined"
-            label="Set your Pin"
-            style={{height: 50}}
-            maxLength={4}
-            keyboardType="numeric"
-            secureTextEntry={true}
-          />
-           <TextInput 
-            onChangeText={(text)=> setCPinCode(text)}
-            mode="outlined"
-            label="Confirm Pin"
-            style={{height: 50}}
-            maxLength={4}
-            keyboardType="numeric"
-            secureTextEntry={true}
-          />
+            <View style={{margin: 5}}>
+              <Text style={{fontWeight:'800'}}> No. of Branch</Text>
+              <View style={{justifyContent:"space-around", flexDirection:'row', alignItems: 'center'}}>
+                <TouchableOpacity onPress={no_of_branch < 1 ? ()=> setNoOfBranch(1):  no_of_branch > 1 ? ()=> setNoOfBranch(no_of_branch-1): null } style={[styles.btn,{ backgroundColor: colors.boldGrey}]}>
+                  <Text style={{color: colors.white, fontSize: 15, fontWeight:'bold'}}>-</Text>
+                </TouchableOpacity>
+                <TextInput 
+                  mode='outlined' 
+                  value={`${no_of_branch}`} 
+                  style={{height: 30, width: 70, textAlign:'center'}} 
+                  onChangeText={(text) => checkBranchInput(parseInt(text))}
+                />
+            
+                <TouchableOpacity    onPress={no_of_branch > 120 ? ()=> setNoOfBranch(120):  no_of_branch < 120 ? ()=> setNoOfBranch(no_of_branch+1): null } style={[styles.btn,{ backgroundColor: colors.primary}]}>
+                  <Text  style={{color: colors.white, fontSize: 15, fontWeight:'bold'}}>+</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={{textAlign:'center', fontSize: 12}}>Maximum  120</Text>
+            </View>
+            <View style={{margin: 5}}>
+              <Text style={{fontWeight:'800'}}> No. of Cashiers</Text>
+              <View style={{justifyContent:"space-around", flexDirection:'row', alignItems: 'center'}}>
+                <TouchableOpacity  onPress={no_of_cashier < 1 ? ()=> setNoOfCashier(1):  no_of_cashier > 1 ? ()=> setNoOfCashier(no_of_cashier-1): null }   style={[styles.btn,{ backgroundColor: colors.boldGrey}]}>
+                  <Text style={{color: colors.white, fontSize: 15, fontWeight:'bold'}}>-</Text>
+                </TouchableOpacity>
+                <TextInput 
+                  mode='outlined' 
+                  value={`${no_of_cashier}`} 
+                  style={{height: 30, width: 70, textAlign:'center'}} 
+                  onChangeText={(text) => checkCashierInput(parseInt(text))}
+                />
+
+
+                <TouchableOpacity  onPress={no_of_cashier > 4 ? ()=> setNoOfCashier(4):  no_of_cashier < 4 ? ()=> setNoOfCashier(no_of_cashier+1): null } style={[styles.btn,{ backgroundColor: colors.primary}]}>
+                  <Text  style={{color: colors.white, fontSize: 15, fontWeight:'bold'}}>+</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={{textAlign:'center', fontSize: 12}}>Maximum  4</Text>
+            </View>
+            <View style={{margin: 5}}>
+              <Text style={{fontWeight:'800'}}> No. of Products</Text>
+              <View style={{justifyContent:"space-around", flexDirection:'row', alignItems: 'center'}}>
+                <TouchableOpacity onPress={no_of_products < 1 ? ()=> setNoOfProducts(1):  no_of_products > 1 ? ()=> setNoOfProducts(no_of_products-1): null }  style={[styles.btn,{ backgroundColor: colors.boldGrey}]}>
+                  <Text style={{color: colors.white, fontSize: 15, fontWeight:'bold'}}>-</Text>
+                </TouchableOpacity>
+                <TextInput 
+                  mode='outlined' 
+                  value={`${no_of_products}`} 
+                  style={{height: 30, width: 70, textAlign:'center'}} 
+                  onChangeText={(text) => checkProductInput(parseInt(text))}
+                />
+
+
+                <TouchableOpacity  onPress={no_of_products > 3200 ? ()=> setNoOfProducts(3200):  no_of_products < 3200 ? ()=> setNoOfProducts(no_of_products+1): null } style={[styles.btn,{ backgroundColor: colors.primary}]}>
+                  <Text  style={{color: colors.white, fontSize: 15, fontWeight:'bold'}}>+</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={{textAlign:'center', fontSize: 12}}>Maximum  3200</Text>
+            </View>
+            <Text style={{marginTop: 10, fontWeight:'800'}}>Subscription Duration</Text>
+            <View style={{flexDirection:"row", justifyContent:'space-around', marginVertical: 10}}>
+              <TouchableOpacity onPress={()=> setSelectedYear('6 mos')} style={selectedYear == '6 mos' ? [styles.year_select,{borderColor: colors.compliment}] : styles.year_select}>
+                  <Text>6 months</Text>
+                  <Text style={{fontSize: 10}}>less 10%</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={()=> setSelectedYear('1 yr')} style={selectedYear == '1 yr'? [styles.year_select,{borderColor: colors.compliment}] : styles.year_select}>
+              <Text>1 year</Text>
+              <Text style={{fontSize: 10}}>less 15%</Text>
+                </TouchableOpacity>
+            </View>
+            <View style={{justifyContent: 'center', alignItems:'center', paddingVertical: 10, borderColor: colors.boldGrey, borderWidth: 0.5, borderRadius: 10}}>
+              <Text>{formatMoney(_totalSubscriptionPlan(), { symbol: "₱", precision: 2 })}</Text>
+           
+            </View>
+            <Text style={{textAlign: 'center', fontSize: 18, fontWeight:'bold'}}>Total</Text>
           </View>
         
         </AlertwithChild3>
@@ -539,11 +703,11 @@ const calculateProfit = () => {
         currencyTextStyle={{color: colors.white}}
       /> : null}
       <SubscribeCard
-        title="BASIC PLAN"
+        title="STARTER PLAN"
         descriptionPrice=""
-        description="1 store, 1 cashier, 15 products"
+        description="1 store, 1 cashier, 12 products"
         currency="₱"
-        price={180}
+        price={198}
         isSelected={plan1}
         timePostfix="/mo"
         onPress={() => {setPlan0(false), setPlan1(true), setPlan2(false), setPlan3(false)}}
@@ -558,28 +722,9 @@ const calculateProfit = () => {
         descriptionPriceTextStyle={{color: colors.white}}
         currencyTextStyle={{color: colors.white}}
       />
+    
       <SubscribeCard
-        title="STANDARD PLAN"
-        descriptionPrice=""
-        description="1 store, 2 cashier, 30 products"
-        currency="₱"
-        price={480}
-        isSelected={plan2}
-        timePostfix="/mo"
-        onPress={() =>  {setPlan0(false), setPlan1(false), setPlan2(true), setPlan3(false)}}
-        containerStyle={{backgroundColor: colors.primary, borderRadius:10, borderColor:colors.grey}}
-        outerContainerStyle={{borderColor:colors, backgroundColor:colors.grey}}
-        selectedContainerStyle={{backgroundColor:colors.compliment}}
-        selectedOuterContainerStyle={{backgroundColor:colors.compliment, borderColor: colors.primary}}
-        selectedDescriptionPriceTextStyle={{color: colors.primary}}
-        selectedPriceTextStyle={{color: colors.primary}}
-        selectedCurrencyTextStyle={{color: colors.primary}}
-        priceTextStyle={{color: colors.white}}
-        descriptionPriceTextStyle={{color: colors.white}}
-        currencyTextStyle={{color: colors.white}}
-      />
-      <SubscribeCard
-        title="PREMIUM PLAN"
+        title="CUSTOM PLAN"
         currency="₱"
         description="customize according to your needs"
         price={820}
@@ -743,6 +888,40 @@ const styles = StyleSheet.create({
   xlsubgrid3:{
     flexDirection:'row',
     justifyContent:'center'
+  },
+  btn: {
+    backgroundColor: colors.red,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderRadius: 15,
+    shadowColor: "#EBECF0",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+     
+    },
+    shadowOpacity: 0.89,
+    shadowRadius: 2,
+    elevation: 5
+  },
+  year_select: {
+    flex: 1,
+    alignItems:'center',
+    borderColor: colors.boldGrey,
+    borderWidth: 1,
+    borderRadius: 10,
+    backgroundColor: colors.white,
+    margin: 5,
+    paddingVertical: 10,
+    shadowColor: "#EBECF0",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+     
+    },
+    shadowOpacity: 0.89,
+    shadowRadius: 2,
+    elevation: 5
   }
 });
 

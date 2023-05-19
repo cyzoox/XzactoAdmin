@@ -1752,6 +1752,18 @@ const StoreProvider = ({ children, projectPartition }) => {
   });
   }
 
+  const onUpdatePlan = (plan, info) => {
+   
+    const projectPOS = realmRef.current;
+    projectPOS.write(() => {
+      info.privilege = plan.privilege
+      info.privilege_due = plan.privilege_due
+    });
+  }
+
+
+  
+
     return(
         <StoreContext.Provider
         value={{
@@ -1868,7 +1880,8 @@ const StoreProvider = ({ children, projectPartition }) => {
             delivery_request,
             delivery_req_details,
             ReturnDelivery,
-            ReturnSingleItem
+            ReturnSingleItem,
+            onUpdatePlan
           }}
         >
             {children}
