@@ -118,26 +118,24 @@ useEffect(
   }
 
   const _totalSubscriptionPlan = () => {
-    let branchPrice = 750;
+    let branchPrice = 784;
     let cashierPrice = 35;
     let productPrice = 0.0200;
     let total = 0;
     let subtotal = 0
 
     if(selectedYear == '6 mos'){
-      subtotal =((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice) + (no_of_products*productPrice)) / 10;
+      subtotal =((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice)*no_of_branch + (no_of_products*productPrice)*no_of_branch) / 10;
 
-      total = ((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice) + (no_of_products*productPrice)) - subtotal;
+      total = (((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice)*no_of_branch + (no_of_products*productPrice)*no_of_branch) - subtotal)*6;
 
     }else if (selectedYear == '1 yr'){
-      subtotal =((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice) + (no_of_products*productPrice)) / 15;
+      subtotal =((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice)*no_of_branch + (no_of_products*productPrice)*no_of_branch) / 15;
 
-      total = ((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice) + (no_of_products*productPrice)) - subtotal;
+      total = (((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice)*no_of_branch + (no_of_products*productPrice)*no_of_branch) - subtotal)*12;
     }else{
-      total = (no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice) + (no_of_products*productPrice);
+      total = (no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice)*no_of_branch + (no_of_products*productPrice)*no_of_branch;
     }
-
-   
 
     return total;
   }
@@ -452,6 +450,10 @@ function checkProductInput(input) {
             </View>
             <Text style={{marginTop: 10, fontWeight:'800'}}>Subscription Duration</Text>
             <View style={{flexDirection:"row", justifyContent:'space-around', marginVertical: 10}}>
+            <TouchableOpacity onPress={()=> setSelectedYear('1 mos')} style={selectedYear == '1 mos' ? [styles.year_select,{borderColor: colors.compliment}] : styles.year_select}>
+                  <Text style={{textAlign:'center'}}>1 month</Text>
+                  
+              </TouchableOpacity>
               <TouchableOpacity onPress={()=> setSelectedYear('6 mos')} style={selectedYear == '6 mos' ? [styles.year_select,{borderColor: colors.compliment}] : styles.year_select}>
                   <Text>6 months</Text>
                   <Text style={{fontSize: 10}}>less 10%</Text>
@@ -907,6 +909,7 @@ const styles = StyleSheet.create({
   year_select: {
     flex: 1,
     alignItems:'center',
+    justifyContent:'center',
     borderColor: colors.boldGrey,
     borderWidth: 1,
     borderRadius: 10,
