@@ -124,15 +124,12 @@ useEffect(
     let total = 0;
     let subtotal = 0
 
-    if(selectedYear == '6 mos'){
+ if (selectedYear == '1 yr'){
       subtotal =((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice)*no_of_branch + (no_of_products*productPrice)*no_of_branch) / 10;
 
-      total = (((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice)*no_of_branch + (no_of_products*productPrice)*no_of_branch) - subtotal)*6;
-
-    }else if (selectedYear == '1 yr'){
-      subtotal =((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice)*no_of_branch + (no_of_products*productPrice)*no_of_branch) / 15;
-
       total = (((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice)*no_of_branch + (no_of_products*productPrice)*no_of_branch) - subtotal)*12;
+    }else if(selectedYear == '3 mos'){
+      total = ((no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice)*no_of_branch + (no_of_products*productPrice)*no_of_branch)*3;
     }else{
       total = (no_of_branch * branchPrice)  + (no_of_cashier*cashierPrice)*no_of_branch + (no_of_products*productPrice)*no_of_branch;
     }
@@ -273,33 +270,68 @@ function checkProductInput(input) {
       setError('Pin code does not match!')
       return;
     }
-    if(user_info.length <= 1){
-      if(selectedYear == '6 mos'){
+    if(user_info.length >= 1){
+      if(selectedYear == '3 mos'){
         const date = moment().unix()
         let plan={
           privilege: 'Custom Plan',
-          privilege_due:  `${moment.unix(date).add(183, 'day').startOf('day')/ 1000}`
+          privilege_due:  `${moment.unix(date).add(90, 'day').startOf('day')/ 1000}`,
+          no_of_stores : parseInt(no_of_branch),
+          no_of_cashiers : parseInt(no_of_cashier),
+          no_of_products : parseInt(no_of_products)
         }
-        onUpdatePlan(plan, user_info)
+        onUpdatePlan(plan, user)
+      }else if(selectedYear == '1 yr'){
+        const date = moment().unix()
+        let plan={
+          privilege: 'Custom Plan',
+          privilege_due:  `${moment.unix(date).add(365, 'day').startOf('day')/ 1000}`,
+          no_of_stores : parseInt(no_of_branch),
+          no_of_cashiers : parseInt(no_of_cashier),
+          no_of_products : parseInt(no_of_products)
+        }
+        onUpdatePlan(plan, user)
       }else{
         const date = moment().unix()
         let plan={
           privilege: 'Custom Plan',
-          privilege_due:  `${moment.unix(date).add(365, 'day').startOf('day')/ 1000}`
+          privilege_due:  `${moment.unix(date).add(30, 'day').startOf('day')/ 1000}`,
+          no_of_stores : parseInt(no_of_branch),
+          no_of_cashiers : parseInt(no_of_cashier),
+          no_of_products : parseInt(no_of_products)
         }
-        onUpdatePlan(plan, user_info)
+        onUpdatePlan(plan, user)
       }
      
     }else{
-      if(selectedYear == '6 mos'){
+      if(selectedYear == '3 mos'){
         const date = moment().unix()
         let plan={
           partition: `project=${user.id}`,
+          owner_id: user.id,
           id: uuid.v4(),
           name: "Custom User",
           pin: "1234",
           privilege: 'Custom Plan',
-          privilege_due:  `${moment.unix(date).add(182, 'day').startOf('day')/ 1000}`
+          privilege_due:  `${moment.unix(date).add(90, 'day').startOf('day')/ 1000}`,
+          no_of_stores : parseInt(no_of_branch),
+          no_of_cashiers : parseInt(no_of_cashier),
+          no_of_products : parseInt(no_of_products)
+        }
+        onCreateUserPlan(plan)
+      }else if(selectedYear == '1 yr'){
+        const date = moment().unix()
+        let plan={
+          partition: `project=${user.id}`,
+          id: uuid.v4(),
+          owner_id: user.id,
+          name: "Custom User",
+          pin: "1234",
+          privilege: 'Custom Plan',
+          privilege_due:  `${moment.unix(date).add(365, 'day').startOf('day')/ 1000}`,
+          no_of_stores : parseInt(no_of_branch),
+          no_of_cashiers : parseInt(no_of_cashier),
+          no_of_products : parseInt(no_of_products)
         }
         onCreateUserPlan(plan)
       }else{
@@ -307,10 +339,14 @@ function checkProductInput(input) {
         let plan={
           partition: `project=${user.id}`,
           id: uuid.v4(),
+          owner_id: user.id,
           name: "Custom User",
           pin: "1234",
           privilege: 'Custom Plan',
-          privilege_due:  `${moment.unix(date).add(365, 'day').startOf('day')/ 1000}`
+          privilege_due:  `${moment.unix(date).add(30, 'day').startOf('day')/ 1000}`,
+          no_of_stores : parseInt(no_of_branch),
+          no_of_cashiers : parseInt(no_of_cashier),
+          no_of_products : parseInt(no_of_products)
         }
         onCreateUserPlan(plan)
       }
@@ -454,13 +490,13 @@ function checkProductInput(input) {
                   <Text style={{textAlign:'center'}}>1 month</Text>
                   
               </TouchableOpacity>
-              <TouchableOpacity onPress={()=> setSelectedYear('6 mos')} style={selectedYear == '6 mos' ? [styles.year_select,{borderColor: colors.compliment}] : styles.year_select}>
-                  <Text>6 months</Text>
-                  <Text style={{fontSize: 10}}>less 10%</Text>
+              <TouchableOpacity onPress={()=> setSelectedYear('3 mos')} style={selectedYear == '3 mos' ? [styles.year_select,{borderColor: colors.compliment}] : styles.year_select}>
+                  <Text>3 months</Text>
+                 
               </TouchableOpacity>
               <TouchableOpacity onPress={()=> setSelectedYear('1 yr')} style={selectedYear == '1 yr'? [styles.year_select,{borderColor: colors.compliment}] : styles.year_select}>
               <Text>1 year</Text>
-              <Text style={{fontSize: 10}}>less 15%</Text>
+              <Text style={{fontSize: 10}}>less 10%</Text>
                 </TouchableOpacity>
             </View>
             <View style={{justifyContent: 'center', alignItems:'center', paddingVertical: 10, borderColor: colors.boldGrey, borderWidth: 0.5, borderRadius: 10}}>
@@ -640,7 +676,7 @@ function checkProductInput(input) {
         alignItems: "center",
       }}>
   <View style={{position:'absolute', right: 20, top: 20}}>
-  { user_info.length !== 0 ?  
+  { user_info.length == 0 ?  
         <TouchableOpacity onPress={()=> setSubscriptionVisible(false)}>
               <EvilIcons name={'close-o'} size={40} color={colors.black}/>
         </TouchableOpacity> :
@@ -682,29 +718,10 @@ function checkProductInput(input) {
       </View>
     </View>
     <View
-      style={{ height: "55%", marginTop: 64, justifyContent: "space-evenly" }}
+      style={{ height: "55%", marginTop: 64 }}
     >
-    {user_info.length === 0 ? <SubscribeCard
-        title="Free plan"
-        descriptionPrice="Free"
-        description=" but limited access to features"
-        currency="₱"
-        price={0}
-        isSelected={plan0}
-        timePostfix="/mo"
-        onPress={() => {setPlan0(true), setPlan1(false), setPlan2(false), setPlan3(false)}}
-        containerStyle={{backgroundColor: colors.primary, borderRadius:10, borderColor:colors.grey}}
-        outerContainerStyle={{borderColor:colors, backgroundColor:colors.grey}}
-        selectedContainerStyle={{backgroundColor:colors.compliment}}
-        selectedOuterContainerStyle={{backgroundColor:colors.compliment, borderColor: colors.primary}}
-        selectedDescriptionPriceTextStyle={{color: colors.primary}}
-        selectedPriceTextStyle={{color: colors.primary}}
-        selectedCurrencyTextStyle={{color: colors.primary}}
-        priceTextStyle={{color: colors.white}}
-        descriptionPriceTextStyle={{color: colors.white}}
-        currencyTextStyle={{color: colors.white}}
-      /> : null}
-      <SubscribeCard
+
+      {/* <SubscribeCard
         title="STARTER PLAN"
         descriptionPrice=""
         description="1 store, 1 cashier, 12 products"
@@ -724,12 +741,12 @@ function checkProductInput(input) {
         descriptionPriceTextStyle={{color: colors.white}}
         currencyTextStyle={{color: colors.white}}
       />
-    
+     */}
       <SubscribeCard
         title="CUSTOM PLAN"
         currency="₱"
-        description="customize according to your needs"
-        price={820}
+        description="customize your plan"
+        price={819.02}
         isSelected={plan3}
         timePostfix="/mo"
         onPress={() =>  {setPlan0(false), setPlan1(false), setPlan2(false), setPlan3(true)}}

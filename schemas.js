@@ -2023,7 +2023,8 @@ class UserInfo {
     status,
     no_of_stores,
     no_of_cashiers,
-    no_of_products
+    no_of_products,
+    owner_id
     
   }) {
     this._partition = partition;
@@ -2035,8 +2036,8 @@ class UserInfo {
     this.status = status;
     this.no_of_stores = no_of_stores;
     this.no_of_cashiers = no_of_cashiers;
-    this.no_of_products = no_of_products
-
+    this.no_of_products = no_of_products;
+    this.owner_id = owner_id;
   }
 
   
@@ -2052,7 +2053,8 @@ class UserInfo {
       status: "string?",
       no_of_stores: "int?",
       no_of_cashiers: "int?",
-      no_of_products: "int?"
+      no_of_products: "int?",
+      owner_id: 'string?'
     },
     primaryKey: "_id",
   };

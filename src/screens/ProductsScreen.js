@@ -22,6 +22,7 @@ import moment from 'moment'
 
 import app from "../../getRealmApp";
 import PinCodeInput from "../components/PinCodeInput";
+import Alert from "../components/Alert";
 const KEYS_TO_FILTERS = ['name', 'category'];
 
 const ProductsScreen = ({ navigation }) => {
@@ -36,7 +37,7 @@ const ProductsScreen = ({ navigation }) => {
   const [info, setInfo] = useState([]);
   const [error, setError] = useState(null);
   const [visible2, setVisible] = useState(false);
-
+  const [upgrade_plan, setUpgradePlan] = useState(false)
  
   const { 
       
@@ -217,6 +218,7 @@ const ProductsScreen = ({ navigation }) => {
 
   return (
     <View style={{flex:1}}>
+      <Alert visible={upgrade_plan} onCancel={()=> setUpgradePlan(false)} onProceed={()=> setUpgradePlan(false)}  title="Upgrade Plan" content="Maximum number of products has been reach please upgrade your plan." confirmTitle="OK"/>
         <CustomModal 
           title="Choose what to do with the product"
           visible={custom_modal}
@@ -407,9 +409,20 @@ const ProductsScreen = ({ navigation }) => {
           </SearchBar>
         </View>
         <View style={styles.deck}>
-        <AddProduct createProducts={createProducts} store={STORE} categories={category}>
+        {
+          user_info[0].no_of_products === products.length || user_info[0].no_of_products < products.length ?
+          <TouchableOpacity style={styles.flexStyle} onPress={()=>setUpgradePlan(true)}>
+          <Image 
+                  resizeMode="cover"
+                  source={require('../../assets/add_product.png')}
+                  style={{width:40, height:40}}
+                />
+                <Text style={{textAlign:'center',fontSize: 10 }}>Add Products</Text>
+          </TouchableOpacity> :  <AddProduct createProducts={createProducts} store={STORE} categories={category}>
         <Text style={{textAlign:'center',fontSize: 10 }}>Add Products</Text>
-              </AddProduct>
+        </AddProduct>
+        }
+       
           <ModalInputForm
                 displayComponent={
                     <>
@@ -440,14 +453,26 @@ const ProductsScreen = ({ navigation }) => {
             <Text style={{textAlign:'center',fontSize: 10 }}>Batch Edit</Text>
           </TouchableOpacity>
        
-      <TouchableOpacity onPress={()=> navigation.navigate('BatchAddingStore',{store: STORE})} style={{justifyContent:"center", alignItems:'center'}}>
-            <Image 
-              resizeMode="cover"
-              source={require('../../assets/batch_add.png')}
-              style={{width:40, height:40}}
-            />
-            <Text style={{textAlign:'center',fontSize: 10 }}>Batch Adding</Text>
-              </TouchableOpacity>
+       {
+         user_info[0].no_of_products === products.length || user_info[0].no_of_products < products.length ?
+         <TouchableOpacity style={{justifyContent:'center', alignItems:"center"}} onPress={()=> setUpgradePlan(true)}>
+         <Image 
+           resizeMode="cover"
+           source={require('../../assets/batch_add.png')}
+           style={{width:40, height:40}}
+         />
+         <Text style={{textAlign:'center',fontSize: 10 }}>Batch Adding</Text>
+           </TouchableOpacity>:
+               <TouchableOpacity onPress={()=> navigation.navigate('BatchAddingStore',{store: STORE})} style={{justifyContent:"center", alignItems:'center'}}>
+               <Image 
+                 resizeMode="cover"
+                 source={require('../../assets/batch_add.png')}
+                 style={{width:40, height:40}}
+               />
+               <Text style={{textAlign:'center',fontSize: 10 }}>Batch Adding</Text>
+                 </TouchableOpacity>
+       }
+  
         </View>
       </View>
       <Categories tabs = {category} store={STORE} onTabChange={onTabChange}  origin={'store'}/>

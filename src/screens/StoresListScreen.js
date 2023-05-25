@@ -82,7 +82,7 @@ const StoresList = ({ navigation }) => {
 
     return (
         <View style={{flex:1}}>
-           <Alert visible={upgrade_plan} onCancel={()=> setUpgradePlan(false)} onProceed={()=> setOverlayVisible2(true)}  title="Upgrade Plan" content="Maximum number of stores has been reach please upgrade your plan." confirmTitle="OK"/>
+           <Alert visible={upgrade_plan} onCancel={()=> setUpgradePlan(false)} onProceed={()=> setUpgradePlan(false)}  title="Upgrade Plan" content="Maximum number of stores has been reach please upgrade your plan." confirmTitle="OK"/>
             {/* <Loader loading={loading}/> */}
             <View style={style.xlgridStyle}>
               <Text style={{fontSize: 40, color: 'white', fontWeight:'700', marginBottom: 20, marginLeft: 20,textAlign:'center',marginTop: 70}}>STORES</Text>

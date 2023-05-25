@@ -1755,9 +1755,14 @@ const StoreProvider = ({ children, projectPartition }) => {
   const onUpdatePlan = (plan, info) => {
    
     const projectPOS = realmRef.current;
+    const getUserInfo= projectPOS.objects("UserInfo");
+    const filteredUserInfo= getUserInfo.filtered("owner_id == $0", info.id);
     projectPOS.write(() => {
-      info.privilege = plan.privilege
-      info.privilege_due = plan.privilege_due
+      filteredUserInfo[0].privilege = plan.privilege
+      filteredUserInfo[0].privilege_due = plan.privilege_due
+      filteredUserInfo[0].no_of_stores = plan.no_of_stores,
+      filteredUserInfo[0].no_of_cashiers = plan.no_of_cashiers
+      filteredUserInfo[0].no_of_products = plan.no_of_products
     });
   }
 

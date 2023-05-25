@@ -17,14 +17,16 @@ import Scanner from "./BarcodeScanner";
 import AlertwithChild from "./AlertwithChild";
 import AddVariants from "./AddVariants";
 import * as ImagePicker from "react-native-image-picker"
-
+import Alert from "./Alert";
+import { useFocusEffect } from '@react-navigation/native';
+import { useEffect } from "react";
 // The AddTask is a button for adding tasks. When the button is pressed, an
 // overlay shows up to request user input for the new task name. When the
 // "Create" button on the overlay is pressed, the overlay closes and the new
 // task is created in the realm.
 export function AddProduct({ createProducts, store, categories, children }) {
   const { user,  } = useAuth();
-  const {createDeliveryReport, createStoreDeliverySummary, createInventory, inventory, createAddon, createOption, suppliers} = useStore();
+  const {createDeliveryReport, createStoreDeliverySummary, createInventory, inventory, createAddon, createOption, suppliers, user_info, products} = useStore();
   const [overlayVisible, setOverlayVisible] = useState(false);
   
   const [name, setName] = useState("");
@@ -58,6 +60,10 @@ export function AddProduct({ createProducts, store, categories, children }) {
   const [supplierError, setSupplierError] = useState('')
   const [unitError, setUnitError] = useState('')
   const [categoryError, setCategoryError] = useState('')
+  const [upgrade_plan, setUpgradePlan] = useState(false)
+
+
+
   const onAddOptions = () => {
     const items =  options.concat([{"no": uuid.v4(), option:'custom option'}])
    setOptions(items)
@@ -72,6 +78,8 @@ const onAddAddons = () => {
 const items =  addons.concat([{"no": uuid.v4(),name:'set name', price:0,cost:0}])
 setAddons(items)
 }
+
+
 
 const handleRemoveOption = no => {
   setOptions(options.filter(item => item.no !== no))
@@ -241,7 +249,7 @@ if(category.length === 0){
   return (
     <>
      <AlertwithChild visible={optionsVisible} onProceed={()=> {setWithOptions(true), setOptionVisible(false)}} onCancel={()=> setOptionVisible(false)}  title="Add Options"  confirmTitle="S A V E" addButton={true} onPressAddbtn={()=> onAddOptions()}>
-      
+   
       <ScrollView>
      { options.map((element, index) =>
                <View style={{flexDirection:'row',justifyContent:'center', marginVertical: 2, alignItems:'center'}}>
@@ -629,18 +637,18 @@ if(category.length === 0){
     />
         
           <Button
-          buttonStyle={{marginHorizontal: 20, marginBottom: 10, backgroundColor: colors.primary, marginTop: 20, paddingVertical: 15}}
+          buttonStyle={user_info[0].no_of_products === products.length || user_info[0].no_of_products < products.length? {marginHorizontal: 20, marginBottom: 10, backgroundColor: colors.grey, marginTop: 20, paddingVertical: 15}: {marginHorizontal: 20, marginBottom: 10, backgroundColor: colors.primary, marginTop: 20, paddingVertical: 15}}
             title="Save"
             onPress={() => {
-             
-              onSaveProducts()
+              user_info[0].no_of_products === products.length || user_info[0].no_of_products < products.length ?
+          null :     onSaveProducts() 
             }}
           />
          
           </ScrollView>
         </>
       </Overlay>
-      <TouchableOpacity style={styles.flexStyle} onPress={()=>setOverlayVisible(true)}>
+      <TouchableOpacity style={styles.flexStyle} onPress={()=>setOverlayVisible()}>
       <Image 
               resizeMode="cover"
               source={require('../../assets/add_product.png')}

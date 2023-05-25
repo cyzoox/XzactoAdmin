@@ -7,6 +7,7 @@ import { AddStaff } from "../components/AddStaff";
 import { useStore } from "../context/StoreContext";
 import { ListItem, Avatar, CheckBox, Overlay, Button } from 'react-native-elements'
 import { TextInput } from "react-native-paper";
+import Alert from "../components/Alert";
 
 const StaffsScreen = ({navigation, route}) => {
   const STORE =  route.params.store
@@ -14,7 +15,7 @@ const StaffsScreen = ({navigation, route}) => {
   const { 
     createStaff,
     staffs,
-    updateStaff
+    updateStaff, user_info
   } = useStore();
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [name, setName] = useState('');
@@ -23,6 +24,7 @@ const StaffsScreen = ({navigation, route}) => {
   const [check2, setCheck2] = useState(false);
   const [selected,setSelected] = useState('')
   const [item,setItem] = useState([]);
+  const [upgrade_plan, setUpgradePlan] = useState(false)
   const keyExtractor = (item, index) => index.toString()
 
   const onEditStaff = (item) => {
@@ -60,6 +62,7 @@ const StaffsScreen = ({navigation, route}) => {
 
   return (
     <View>
+        <Alert visible={upgrade_plan} onCancel={()=> setUpgradePlan(false)} onProceed={()=> setUpgradePlan(false)}  title="Upgrade Plan" content="Maximum number of staffs has been reach please upgrade your plan." confirmTitle="OK"/>
         <AppHeader 
           centerText="Staffs" 
           leftComponent={
@@ -68,6 +71,10 @@ const StaffsScreen = ({navigation, route}) => {
             </TouchableOpacity>
         }
         rightComponent={
+          user_info[0].no_of_cashiers === staffs.length || user_info[0].no_of_cashiers < staffs.length ?
+          <TouchableOpacity onPress={()=>setUpgradePlan(true)}>
+            <EvilIcons  name={'plus'} size={30} color={colors.white}/>
+      </TouchableOpacity>:
           <AddStaff createStaff={createStaff} store={STORE}/>
         }
           />
