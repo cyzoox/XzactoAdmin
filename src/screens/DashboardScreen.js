@@ -13,11 +13,11 @@ import app from "../../getRealmApp";
 import moment from 'moment'
 import SubscribeCard from "react-native-subscribe-card";
 import uuid from 'react-native-uuid';
-import { Button, Overlay, Tooltip  } from "react-native-elements";
+import { Avatar, Button, Overlay, Tooltip  } from "react-native-elements";
 import AlertwithChild3 from "../components/AlertwithChild3";
 const { width: ScreenWidth } = Dimensions.get("screen");
 import SearchInput, { createFilter } from 'react-native-search-filter';
-
+import * as ImagePicker from "react-native-image-picker"
 const KEYS_TO_FILTERS = ['date'];
 const DashboardScreen = ({navigation}) => {
   const {user,signOut, projectData} = useAuth();
@@ -54,10 +54,14 @@ const [no_of_products,setNoOfProducts] = useState(1)
 const [open, setOpen] = useState(false);
 const [selectPlanVisible, setselectPlanVisible] = useState(false);
 const [plan_three_selected, setPlanThreeSelected] = useState(false);
+const [plan_one_selected, setPlanOneSelected] = useState(false);
 const [e, setEData] = useState([]);
 const [selectedYear, setSelectedYear] = useState('');
 const date = moment().unix()
 const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
+const [edit_profile, setEditProfile] = useState(false);
+const [img,setImg] = useState('')
+const [item,setItem] = useState([])
 
 const filteredTransaction = transactions.filter(createFilter(today, KEYS_TO_FILTERS))
 const filteredExpenses= expenses.filter(createFilter(today, KEYS_TO_FILTERS))
@@ -354,21 +358,127 @@ function checkProductInput(input) {
     }
 
     setPlanThreeSelected(false)
+    setSubscriptionVisible(false)
   }
 
   const onSelectPlan = () => {
     if(plan0 == true){
       setselectPlanVisible(true)
     }
+    if(plan1 == true){
+      setPlanOneSelected(true)
+    }
     if(plan3 == true){
       setPlanThreeSelected(true)
     }
   }
 
+  const onSelectPlanOne = () => {
+    const date = moment().unix()
+    if(user_info.length >= 1){
+      let plan={
+        privilege: 'Starter Plan',
+        privilege_due:  `${moment.unix(date).add(60, 'day').startOf('day')/ 1000}`,
+        no_of_stores : 1,
+        no_of_cashiers :1,
+        no_of_products : 12
+      }
+      onUpdatePlan(plan, user)
+    }else{
+      let plan={
+        partition: `project=${user.id}`,
+        owner_id: user.id,
+        id: uuid.v4(),
+        name: "Name not set",
+        pin: "1234",
+        privilege: 'Starter Plan',
+        privilege_due:  `${moment.unix(date).add(60, 'day').startOf('day')/ 1000}`,
+        no_of_stores : 1,
+        no_of_cashiers :1,
+        no_of_products : 12
+      }
+      onCreateUserPlan(plan)
+    }
+   
+    setPlanOneSelected(false)
+    setSubscriptionVisible(false)
+  }
 
+  const openGallery = () => {
+   
+
+    ImagePicker.launchImageLibrary({
+        maxWidth:500,
+        maxHeight: 500,
+        mediaType: 'photo',
+        includeBase64: true
+    },
+     image => {
+      if (image.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (image.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        
+        let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/sbpcmedia/upload'
+        let base64Img = `data:image/jpg;base64,${image.assets[0].base64}`
+        let data = {
+            "file" : base64Img,
+            "upload_preset" : "ancbewi9"
+        }
+        fetch(CLOUDINARY_URL, {
+            body: JSON.stringify(data),
+            headers: {
+                'content-type': 'application/json'
+            },
+            method: 'POST',
+        }).then(async r => {
+            let data = await r.json()
+            let photo = 'https'+data.url.slice(4)
+            setImg('https'+data.url.slice(4))
+            onSaveImg(photo)
+
+        }).catch(error =>{
+            console.log('error : ', error)
+        })
+      }
+    })
+
+  
+}
   return (
     <View style={{flex: 1}}>
       {/* <Loader loading={loading}/> */}
+      <AlertwithChild3
+          visible={edit_profile}
+          onProceed={()=>{}}
+          title="Edit Profile"
+          confirmTitle="Save"
+          onCancel={()=> setEditProfile(false)}
+        >
+          <Text style={{color: colors.red, textAlign:'center'}}>Note: Develoment in progress, currently not working.</Text>
+          <View style={{justifyContent:"center", alignItems:"center"}}>
+          <TouchableOpacity onPress={()=> openGallery()} style={styles.imageContainer}>
+              <Image resizeMode="contain" source={{ uri: img }} style={styles.backgroundImage}/>
+          </TouchableOpacity>
+         
+          </View>
+          <View style={{marginHorizontal: 20, marginTop: 20, marginBottom: 20 }}>
+          <TextInput 
+            onChangeText={(text)=> setUserName(text)}
+            defaultValue={item.name}
+            mode="outlined"
+            label="Set name"
+            style={{height: 50}}
+          />
+           <TextInput 
+            onChangeText={(text)=> setUserName(text)}
+            mode="outlined"
+            label="Change PIN"
+            style={{height: 50}}
+          />
+          </View>
+        </AlertwithChild3>
         <AlertwithChild3
           visible={alert_visible}
           onProceed={()=>{navigation.goBack(), user.logOut()}}
@@ -507,6 +617,26 @@ function checkProductInput(input) {
           </View>
         
         </AlertwithChild3>
+        <AlertwithChild3
+          visible={plan_one_selected}
+          onProceed={onSelectPlanOne}
+          title="STARTER PLAN"
+          confirmTitle="Proceed"
+          onCancel={()=> setPlanOneSelected(false)}
+        >
+          {error.length > 0 ? <Text style={{color:'red', textAlign:'center'}}>{error}</Text> : null}
+          <Text style={{padding: 10, marginLeft: 10}}>Suitable for small scale business</Text>
+          <View style={{paddingHorizontal: 20}}>
+              <Text>Inclusions : </Text>
+              <View style={{marginLeft: 20}}>
+                <Text style={{fontWeight: '900', marginVertical:3}}>1 store</Text>
+                <Text style={{fontWeight: '900', marginVertical:3}}>1 cashier</Text>
+                <Text style={{fontWeight: '900', marginVertical:3}}>12 products</Text>
+                <Text style={{fontWeight: '900', marginVertical:3}}>+ 1 month free subscription for first time subscriber. </Text>
+              </View>
+          </View>
+        
+        </AlertwithChild3>
        <View style={styles.xlgridStyle}>
          <View style={{position: 'absolute', top: 20, left: 20}}>
            <Text style={{fontSize:25, color: colors.white, marginLeft:15}}>XZACTO ADMIN</Text>
@@ -521,18 +651,36 @@ function checkProductInput(input) {
                 return(
                   <View style={styles.xlsubgrid}>
                   <View style={{flex:1}}>
-                    <View style={styles.xlsubgrid2}>
-                      <Text style={{color: colors.primary, fontWeight:'700', marginRight:10, fontSize:17, marginLeft: 20}}>{`${item.name}`}</Text>
-                      <Button onPress={()=> setSubscriptionVisible(true)} titleStyle={{color:colors.white, fontSize:13, height:20}}  buttonStyle={{ flex:1,backgroundColor: colors.primary, marginRight: 20}} title={`     ${item.privilege}     `} />
-                      
+                    <View style={{flexDirection:"row", justifyContent:"space-between"}}>
+                        <View>
+                          <View style={styles.xlsubgrid2}>
+                            <Text style={{color: colors.primary, fontWeight:'700', marginRight:10, fontSize:17, marginLeft: 20}}>{`${item.name}`}</Text> 
+                          </View>
+                          <View style={{marginLeft: 20}}>
+                            <Text>{item.privilege} | {moment.unix(item.privilege_due).format('MMM DD, YYYY')}</Text>
+                          </View>
+                        </View>
+                        <View>
+                            <Avatar 
+                              size={'medium'} 
+                              source={require('../../assets/user.png')}
+                              avatarStyle={{borderRadius: 30,borderColor: colors.primary, borderWidth: 1}} />
+                        </View>
                     </View>
+                  
                     <View style={styles.xlsubgrid3}>
-                    <TouchableOpacity style={{justifyContent:'center', marginRight: 20}}  onPress={onsignOut}>
-                      <Image style={{width: 45, height: 45}} source={require('../../assets//xzacto_icons/callendar4.png')}/>
-                    </TouchableOpacity>
-                       
-                        <Button onPress={()=> navigation.navigate('AccountSreen')} buttonStyle={{borderColor:colors.coverDark, borderRadius: 20, paddingHorizontal: 10, marginTop: 5}} titleStyle={{color:colors.primary, fontSize:13}} title={`${moment.unix(item.privilege_due).format('DD MMM YYYY hh:mm:ss A')}`} type="outline"/>
-                    
+                        <Button 
+                          onPress={()=> {setSubscriptionVisible(true),setItem(item)}} 
+                          buttonStyle={{backgroundColor:colors.coverDark, borderRadius: 20, paddingHorizontal: 10, marginTop: 5, marginRight: 5}} 
+                          titleStyle={{color:colors.white, fontSize:13}} 
+                          title="Change Subscription" 
+                          type="outline"/>
+                        <Button 
+                          onPress={()=> setEditProfile(true)} 
+                          buttonStyle={{borderColor:colors.coverDark, borderRadius: 20, paddingHorizontal: 10, marginTop: 5}} 
+                          titleStyle={{color:colors.primary, fontSize:13}} 
+                          title="Edit Profile" 
+                          type="outline"/>
                     </View>
                     </View>
                   
@@ -686,7 +834,7 @@ function checkProductInput(input) {
         onClose={() => setOpen(false)}
         popover={<Text style={{ color: "#fff" }}>Tooltip text</Text>}
       >
-        <TouchableOpacity onPress={()=> setOpen(!open)}>
+        <TouchableOpacity onPress={()=> setSubscriptionVisible(false)}>
               <EvilIcons name={'close-o'} size={40} color={colors.black}/>
         </TouchableOpacity>
       </Tooltip>
@@ -718,10 +866,10 @@ function checkProductInput(input) {
       </View>
     </View>
     <View
-      style={{ height: "55%", marginTop: 64 }}
+      style={{ height: "55%", marginTop: 64, justifyContent:"space-evenly" }}
     >
 
-      {/* <SubscribeCard
+      <SubscribeCard
         title="STARTER PLAN"
         descriptionPrice=""
         description="1 store, 1 cashier, 12 products"
@@ -741,7 +889,7 @@ function checkProductInput(input) {
         descriptionPriceTextStyle={{color: colors.white}}
         currencyTextStyle={{color: colors.white}}
       />
-     */}
+    
       <SubscribeCard
         title="CUSTOM PLAN"
         currency="₱"
@@ -902,11 +1050,12 @@ const styles = StyleSheet.create({
   xlsubgrid2:{
     flexDirection:'row',
     justifyContent:'space-between',
-    marginBottom:10
+    
   },
   xlsubgrid3:{
     flexDirection:'row',
-    justifyContent:'center'
+    justifyContent:'flex-start',
+    marginLeft: 15
   },
   btn: {
     backgroundColor: colors.red,
@@ -942,7 +1091,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.89,
     shadowRadius: 2,
     elevation: 5
-  }
+  },
+  imageContainer: {
+   
+    backgroundColor: '#000000',
+    height: Dimensions.get('window').height /5,
+    width: Dimensions.get('window').height /5,
+    marginHorizontal: 50,
+    borderRadius: 120
+  },
+  backgroundImage: {
+   flex: 1,
+  },
 });
 
 export default DashboardScreen;

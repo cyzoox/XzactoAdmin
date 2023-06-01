@@ -423,9 +423,13 @@ const onCreateAddons = (item) => {
                     </TouchableOpacity>
                 }
                 rightComponent={
+                  user_info[0].no_of_products === products.length || user_info[0].no_of_products < products.length || user_info[0].no_of_products < product_holder.length ?
                     <TouchableOpacity onPress={()=> alertVisible(true)} style={{paddingRight: 20}}>
                         <Text style={{fontSize: 16, color:'#ffffff', fontWeight:'bold'}}>SAVE</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> :
+                    <TouchableOpacity onPress={()=> alertVisible(true)} style={{paddingRight: 20}}>
+                    <Text style={{fontSize: 16, color:'#ffffff', fontWeight:'bold'}}>SAVE</Text>
+                </TouchableOpacity>
                 }
          />
          {errorMsg.length !== 0 ? <Text style={{textAlign:'center', color: colors.red, fontWeight: '700'}}>{errorMsg}</Text>: null}

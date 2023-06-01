@@ -8,6 +8,8 @@ import { useStore } from "../context/StoreContext";
 import { ListItem, Avatar, CheckBox, Overlay, Button } from 'react-native-elements'
 import { TextInput } from "react-native-paper";
 import Alert from "../components/Alert";
+import SearchInput, { createFilter } from 'react-native-search-filter';
+const KEYS_TO_FILTERS = ['store_id'];
 
 const StaffsScreen = ({navigation, route}) => {
   const STORE =  route.params.store
@@ -27,6 +29,8 @@ const StaffsScreen = ({navigation, route}) => {
   const [upgrade_plan, setUpgradePlan] = useState(false)
   const keyExtractor = (item, index) => index.toString()
 
+  const filteredStaffs = staffs.filter(createFilter(STORE._id, KEYS_TO_FILTERS))
+
   const onEditStaff = (item) => {
     setName(item.name)
     setPassword(item.password)
@@ -42,7 +46,7 @@ const StaffsScreen = ({navigation, route}) => {
   }
   console.log(staffs)
   const renderItem = ({ item }) => (
-    item.store_id === STORE._id &&
+   
     <ListItem underlayColor='#f1f1f1' onPress={()=> onEditStaff(item)} bottomDivider containerStyle={styles.listStyle}>
     <Avatar containerStyle={{
           borderColor: 'grey',
@@ -71,7 +75,7 @@ const StaffsScreen = ({navigation, route}) => {
             </TouchableOpacity>
         }
         rightComponent={
-          user_info[0].no_of_cashiers === staffs.length || user_info[0].no_of_cashiers < staffs.length ?
+          user_info[0].no_of_cashiers === filteredStaffs.length || user_info[0].no_of_cashiers < filteredStaffs.length ?
           <TouchableOpacity onPress={()=>setUpgradePlan(true)}>
             <EvilIcons  name={'plus'} size={30} color={colors.white}/>
       </TouchableOpacity>:
@@ -80,7 +84,7 @@ const StaffsScreen = ({navigation, route}) => {
           />
          <FlatList
         keyExtractor={keyExtractor}
-        data={staffs}
+        data={filteredStaffs}
         renderItem={renderItem}
       />
         <Overlay
