@@ -1766,6 +1766,18 @@ const StoreProvider = ({ children, projectPartition }) => {
     });
   }
 
+  const updateUserInfo = ( info, user) => {
+    console.log(info)
+    const projectPOS = realmRef.current;
+    const getUserInfo= projectPOS.objects("UserInfo");
+    const filteredUserInfo= getUserInfo.filtered("owner_id == $0", user.id);
+    projectPOS.write(() => {
+      filteredUserInfo[0].name = info.name
+      filteredUserInfo[0].profile_img = info.img
+      filteredUserInfo[0].pin = info.pin
+    });
+  }
+
 
   
 
@@ -1886,7 +1898,8 @@ const StoreProvider = ({ children, projectPartition }) => {
             delivery_req_details,
             ReturnDelivery,
             ReturnSingleItem,
-            onUpdatePlan
+            onUpdatePlan,
+            updateUserInfo
           }}
         >
             {children}

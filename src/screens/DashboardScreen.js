@@ -1,5 +1,5 @@
 import React,{useEffect, useState} from "react";
-import { Text, StyleSheet, View, Dimensions , TouchableOpacity, Image, ScrollView, Alert } from "react-native";
+import { Text, StyleSheet, View, Dimensions , TouchableOpacity, Image, ScrollView,Pressable, TextInput as TextInput2 } from "react-native";
 import colors from "../themes/colors";
 import { useStore } from "../context/StoreContext";
 import formatMoney from 'accounting-js/lib/formatMoney.js'
@@ -8,6 +8,7 @@ const windowHeight = Dimensions.get('window').height;
 import { Divider, TextInput } from "react-native-paper";
 import { useAuth } from "../context/AuthContext";
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 // import Loader from "../components/Loader";
 import app from "../../getRealmApp";
 import moment from 'moment'
@@ -18,7 +19,35 @@ import AlertwithChild3 from "../components/AlertwithChild3";
 const { width: ScreenWidth } = Dimensions.get("screen");
 import SearchInput, { createFilter } from 'react-native-search-filter';
 import * as ImagePicker from "react-native-image-picker"
+import { ModalInputForm } from "../components/ModalInputForm";
+import Alert from "../components/Alert";
 const KEYS_TO_FILTERS = ['date'];
+
+export const useTogglePasswordVisibility = () => {
+
+  const [passwordVisibility, setPasswordVisibility] = useState(true);
+  const [rightIcon, setRightIcon] = useState('eye');
+
+
+
+  const handlePasswordVisibility = () => {
+    if (rightIcon === 'eye') {
+      setRightIcon('eye-off');
+      setPasswordVisibility(!passwordVisibility);
+    } else if (rightIcon === 'eye-off') {
+      setRightIcon('eye');
+      setPasswordVisibility(!passwordVisibility);
+    }
+  };
+
+  return {
+    passwordVisibility,
+    rightIcon,
+    handlePasswordVisibility
+  };
+};
+
+
 const DashboardScreen = ({navigation}) => {
   const {user,signOut, projectData} = useAuth();
   const { 
@@ -30,7 +59,8 @@ const DashboardScreen = ({navigation}) => {
     user_info,
     onCreateUserPlan,
     staffs,
-    onUpdatePlan
+    onUpdatePlan,
+    updateUserInfo
   } = useStore();
 // Access a logged in user's read-only custom data
 const [sub_alert, setSubsciptionAlert] = useState(false)
@@ -62,6 +92,14 @@ const today =  `${moment.unix(date).format('MMMM DD, YYYY')}`;
 const [edit_profile, setEditProfile] = useState(false);
 const [img,setImg] = useState('')
 const [item,setItem] = useState([])
+const [name, setName] = useState('')
+const [upin, setUpin] = useState('')
+const { passwordVisibility, rightIcon, handlePasswordVisibility } =
+useTogglePasswordVisibility();
+const [password, setPassword] = useState('');
+const [oldPin, setOldPIN] = useState('');
+const [newPin, setNewPIN] =useState('')
+const [visible, setVisible] =useState(false)
 
 const filteredTransaction = transactions.filter(createFilter(today, KEYS_TO_FILTERS))
 const filteredExpenses= expenses.filter(createFilter(today, KEYS_TO_FILTERS))
@@ -436,8 +474,7 @@ function checkProductInput(input) {
             let data = await r.json()
             let photo = 'https'+data.url.slice(4)
             setImg('https'+data.url.slice(4))
-            onSaveImg(photo)
-
+            
         }).catch(error =>{
             console.log('error : ', error)
         })
@@ -446,17 +483,40 @@ function checkProductInput(input) {
 
   
 }
+
+  const onUpdateUserInfo = () => {
+      let new_user__info = {
+        img : img,
+        name: name,
+        pin: upin
+      }
+
+      updateUserInfo(new_user__info,user)
+      setEditProfile(false)
+  }
+
+  const onChangePIN = () => {
+    if(upin !== oldPin){
+      return setVisible(true)
+    }
+    setUpin(newPin)
+  }
+  
+
+
   return (
+    
     <View style={{flex: 1}}>
       {/* <Loader loading={loading}/> */}
+     
       <AlertwithChild3
           visible={edit_profile}
-          onProceed={()=>{}}
+          onProceed={()=> onUpdateUserInfo()}
           title="Edit Profile"
           confirmTitle="Save"
           onCancel={()=> setEditProfile(false)}
         >
-          <Text style={{color: colors.red, textAlign:'center'}}>Note: Develoment in progress, currently not working.</Text>
+         
           <View style={{justifyContent:"center", alignItems:"center"}}>
           <TouchableOpacity onPress={()=> openGallery()} style={styles.imageContainer}>
               <Image resizeMode="contain" source={{ uri: img }} style={styles.backgroundImage}/>
@@ -465,20 +525,59 @@ function checkProductInput(input) {
           </View>
           <View style={{marginHorizontal: 20, marginTop: 20, marginBottom: 20 }}>
           <TextInput 
-            onChangeText={(text)=> setUserName(text)}
-            defaultValue={item.name}
+         
+           value={name}
             mode="outlined"
-            label="Set name"
+            onChangeText={(text)=> setName(text)}
+            label="Name"
             style={{height: 50}}
           />
-           <TextInput 
-            onChangeText={(text)=> setUserName(text)}
-            mode="outlined"
-            label="Change PIN"
-            style={{height: 50}}
-          />
+              <View style={styles.inputContainer}>
+        <TextInput2
+          style={styles.inputField}
+          mode='outlined'
+          name="password"
+          placeholder="Enter password"
+          editable={false}
+          autoCapitalize="none"
+          autoCorrect={false}
+          textContentType="newPassword"
+          secureTextEntry={passwordVisibility}
+          value={upin}
+          enablesReturnKeyAutomatically
+          onChangeText={text => setPassword(text)}
+        />
+          <Pressable onPress={handlePasswordVisibility}>
+          <MaterialCommunityIcons name={rightIcon} size={22} color="#232323" />
+        </Pressable>
+       
+        <ModalInputForm
+              displayComponent={
+                  <>
+                  <View style={{padding:5, backgroundColor: colors.accent, borderRadius: 15, marginLeft: 10}}>
+                    <Text style={{color: colors.white}}>Change PIN</Text>
+                  </View>
+                  </>
+              }
+              title="Change PIN"
+              onSave={()=> onChangePIN()}
+            >
+             <TextInput
+              label={'Enter old pin'}
+              onChangeText={(text)=> setOldPIN(text)}
+              mode="outlined"
+             />
+              <TextInput
+              label={'Enter new pin'}
+              onChangeText={(text)=> setNewPIN(text)}
+              mode="outlined"
+             />
+      </ModalInputForm>
+      </View>
+      <Text></Text>
           </View>
         </AlertwithChild3>
+        <Alert visible={visible} onCancel={()=> setVisible(false)} onProceed={()=> setVisible(false)}  title="Incorrect  PIN" content="Please try again!" confirmTitle="OK"/>
         <AlertwithChild3
           visible={alert_visible}
           onProceed={()=>{navigation.goBack(), user.logOut()}}
@@ -663,7 +762,7 @@ function checkProductInput(input) {
                         <View>
                             <Avatar 
                               size={'medium'} 
-                              source={require('../../assets/user.png')}
+                              source={item.profile_img == null ? require('../../assets/user.png'): {uri: item.profile_img}}
                               avatarStyle={{borderRadius: 30,borderColor: colors.primary, borderWidth: 1}} />
                         </View>
                     </View>
@@ -676,7 +775,7 @@ function checkProductInput(input) {
                           title="Change Subscription" 
                           type="outline"/>
                         <Button 
-                          onPress={()=> setEditProfile(true)} 
+                          onPress={()=> {setEditProfile(true), setName(item.name), setImg(item.profile_img), setUpin(item.pin)}} 
                           buttonStyle={{borderColor:colors.coverDark, borderRadius: 20, paddingHorizontal: 10, marginTop: 5}} 
                           titleStyle={{color:colors.primary, fontSize:13}} 
                           title="Edit Profile" 
@@ -1093,7 +1192,8 @@ const styles = StyleSheet.create({
     elevation: 5
   },
   imageContainer: {
-   
+    justifyContent:"center",
+    alignItems:"center",
     backgroundColor: '#000000',
     height: Dimensions.get('window').height /5,
     width: Dimensions.get('window').height /5,
@@ -1102,7 +1202,28 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
    flex: 1,
+   height: Dimensions.get('window').height /5,
+   width: Dimensions.get('window').height /5,
+   marginHorizontal: 50,
+   borderRadius: 120
   },
+  inputContainer: {
+    backgroundColor: 'white',
+ 
+    borderRadius: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.black,
+    marginTop: 10,
+   
+     borderColor:colors.boldGrey
+  },
+  inputField: {
+    borderRadius: 5,
+    backgroundColor: colors.white,
+    width: '48%', marginLeft: 10
+  }
 });
 
 export default DashboardScreen;
