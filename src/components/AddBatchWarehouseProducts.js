@@ -248,8 +248,8 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                 </View>
              </View>
          </View>
-         <ScrollView contentContainerStyle={{flex: 1}}>
-          <ScrollView horizontal contentContainerStyle={{flexDirection:'column', marginTop: 20}}>
+         <ScrollView>
+          <ScrollView showsHorizontalScrollIndicator horizontal contentContainerStyle={{flexDirection:'column', marginTop: 20}}>
           <View style={{flexDirection:'row'}}>
           <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}></Text>
           <Text style={{width: 50, textAlign:'center', marginHorizontal:2, fontWeight:'700'}}>Image</Text>
@@ -324,7 +324,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                 placeholderTextColor='red'
                 disableFullscreenUI={true}
                 defaultValue={element.name}
-
+                multiline={true}
                 onEndEditing={(e) => {
                     element.name = e.nativeEvent.text;
                     setProductHolder([...product_holder]);
@@ -362,6 +362,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                 placeholderTextColor='red'
                 disableFullscreenUI={true}
                 defaultValue={`${element.brand}`}
+                multiline={true}
                 onEndEditing={(e) => {
                    element.brand = e.nativeEvent.text;
                    setProductHolder([...product_holder]);
@@ -375,6 +376,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                 placeholderTextColor='red'
                 disableFullscreenUI={true}
                 keyboardType="numeric"
+                multiline={true}
                 defaultValue={`${element.qty}`}
                 onEndEditing={(e) => {
                    element.qty = e.nativeEvent.text;
@@ -404,6 +406,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                 underlineColorAndroid = 'transparent'
                 placeholderTextColor='red'
                 keyboardType="numeric"
+                multiline={true}
                 disableFullscreenUI={true}
                 defaultValue={`${element.oprice}`}
               onEndEditing={(e) => {
@@ -420,6 +423,7 @@ const AddBatchWarehouseProducts = ({navigation,route}) => {
                 disableFullscreenUI={true}
                 defaultValue={`${element.sprice}`}
                 keyboardType="numeric"
+                multiline={true}
                 onEndEditing={(e) => {
                    element.sprice = e.nativeEvent.text;
                    setProductHolder([...product_holder]);

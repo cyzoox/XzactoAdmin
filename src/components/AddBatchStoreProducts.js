@@ -23,7 +23,7 @@ const units = ["Kilo", "Gram", "Piece", "Liter","Bundle", "Dozen", "Whole", "Hal
 const AddBatchStoreProducts = ({navigation,route}) => {
     const store = route.params.store;
     const {user} = useAuth();
-    const {createProducts,products, category,createDeliveryReport, createStoreDeliverySummary, suppliers} = useStore();
+    const {createProducts,products, category,createDeliveryReport, createStoreDeliverySummary, suppliers, user_info} = useStore();
     const [product_holder, setProductHolder] = useState([
         {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4(), pr_id:uuid.v4(), addons:[], variants:[], options:[], withAddons: false, withOptions: false, withVariants: false,img: 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'},
         {"no": uuid.v4(), "name": '', 'brand': '', 'qty': 0, 'unit': '', 'oprice': 0, 'sprice': 0, category:'', id: uuid.v4(), pr_id:uuid.v4(), addons:[], variants:[],  options:[], withAddons: false, withOptions: false, withVariants: false, img: 'https://res.cloudinary.com/sbpcmedia/image/upload/v1652251290/pdn5niue9zpdazsxkwuw.png'}
