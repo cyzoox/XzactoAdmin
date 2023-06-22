@@ -21,6 +21,15 @@ import SearchInput, { createFilter } from 'react-native-search-filter';
 import * as ImagePicker from "react-native-image-picker"
 import { ModalInputForm } from "../components/ModalInputForm";
 import Alert from "../components/Alert";
+import Xendit from 'xendit-node';
+
+const xendit = new Xendit({
+  secretKey: 'xnd_development_P0aMZIKczX71NvK381IuzuedI2JEeyiKSpd6MJyoEm8v6KF2un2k6IQfyQ2uzBQ',
+});
+
+const { EWallet } = xendit;
+const ewalletSpecificOptions = {};
+const ew = new EWallet(ewalletSpecificOptions);
 const KEYS_TO_FILTERS = ['date'];
 
 export const useTogglePasswordVisibility = () => {
@@ -119,7 +128,22 @@ useEffect(
    
   );
 
-
+      const gcashCarge = async() => {
+        const resp = await ew.createEWalletCharge({
+          referenceID: 'test-reference-id',
+          currency: 'PHP',
+          amount: 1000,
+          checkoutMethod: 'ONE_TIME_PAYMENT',
+          channelCode: 'ID_GCASH',
+          channelProperties: {
+            successRedirectURL: 'https://dashboard.xendit.co/register/1',
+          },
+          metadata: {
+            branch_code: 'tree_branch'
+          }
+        });
+        console.log(resp);
+      }
   
   // const calculateTotalCapital = () => {
   //   let total = 0
@@ -502,7 +526,6 @@ function checkProductInput(input) {
     setUpin(newPin)
   }
   
-
 
   return (
     
@@ -997,6 +1020,25 @@ function checkProductInput(input) {
         isSelected={plan3}
         timePostfix="/mo"
         onPress={() =>  {setPlan0(false), setPlan1(false), setPlan2(false), setPlan3(true)}}
+        containerStyle={{backgroundColor: colors.primary, borderRadius:10, borderColor:colors.grey}}
+        outerContainerStyle={{borderColor:colors, backgroundColor:colors.grey}}
+        selectedContainerStyle={{backgroundColor:colors.compliment}}
+        selectedOuterContainerStyle={{backgroundColor:colors.compliment, borderColor: colors.primary}}
+        selectedDescriptionPriceTextStyle={{color: colors.primary}}
+        selectedPriceTextStyle={{color: colors.primary}}
+        selectedCurrencyTextStyle={{color: colors.primary}}
+        priceTextStyle={{color: colors.white}}
+        descriptionPriceTextStyle={{color: colors.white}}
+        currencyTextStyle={{color: colors.white}}
+      />
+    <SubscribeCard
+        title="GCASH PLAN"
+        currency="₱"
+        description="customize your plan"
+        price={819.02}
+        isSelected={plan3}
+        timePostfix="/mo"
+        onPress={() => gcashCarge()}
         containerStyle={{backgroundColor: colors.primary, borderRadius:10, borderColor:colors.grey}}
         outerContainerStyle={{borderColor:colors, backgroundColor:colors.grey}}
         selectedContainerStyle={{backgroundColor:colors.compliment}}
