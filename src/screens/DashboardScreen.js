@@ -1,5 +1,5 @@
 import React,{useEffect, useState} from "react";
-import { Text, StyleSheet, View, Dimensions , TouchableOpacity, Image, ScrollView,Pressable, TextInput as TextInput2 } from "react-native";
+import { Text, StyleSheet, View, Dimensions , TouchableOpacity, Image, ScrollView,Pressable, TextInput as TextInput2, Linking  } from "react-native";
 import colors from "../themes/colors";
 import { useStore } from "../context/StoreContext";
 import formatMoney from 'accounting-js/lib/formatMoney.js'
@@ -22,14 +22,20 @@ import * as ImagePicker from "react-native-image-picker"
 import { ModalInputForm } from "../components/ModalInputForm";
 import Alert from "../components/Alert";
 import Xendit from 'xendit-node';
+import { Buffer } from 'buffer';
+
+
 
 const xendit = new Xendit({
   secretKey: 'xnd_development_P0aMZIKczX71NvK381IuzuedI2JEeyiKSpd6MJyoEm8v6KF2un2k6IQfyQ2uzBQ',
 });
+global.Buffer = Buffer;
+
 
 const { EWallet } = xendit;
-const ewalletSpecificOptions = {};
-const ew = new EWallet(ewalletSpecificOptions);
+const ew = new EWallet();
+
+
 const KEYS_TO_FILTERS = ['date'];
 
 export const useTogglePasswordVisibility = () => {
@@ -129,20 +135,33 @@ useEffect(
   );
 
       const gcashCarge = async() => {
-        const resp = await ew.createEWalletCharge({
-          referenceID: 'test-reference-id',
-          currency: 'PHP',
+   try{
+        const resp = {
+          externalID: 'test-external-id',
           amount: 1000,
+          phone: '09507043865',
+          eWalletType: 'GCASH',
+          referenceID: 'test-001-22',
+          currency: 'PHP',
           checkoutMethod: 'ONE_TIME_PAYMENT',
-          channelCode: 'ID_GCASH',
+          channelCode: 'PH_GCASH',
           channelProperties: {
             successRedirectURL: 'https://dashboard.xendit.co/register/1',
+            failureRedirectURL: 'https://dashboard.xendit.co/login'
           },
-          metadata: {
-            branch_code: 'tree_branch'
-          }
-        });
-        console.log(resp);
+          callbackURL: 'https://demo.xendit.co/',
+        };
+        const chargeResponse = await ew.createEWalletCharge(resp);
+
+          console.log(chargeResponse)
+          // Redirect the user to the GCash payment link
+          const gcashPaymentLink = chargeResponse.actions.mobile_web_checkout_url;
+          Linking.openURL(gcashPaymentLink);
+       
+      } catch (error) {
+        // Handle error if the charge creation fails
+        console.log('Error creating eWallet charge:', error);
+      }
       }
   
   // const calculateTotalCapital = () => {
